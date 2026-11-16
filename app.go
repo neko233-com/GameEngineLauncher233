@@ -311,18 +311,8 @@ func (a *app) view(c *ui.Context) {
 			ui.Text(c, locales.AppTitle()).FontSize(12).TextColor(t.TextMuted).SingleLine()
 		})
 		ui.Row(c).Grow(1).MinHeight(0).AlignItems(ui.Stretch).Children(func() {
-			ui.Column(c).Fill().Width(68).Background(ui.Hex("#202021")).Padding(12, 4).Gap(12).Children(func() {
-				a.engineTab(c, kindUnity)
-				a.engineTab(c, kindTuanjie)
-			})
 			ui.Column(c).Fill().Width(220).MinHeight(0).Background(t.Surface).Children(func() {
-				{
-					s := a.engineStrategy()
-					ui.Row(c).Padding(20, 16, 16, 16).Gap(10).AlignItems(ui.Center).Children(func() {
-						ui.Icon(c, s.Icon).Size(24, 24).TextColor(s.Accent)
-						ui.Text(c, channelName(a.activeEngine)).FontSize(15).Bold()
-					})
-				}
+				a.engineSwitcherRow(c)
 				ui.Sidebar(c, &a.page, func() {
 					projects, installs, downloads, favorites := enginePages(a.activeEngine)
 					a.engineNavigation(c, a.activeEngine, projects, installs, downloads, favorites)
@@ -400,31 +390,55 @@ func enginePages(engine string) (string, string, string, string) {
 	return s.Pages.Projects, s.Pages.Installs, s.Pages.Downloads, s.Pages.Favorites
 }
 
-func (a *app) engineTab(c *ui.Context, engine string) {
-	s := engineStrategyFor(engine)
-	active := engine == a.activeEngine
+// engineSwitcherRow is the Tuanjie-Hub-style engine picker at the top of
+// the navigation column: two compact brand icons (current engine big, the
+// other smaller) plus the current engine's name underneath.
+func (a *app) engineSwitcherRow(c *ui.Context) {
 	t := c.Theme()
+	engines := []string{kindUnity, kindTuanjie}
+	// Put the active engine on the left (Tuanjie Hub style).
+	activeIdx := 0
+	for i, e := range engines {
+		if e == a.activeEngine {
+			activeIdx = i
+			break
+		}
+	}
+	ordered := append([]string(nil), engines[activeIdx:]...)
+	ordered = append(ordered, engines[:activeIdx]...)
 
-	ui.Column(c).Gap(4).AlignItems(ui.Center).Padding(2).Children(func() {
-		if ui.Button(c, s.ShortName).Size(56, 56).Padding(0).Tooltip(s.Name).Children(func() {
-			color := t.TextMuted
-			bg := ui.Hex("#1a1b1e")
-			if active {
-				color = ui.Hex("#ffffff")
-				bg = s.BgActive
+	ui.Column(c).Padding(16, 14, 14, 14).Gap(10).Children(func() {
+		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
+			for i, engine := range ordered {
+				engine := engine
+				s := engineStrategyFor(engine)
+				active := i == 0 // first slot is always active
+				label := channelName(engine)
+				if active {
+					ui.Button(c, "").Size(42, 42).Padding(0).Label(label).Tooltip(s.Name).Children(func() {
+						ui.Box(c).Size(42, 42).Radius(10).Background(s.Accent).Center().Children(func() {
+							ui.Icon(c, s.Icon).Size(22, 22).TextColor(ui.Hex("#ffffff"))
+						})
+					}).OnClick(func() { a.switchEngine(engine) })
+				} else {
+					ui.Button(c, "").Size(28, 28).Padding(0).Label(label).Tooltip(s.Name).Children(func() {
+						ui.Box(c).Size(28, 28).Radius(7).Background(t.SurfaceHover).Center().Children(func() {
+							ui.Icon(c, s.Icon).Size(16, 16).TextColor(t.TextMuted)
+						})
+					}).OnClick(func() { a.switchEngine(engine) })
+				}
 			}
-			ui.Box(c).Size(48, 48).Radius(12).Background(bg).Center().Children(func() {
-				ui.Icon(c, s.Icon).Size(28, 28).TextColor(color)
-			})
-		}).Clicked() {
-			a.switchEngine(engine)
-		}
-		labelColor := t.TextMuted
-		if active {
-			labelColor = ui.Hex("#ffffff")
-		}
-		ui.Text(c, s.ShortName).FontSize(9).TextColor(labelColor).TextAlign(ui.Center)
+			ui.Spacer(c)
+		})
+		// Current engine brand title (mirrors Tuanjie Hub's bold name below
+		// the switcher row).
+		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+			s := a.engineStrategy()
+			ui.Icon(c, s.Icon).Size(18, 18).TextColor(s.Accent)
+			ui.Text(c, channelName(a.activeEngine)).FontSize(14).Bold()
+		})
 	})
+	ui.Divider(c)
 }
 
 func (a *app) switchEngine(engine string) {

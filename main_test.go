@@ -637,7 +637,7 @@ func TestEngineGroupsStaySeparateAndSorted(t *testing.T) {
 	if !tt.HasText("demo") || tt.HasText("cozy") {
 		t.Fatalf("Unity projects: %q", tt.Texts())
 	}
-	if err := tt.Click("T"); err != nil {
+	if err := tt.Click(channelName(kindTuanjie)); err != nil {
 		t.Fatal(err)
 	}
 	if !tt.HasText("cozy") || tt.HasText("demo") {
@@ -663,7 +663,7 @@ func TestEngineGroupsStaySeparateAndSorted(t *testing.T) {
 	if len(gotDownloads) != 3 || gotDownloads[0].Version != "6000.3.28f1" || gotDownloads[1].Version != "6000.3.28b99" {
 		t.Fatalf("download order: %+v", gotDownloads)
 	}
-	if err := tt.Click("U"); err != nil {
+	if err := tt.Click(channelName(kindUnity)); err != nil {
 		t.Fatal(err)
 	}
 	if err := tt.Click(locales.SidebarProjects()); err != nil {
