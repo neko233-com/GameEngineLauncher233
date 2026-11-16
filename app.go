@@ -315,31 +315,55 @@ func (a *app) view(c *ui.Context) {
 				a.engineSwitcherRow(c)
 				ui.Sidebar(c, &a.page, func() {
 					projects, installs, downloads, favorites := enginePages(a.activeEngine)
-					a.engineNavigation(c, a.activeEngine, projects, installs, downloads, favorites)
-					sidebarSection(c, locales.SidebarServices(), nil, func() {
-						sidebarItem(c, pageStore, iconStore, locales.PageStore())
-						sidebarItem(c, pagePublish, iconPublish, locales.PagePublish())
-						sidebarItem(c, pageLicense, iconLicense, locales.PageLicense())
-					})
-					sidebarSection(c, locales.SidebarHelp(), nil, func() {
-						sidebarItem(c, pageDocs, iconDocs, locales.PageDocs())
-						sidebarItem(c, pageLearn, iconLearn, locales.PageLearn())
-						sidebarItem(c, pageFeedback, iconFeedback, locales.PageFeedback())
-					})
-				}).Grow(1).Shrink(1).MinHeight(0)
-				ui.Divider(c)
-				ui.Column(c).Shrink(0).Children(func() {
-					ui.Sidebar(c, &a.page, func() {
-						sidebarItem(c, pageActivity, iconDownload, locales.ActivityTitle()).Children(func() {
-							n := a.workspaceTaskCount()
+					countBadge := func(n int) func() {
+						return func() {
 							if n > 0 {
 								ui.Badge(c, fmt.Sprint(n))
 							}
-						})
-						sidebarItem(c, pageSettings, iconSettings, locales.SidebarSettings())
+						}
+					}
+					engineCount := func() int {
+						count := 0
+						for _, p := range a.projects {
+							if p.Kind == a.activeEngine && !a.projectHidden(p.Path) {
+								count++
+							}
+						}
+						return count
+					}
+					installCount := func() int {
+						count := 0
+						for _, e := range a.editors {
+							if e.Kind == a.activeEngine {
+								count++
+							}
+						}
+						return count
+					}
+					// Tuanjie Hub flat sidebar (no sections). Order matches the
+					// reference: Projects → Installs → Learn → Store → Publish
+					// → License → Activity → Settings. Favorites is preserved as
+					// our own addition (not in the reference).
+					sidebarItem(c, projects, iconProjects, locales.SidebarProjects()).Children(countBadge(engineCount()))
+					sidebarItem(c, installs, iconInstalls, locales.SidebarInstalls()).Children(countBadge(installCount()))
+					sidebarItem(c, favorites, iconFavorite, locales.SidebarFavorites())
+					sidebarItem(c, downloads, iconDownload, locales.SidebarDownloads())
+					sidebarItem(c, pageActivity, iconDownload, locales.ActivityTitle()).Children(func() {
+						n := a.workspaceTaskCount()
+						if n > 0 {
+							ui.Badge(c, fmt.Sprint(n))
+						}
 					})
-					a.licenseStatusStrip(c)
-				})
+					sidebarItem(c, pageStore, iconStore, locales.PageStore())
+					sidebarItem(c, pagePublish, iconPublish, locales.PagePublish())
+					sidebarItem(c, pageLicense, iconLicense, locales.PageLicense())
+					sidebarItem(c, pageLearn, iconLearn, locales.PageLearn())
+					sidebarItem(c, pageDocs, iconDocs, locales.PageDocs())
+					sidebarItem(c, pageFeedback, iconFeedback, locales.PageFeedback())
+					sidebarItem(c, pageSettings, iconSettings, locales.SidebarSettings())
+				}).Grow(1).Shrink(1).MinHeight(0)
+				ui.Divider(c)
+				a.licenseStatusStrip(c)
 			})
 			ui.Column(c).Grow(1).MinWidth(0).MinHeight(0).Fill().Children(func() {
 				a.unityLicenseBanner(c)
