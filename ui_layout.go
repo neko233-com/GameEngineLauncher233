@@ -59,3 +59,36 @@ func (a *app) searchEmpty(c *ui.Context, clear func()) {
 		ui.Button(c, locales.SearchClear()).OnClick(clear)
 	})
 }
+
+// licenseStatusStrip is the compact footer card under the sidebar navigation.
+// Tuanjie Hub uses a small row: label + colored dot + status text.
+func (a *app) licenseStatusStrip(c *ui.Context) {
+	t := c.Theme()
+	s := a.engineStrategy()
+
+	label := locales.LicenseStateUnknown()
+	color := ui.Hex("#888888")
+	if !s.NeedsLicenseFlow {
+		label = locales.LicenseStateFree()
+		color = ui.Hex("#4CAF50")
+	} else {
+		switch a.licenseCheckState {
+		case "active":
+			label = locales.LicenseStateActive()
+			color = ui.Hex("#4CAF50")
+		case "inactive":
+			label = locales.LicenseStateInactive()
+			color = ui.Hex("#E4002B")
+		default:
+			label = locales.LicenseStateUnknown()
+			color = ui.Hex("#888888")
+		}
+	}
+
+	ui.Row(c).Padding(10, 12, 12, 12).Gap(8).AlignItems(ui.Center).Children(func() {
+		ui.Text(c, locales.SidebarLicenseLabel()).FontSize(11).TextColor(t.TextMuted)
+		ui.Spacer(c)
+		ui.Box(c).Size(8, 8).Radius(4).Background(color).Tooltip(label)
+		ui.Text(c, label).FontSize(11).TextColor(t.Text)
+	})
+}

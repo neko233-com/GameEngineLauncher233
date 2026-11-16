@@ -1552,6 +1552,56 @@ func (msgs Messages) SidebarDownloads() string {
 	return Catalog.Format(msgs.locale, "sidebarDownloads", nil)
 }
 
+// SidebarLicenseLabel says "License"
+// in the language the app shows.
+func SidebarLicenseLabel() string { return In(i18n.Locale()).SidebarLicenseLabel() }
+
+// SidebarLicenseLabel says "License"
+// in the language of msgs.
+func (msgs Messages) SidebarLicenseLabel() string {
+	return Catalog.Format(msgs.locale, "sidebarLicenseLabel", nil)
+}
+
+// LicenseStateActive says "Activated"
+// in the language the app shows.
+func LicenseStateActive() string { return In(i18n.Locale()).LicenseStateActive() }
+
+// LicenseStateActive says "Activated"
+// in the language of msgs.
+func (msgs Messages) LicenseStateActive() string {
+	return Catalog.Format(msgs.locale, "licenseStateActive", nil)
+}
+
+// LicenseStateInactive says "Inactive"
+// in the language the app shows.
+func LicenseStateInactive() string { return In(i18n.Locale()).LicenseStateInactive() }
+
+// LicenseStateInactive says "Inactive"
+// in the language of msgs.
+func (msgs Messages) LicenseStateInactive() string {
+	return Catalog.Format(msgs.locale, "licenseStateInactive", nil)
+}
+
+// LicenseStateUnknown says "Not verified"
+// in the language the app shows.
+func LicenseStateUnknown() string { return In(i18n.Locale()).LicenseStateUnknown() }
+
+// LicenseStateUnknown says "Not verified"
+// in the language of msgs.
+func (msgs Messages) LicenseStateUnknown() string {
+	return Catalog.Format(msgs.locale, "licenseStateUnknown", nil)
+}
+
+// LicenseStateFree says "Free"
+// in the language the app shows.
+func LicenseStateFree() string { return In(i18n.Locale()).LicenseStateFree() }
+
+// LicenseStateFree says "Free"
+// in the language of msgs.
+func (msgs Messages) LicenseStateFree() string {
+	return Catalog.Format(msgs.locale, "licenseStateFree", nil)
+}
+
 // PageDownloads says "Downloads"
 // in the language the app shows.
 func PageDownloads() string { return In(i18n.Locale()).PageDownloads() }

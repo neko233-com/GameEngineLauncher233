@@ -338,15 +338,18 @@ func (a *app) view(c *ui.Context) {
 					})
 				}).Grow(1).Shrink(1).MinHeight(0)
 				ui.Divider(c)
-				ui.Sidebar(c, &a.page, func() {
-					sidebarItem(c, pageActivity, iconDownload, locales.ActivityTitle()).Children(func() {
-						n := a.workspaceTaskCount()
-						if n > 0 {
-							ui.Badge(c, fmt.Sprint(n))
-						}
+				ui.Column(c).Shrink(0).Children(func() {
+					ui.Sidebar(c, &a.page, func() {
+						sidebarItem(c, pageActivity, iconDownload, locales.ActivityTitle()).Children(func() {
+							n := a.workspaceTaskCount()
+							if n > 0 {
+								ui.Badge(c, fmt.Sprint(n))
+							}
+						})
+						sidebarItem(c, pageSettings, iconSettings, locales.SidebarSettings())
 					})
-					sidebarItem(c, pageSettings, iconSettings, locales.SidebarSettings())
-				}).Height(88).Shrink(0)
+					a.licenseStatusStrip(c)
+				})
 			})
 			ui.Column(c).Grow(1).MinWidth(0).MinHeight(0).Fill().Children(func() {
 				a.unityLicenseBanner(c)

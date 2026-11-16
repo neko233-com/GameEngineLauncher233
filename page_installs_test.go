@@ -45,12 +45,23 @@ func TestInstalledCardShowsCompactModulesAndCompleteList(t *testing.T) {
 		if !tt.HasText("Android") || !tt.HasText("iOS") || !tt.HasText("Windows") || !tt.HasText("+11") {
 			t.Fatalf("compact module summary missing at %d: %q", width, tt.Texts())
 		}
-		for _, label := range []string{locales.InstallsLaunch(), locales.ActionFolder(), locales.InstallManage(), "+11"} {
+		// Tuanjie Hub pattern: each card keeps one gear inside its bounds;
+		// launch / reveal / manage live in the gear's popover menu.
+		for _, label := range []string{locales.InstallManage(), "+11"} {
 			bounds, ok := tt.Find(label)
 			if !ok || bounds.X < 288 || bounds.X+bounds.W > float32(width) {
 				t.Fatalf("control %q outside card at %d: %+v, %v", label, width, bounds, ok)
 			}
 		}
+		if err := tt.Click(locales.InstallManage()); err != nil {
+			t.Fatal(err)
+		}
+		for _, label := range []string{locales.InstallsLaunch(), locales.ActionFolder()} {
+			if !tt.HasText(label) {
+				t.Fatalf("gear menu must expose %q at %d: %q", label, width, tt.Texts())
+			}
+		}
+		tt.Key(0, ui.KeyEscape)
 		if err := tt.Click("+11"); err != nil {
 			t.Fatal(err)
 		}

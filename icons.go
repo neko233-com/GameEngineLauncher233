@@ -21,4 +21,7 @@ var (
 	iconDocs     = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M11 5.5V20c-1.6-1.3-3.3-2-5.5-2H4V4h1.5c2.2 0 3.9.5 5.5 1.5zm2 0C14.6 4.5 16.3 4 18.5 4H20v14h-1.5c-2.2 0-3.9.7-5.5 2V5.5z"/></svg>`))
 	iconFeedback = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2zm3 5v2h10V9H7zm0 4v2h7v-2H7z"/></svg>`))
 	iconDownload = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M11 3h2v8.2l2.9-2.9 1.4 1.4L12 15l-5.3-5.3 1.4-1.4L11 11.2V3zM4 17h16v2H4v-2z"/></svg>`))
+	// iconGear is the per-card management cog, matching the Tuanjie Hub
+	// install card's single gear affordance.
+	iconGear = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.7 7.7 0 0 0 0-2l2.1-1.6-2-3.4-2.5 1a7.5 7.5 0 0 0-1.7-1L14.9 3H9.1l-.4 2.7a7.5 7.5 0 0 0-1.7 1l-2.5-1-2 3.4L4.6 11a7.7 7.7 0 0 0 0 2l-2.1 1.6 2 3.4 2.5-1a7.5 7.5 0 0 0 1.7 1l.4 2.7h5.8l.4-2.7a7.5 7.5 0 0 0 1.7-1l2.5 1 2-3.4L19.4 13zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>`))
 )

@@ -15,15 +15,16 @@ func (a *app) installsPage(c *ui.Context) {
 	t := c.Theme()
 	engine := engineForPage(a.page)
 	editors := a.filteredEditors(engine)
+	// Tuanjie Hub layout: the title row carries the location picker and the
+	// primary "install editor" action; scanning stays automatic (hubChanged).
 	a.header(c, locales.InstallsTitle(), locales.InstallsCount(len(editors)), func() {
-		ui.Button(c, locales.ActionRefresh()).OnClick(a.refresh).Disabled(a.scanning)
-		ui.Button(c, locales.ActionAddFolder()).OnClick(a.addEditorRoot)
+		ui.Button(c, locales.InstallChooseLocation()).OnClick(a.chooseInstallRoot)
 		ui.PrimaryButton(c, locales.InstallEditor()).OnClick(func() { _, _, page, _ := enginePages(engine); a.page = page })
 	})
 	ui.Row(c).Padding(0, 24, 10, 24).Gap(8).AlignItems(ui.Center).Children(func() {
 		ui.Text(c, locales.SettingsInstallRoot()+":").FontSize(12).TextColor(t.TextMuted)
 		ui.Text(c, a.installRoot()).Grow(1).MinWidth(0).FontSize(12).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(a.installRoot())
-		ui.Button(c, locales.InstallChooseLocation()).OnClick(a.chooseInstallRoot)
+		ui.Button(c, locales.ActionAddFolder()).OnClick(a.addEditorRoot)
 	})
 	ui.Row(c).Padding(0, 24, 0, 24).Gap(6).Wrap().AlignItems(ui.Center).Children(func() {
 		for _, tab := range []struct{ id, label string }{{"", locales.InstallAll()}, {"official", locales.InstallOfficial()}, {"preview", locales.InstallPreview()}} {
@@ -40,9 +41,7 @@ func (a *app) installsPage(c *ui.Context) {
 		e := editors[i]
 		ui.Column(c).Padding(8, 24).Children(func() {
 			ui.Row(c).Padding(16).Gap(14).AlignItems(ui.Center).Background(t.Surface).Border(1, t.Border).Radius(6).Children(func() {
-				ui.Box(c).Size(44, 44).Shrink(0).Radius(6).Background(t.Background).Center().Children(func() {
-					ui.Icon(c, iconBrand).Size(26, 26).TextColor(t.TextMuted)
-				})
+				a.editorBrandLogo(c, e.Kind)
 				ui.Column(c).Grow(1).MinWidth(0).Gap(6).Children(func() {
 					ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 						version := displayVersion(e.Version, e.DisplayVersion)
@@ -67,29 +66,9 @@ func (a *app) installsPage(c *ui.Context) {
 						})
 					}
 				})
-				ui.Row(c).Gap(6).Shrink(0).Children(func() {
-					if e.Simulated {
-						if ui.Button(c, locales.ActionFolder()).Clicked() {
-							mygo.Shell.ShowItemInFolder(e.Exe)
-						}
-						if ui.Button(c, locales.ActionRemove()).Clicked() {
-							if err := removeSimulatedEditor(e.Root); err != nil {
-								a.alert(err.Error())
-							} else {
-								a.refresh()
-							}
-						}
-						return
-					}
-					if ui.PrimaryButton(c, locales.InstallsLaunch()).Disabled(a.uninstallBusy && strings.EqualFold(e.Exe, a.manageEditor.Exe)).Clicked() {
-						a.launchInstalledEditor(e)
-					}
-					if ui.Button(c, locales.ActionFolder()).Clicked() {
-						mygo.Shell.ShowItemInFolder(e.Exe)
-					}
-					otherBusy := (a.moduleBusy || a.moduleLoading || a.uninstallBusy || len(a.moduleQueue) > 0 || a.androidPlan != nil) && !strings.EqualFold(a.manageEditor.Exe, e.Exe)
-					ui.Button(c, locales.InstallManage()).Disabled(otherBusy).OnClick(func() { a.openEditorManagement(e) })
-				})
+				// Tuanjie Hub collapses every card action into one gear whose
+				// popover menu holds launch / reveal / manage (or remove).
+				a.editorCardGear(c, e)
 			})
 		})
 	}).Grow(1).Children(func() {
@@ -100,6 +79,51 @@ func (a *app) installsPage(c *ui.Context) {
 				a.emptyState(c, locales.InstallsEmptyTitle(), locales.InstallsEmptyHint())
 			}
 		}
+	})
+}
+
+// editorBrandLogo renders the engine-specific cube mark tinted with the
+// engine's brand color, mirroring the Tuanjie Hub install card logo.
+func (a *app) editorBrandLogo(c *ui.Context, kind string) {
+	s := engineStrategyFor(kind)
+	ui.Box(c).Size(44, 44).Shrink(0).Radius(6).Background(c.Theme().Background).Center().Children(func() {
+		ui.Icon(c, s.Icon).Size(26, 26).TextColor(s.Accent)
+	})
+}
+
+// editorCardGear is the single cog button on an install card. Its popover
+// menu keeps every former card action, so no capability is lost versus the
+// old three-button row.
+func (a *app) editorCardGear(c *ui.Context, e editorInstall) {
+	t := c.Theme()
+	menu := func(m *ui.Menu) {
+		if !e.Simulated {
+			launchBusy := a.uninstallBusy && strings.EqualFold(e.Exe, a.manageEditor.Exe)
+			if m.Item(locales.InstallsLaunch()).Disabled(launchBusy).Chosen() {
+				a.launchInstalledEditor(e)
+			}
+		}
+		if m.Item(locales.ActionFolder()).Chosen() {
+			mygo.Shell.ShowItemInFolder(e.Exe)
+		}
+		if e.Simulated {
+			if m.Item(locales.ActionRemove()).Chosen() {
+				if err := removeSimulatedEditor(e.Root); err != nil {
+					a.alert(err.Error())
+				} else {
+					a.refresh()
+				}
+			}
+			return
+		}
+		otherBusy := (a.moduleBusy || a.moduleLoading || a.uninstallBusy || len(a.moduleQueue) > 0 || a.androidPlan != nil) && !strings.EqualFold(a.manageEditor.Exe, e.Exe)
+		if m.Item(locales.InstallManage()).Disabled(otherBusy).Chosen() {
+			a.openEditorManagement(e)
+		}
+	}
+	ui.Button(c, "").Label(locales.InstallManage()).Tooltip(locales.InstallManage()).
+		Size(36, 36).Padding(0).PopoverMenuButton(menu).Children(func() {
+		ui.Icon(c, iconGear).Size(18, 18).TextColor(t.TextMuted)
 	})
 }
 
