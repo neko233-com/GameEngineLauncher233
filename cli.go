@@ -278,7 +278,13 @@ func cliOpen(args []string, scanFn func(prefs) scanResult, out io.Writer) int {
 		fmt.Fprintln(out, locales.ProjectEditorChanged())
 		return 1
 	}
-	if err := launchVersionCheckedEditor(p.Editor, matched.Version, launchArgs, filepath.Dir(p.Editor), startDetached); err != nil {
+	expectedVersion := matched.Version
+	if p.Kind == kindUnreal || p.Kind == kindGodot {
+		// These editors do not expose a reliable executable version check;
+		// the project/editor identity was already validated above.
+		expectedVersion = ""
+	}
+	if err := launchVersionCheckedEditor(p.Editor, expectedVersion, launchArgs, filepath.Dir(p.Editor), startDetached); err != nil {
 		if errors.Is(err, errEditorVersionChanged) {
 			fmt.Fprintln(out, locales.ProjectEditorChanged())
 			return 1

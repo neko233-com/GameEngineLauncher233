@@ -41,7 +41,10 @@ func epicLauncherManifestPath() string {
 }
 
 func scanUnrealEditors(roots []string) []editorInstall {
-	return scanUnrealEditorsIn(append(append([]string{}, roots...), knownUnrealDirs()...), epicLauncherManifestPath())
+	candidates := append([]string{}, roots...)
+	candidates = append(candidates, knownUnrealDirs()...)
+	candidates = append(candidates, unrealRegistryDirs()...)
+	return scanUnrealEditorsIn(candidates, epicLauncherManifestPath())
 }
 
 // scanUnrealEditorsIn is scanUnrealEditors with explicit roots and a

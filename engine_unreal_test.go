@@ -135,6 +135,41 @@ func TestStartupReloadKeepsEveryBuiltinEngine(t *testing.T) {
 	}
 }
 
+func TestScanUnrealEditorsReadsEpicManifestFromProgramData(t *testing.T) {
+	programData := filepath.Join(t.TempDir(), "ProgramData")
+	engineRoot := filepath.Join(programData, "UE_5.4")
+	exe := writeUnrealTestEditor(t, engineRoot, "5.4.4")
+	manifest := filepath.Join(programData, "Epic", "UnrealEngineLauncher", "LauncherInstalled.dat")
+	if err := os.MkdirAll(filepath.Dir(manifest), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	data, err := json.Marshal(map[string]any{
+		"InstallationList": []map[string]any{{
+			"InstallLocation": engineRoot,
+			"AppName":         "UE_5.4",
+			"AppVersion":      "5.4.4-123+UE5",
+		}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(manifest, data, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("ProgramData", programData)
+
+	editors := scanUnrealEditors(nil)
+	for _, editor := range editors {
+		if strings.EqualFold(editor.Exe, exe) {
+			if editor.Kind != kindUnreal || editor.Version != "5.4.4" {
+				t.Fatalf("manifest editor: %+v", editor)
+			}
+			return
+		}
+	}
+	t.Fatalf("manifest editor is missing: %+v", editors)
+}
+
 func TestNonInstallableInstallsPageExplainsItsScanRoots(t *testing.T) {
 	for _, tc := range []struct {
 		name   string

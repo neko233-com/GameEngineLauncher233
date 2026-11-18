@@ -3,11 +3,11 @@
 Status: **v1** (experimental, stable enough for community adapters)
 
 GameEngineLauncher233 is an engine manager, not a game engine front-end. Built-in
-adapters manage Unity and Tuanjie; every other engine is a removable adapter.
-The contract is deliberately small and process-based, in the spirit of a
-language server: a manifest teaches the launcher what pages an engine owns,
-and an optional JSON-RPC process teaches it how to detect and launch that
-engine's editors.
+adapters cover Unity, Tuanjie, Godot and Unreal Engine; every other engine is a
+removable adapter. The contract is deliberately small and process-based, in the
+spirit of a language server: a manifest teaches the launcher what pages an
+engine owns, and an optional JSON-RPC process teaches it how to detect and
+launch that engine's editors.
 
 ## 1. Model
 
@@ -57,11 +57,11 @@ or re-open Settings → Engine adapters. `adapter.json` must be the top file.
 ```json
 {
   "schemaVersion": 1,
-  "id": "godot",
-  "name": "Godot",
+  "id": "myengine",
+  "name": "My Engine",
   "version": "0.1.0",
-  "description": "Godot editor adapter",
-  "homepage": "https://github.com/example/GameEngineLauncher233-godot",
+  "description": "My Engine editor adapter",
+  "homepage": "https://github.com/example/GameEngineLauncher233-myengine",
   "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"...\"/></svg>",
   "brandIconSvg": "<svg ...>...</svg>",
   "features": {
@@ -71,27 +71,27 @@ or re-open Settings → Engine adapters. `adapter.json` must be the top file.
     "templates": false
   },
   "urls": {
-    "docs": "https://docs.godotengine.org/",
-    "community": "https://forum.godotengine.org/"
+    "docs": "https://example.com/docs",
+    "community": "https://example.com/community"
   },
   "pages": [
     {
       "id": "hub",
-      "title": "Godot",
+      "title": "My Engine",
       "kind": "links",
       "icon": "projects",
       "groups": [
         {
-          "title": "Godot",
+          "title": "My Engine",
           "links": [
-            {"title": "Documentation", "detail": "Official manual", "url": "https://docs.godotengine.org/"}
+            {"title": "Documentation", "detail": "Official manual", "url": "https://example.com/docs"}
           ]
         }
       ]
     }
   ],
   "process": {
-    "command": "bin/godot-adapter.exe",
+    "command": "bin/myengine-adapter.exe",
     "args": []
   }
 }
@@ -102,7 +102,7 @@ or re-open Settings → Engine adapters. `adapter.json` must be the top file.
 | field | required | notes |
 |---|---|---|
 | `schemaVersion` | yes | must be `1` |
-| `id` | yes | lowercase slug, `[a-z][a-z0-9._-]{1,63}`, not `unity`/`tuanjie`/`system` |
+| `id` | yes | lowercase slug, `[a-z][a-z0-9._-]{1,63}`, not `unity`/`tuanjie`/`godot`/`unreal`/`system`/`settings` |
 | `name` | yes | 1–80 characters; shown in the rail and title |
 | `version` | no | defaults to `0.1.0` |
 | `description` | no | shown in Settings |
@@ -135,10 +135,10 @@ or re-open Settings → Engine adapters. `adapter.json` must be the top file.
 - `publish`, `license`, `learn`, `docs`, `store`, `feedback` — native
   link-oriented pages. For user adapters they render the page's own groups.
 
-Routes are generated as `/engine/<adapter-id>/<page-id>`. Built-in Unity and
-Tuanjie keep their historical routes for compatibility. A page with
-`kind: "projects"` becomes the landing page; otherwise the first non-download
-page is the landing page.
+Routes are generated as `/engine/<adapter-id>/<page-id>`. Built-in engines keep
+their own routes (Unity, Tuanjie, Godot and Unreal), while imported adapters use
+the `/engine/...` namespace. A page with `kind: "projects"` becomes the landing
+page; otherwise the first non-download page is the landing page.
 
 `pages[].icon` accepts: `projects`, `installs`, `download`, `favorite`,
 `learn`, `store`, `publish`, `license`, `docs`, `feedback`, or any value
@@ -175,7 +175,7 @@ Request:
   "params": {
     "protocolVersion": 1,
     "client": {"name": "GameEngineLauncher233", "version": "1.9.0"},
-    "engine": {"id": "godot", "name": "Godot"}
+    "engine": {"id": "myengine", "name": "My Engine"}
   }
 }
 ```
@@ -199,10 +199,10 @@ Result:
 ```json
 {
   "editors": [
-    {"version":"4.3.0","displayVersion":"4.3","exe":"C:\\Godot\\godot.exe","root":"C:\\Godot"}
+    {"version":"1.0.0","displayVersion":"1.0","exe":"C:\\MyEngine\\myengine.exe","root":"C:\\MyEngine"}
   ],
   "projects": [
-    {"path":"C:\\Games\\demo","name":"demo","version":"4.3.0","modified":"2026-01-05T12:00:00Z"}
+    {"path":"C:\\Games\\demo","name":"demo","version":"1.0.0","modified":"2026-01-05T12:00:00Z"}
   ]
 }
 ```
@@ -218,7 +218,7 @@ editor from its install card.
 ```json
 {
   "jsonrpc":"2.0","id":3,"method":"launch",
-  "params":{"exe":"C:\\Godot\\godot.exe","projectPath":"C:\\Games\\demo","args":[]}
+  "params":{"exe":"C:\\MyEngine\\myengine.exe","projectPath":"C:\\Games\\demo","args":[]}
 }
 ```
 

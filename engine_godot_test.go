@@ -62,6 +62,26 @@ func TestEngineAndSystemSettingsAreSeparate(t *testing.T) {
 	}
 }
 
+func TestGodotWorkspacePagesRouteToTheirOwnScreens(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		page string
+		text string
+	}{
+		{"projects", pageGodotProjects, locales.ProjectsEmptyTitle()},
+		{"favorites", pageGodotFavorites, locales.FavoritesEmptyTitle()},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			a := fixture()
+			a.activeEngine, a.page = kindGodot, tc.page
+			tt := ui.NewTester(a.view, 1180, 760)
+			if !tt.HasText(tc.text) {
+				t.Fatalf("Godot %s route: %q", tc.name, tt.Texts())
+			}
+		})
+	}
+}
+
 func TestGodotEditorAndProjectScan(t *testing.T) {
 	root := t.TempDir()
 	editorDir := filepath.Join(root, "Godot")
