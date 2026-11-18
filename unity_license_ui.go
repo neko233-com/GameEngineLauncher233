@@ -81,7 +81,7 @@ func (a *app) unityLicenseDialog(c *ui.Context) {
 	}
 	w, h := c.Size()
 	// Modal owns Escape/backdrop dismissal, so reconcile it to cancellation.
-	if ui.Modal(c, &a.licenseFlowOpen, func() {
+	if modal(c, &a.licenseFlowOpen, func() {
 		ui.Column(c).Width(min(620, w-80)).MaxHeight(h - 90).Gap(12).Children(func() {
 			ui.Text(c, locales.LicenseLaunchTitle()).FontSize(20).Bold().Shrink(0)
 			if a.licensePendingLabel != "" {

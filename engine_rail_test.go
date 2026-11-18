@@ -99,3 +99,81 @@ func TestEngineRailPinsDownloadsWhileNavigationScrolls(t *testing.T) {
 		t.Fatalf("downloads sits above the license caption: downloads=%+v license=%+v", downloads, license)
 	}
 }
+
+func TestEngineRailKeyboardShortcuts(t *testing.T) {
+	a := fixture()
+	tt := ui.NewTester(a.view, 1180, 760)
+	tt.Key(ui.Ctrl, ui.Key2)
+	if a.activeEngine != kindTuanjie || a.page != pageTuanjieProjects {
+		t.Fatalf("Ctrl+2 left engine=%q page=%q", a.activeEngine, a.page)
+	}
+	tt.Key(ui.Ctrl, ui.Key1)
+	if a.activeEngine != kindUnity || a.page != pageProjects {
+		t.Fatalf("Ctrl+1 left engine=%q page=%q", a.activeEngine, a.page)
+	}
+	tt.Key(ui.Ctrl, ui.KeyComma)
+	if a.page != pageSettings {
+		t.Fatalf("Ctrl+, opened %q", a.page)
+	}
+	a.page = pageProjects
+	a.alertOpen, a.alertMessage = true, "stay in this dialog"
+	tt.Frame()
+	tt.Key(ui.Ctrl, ui.Key2)
+	if a.activeEngine != kindUnity {
+		t.Fatalf("shortcut switched engines behind a dialog: %q", a.activeEngine)
+	}
+}
+
+// The rail is one Tab stop and the arrow keys walk it, as a Vercel tab list.
+func TestEngineRailArrowKeysSwitchFocus(t *testing.T) {
+	a := fixture()
+	tt := ui.NewTester(a.view, 1180, 760)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnter)
+	if a.activeEngine != kindTuanjie {
+		t.Fatalf("down arrow did not reach the Tuanjie tab: engine=%q", a.activeEngine)
+	}
+	tt.Key(0, ui.KeyUp)
+	tt.Key(0, ui.KeyEnter)
+	if a.activeEngine != kindUnity {
+		t.Fatalf("up arrow did not return to Unity: engine=%q", a.activeEngine)
+	}
+}
+
+func TestNavigationFocusGroupWalksItems(t *testing.T) {
+	a := fixture()
+	tt := ui.NewTester(a.view, 1180, 760)
+	if err := tt.Click(locales.SidebarProjects()); err != nil {
+		t.Fatal(err)
+	}
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnter)
+	if a.page != pageInstalls {
+		t.Fatalf("down arrow on navigation opened %q", a.page)
+	}
+}
+
+// The Vercel-style palette keeps the canvas black, cards near black and the
+// primary action white.
+func TestVercelMonochromePalette(t *testing.T) {
+	a := fixture()
+	tt := ui.NewTester(a.view, 1180, 760)
+	r, ok := tt.Find(locales.ActionNewProject())
+	if !ok {
+		t.Fatal("New project button is missing")
+	}
+	img := tt.Image()
+	button := img.RGBAAt(int(r.X-8), int(r.Y+r.H/2))
+	if button.R < 220 || button.G < 220 || button.B < 220 {
+		t.Fatalf("primary action is not white: %+v", button)
+	}
+	canvas := img.RGBAAt(700, 700)
+	if canvas.R > 8 || canvas.G > 8 || canvas.B > 8 {
+		t.Fatalf("canvas is not black: %+v", canvas)
+	}
+	nav := img.RGBAAt(300, 620)
+	if nav.R > 16 || nav.G > 16 || nav.B > 16 {
+		t.Fatalf("navigation surface is not near black: %+v", nav)
+	}
+}

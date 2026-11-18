@@ -57,13 +57,33 @@ func (a *app) statusMessage(c *ui.Context, message string) {
 	})
 }
 
-func sidebarItem(c *ui.Context, id string, icon *ui.SVG, label string) ui.Element {
-	item := ui.SidebarItem(c, id, icon, label)
-	_, height := c.Size()
-	if height < 700 {
-		item.Height(28).Padding(4, 8)
+// navItem is one destination in the Vercel-style navigation column: a 32
+// DIP row with a muted icon and label, a quiet raised face when chosen, and
+// a trailing badge. The surrounding FocusGroup keeps the column one Tab
+// stop and lets the arrow keys walk it.
+func (a *app) navItem(c *ui.Context, id string, icon *ui.SVG, label string, trailing func()) {
+	t := c.Theme()
+	chosen := a.page == id
+	b := ui.Button(c, "").Height(32).Padding(0, 10).Radius(6).Gap(10).
+		Justify(ui.Start).Label(label).Tooltip(label).
+		Background(ui.Color{}).Border(0, ui.Color{}).
+		OnClick(func() { a.page = id })
+	if chosen {
+		b.Background(t.SurfacePressed)
+	} else if b.Hovered() || b.Focused() {
+		b.Background(t.SurfaceHover)
 	}
-	return item
+	foreground := t.TextMuted
+	if chosen || b.Hovered() || b.Focused() {
+		foreground = t.Text
+	}
+	b.Children(func() {
+		ui.Icon(c, icon).Size(16, 16).Shrink(0).TextColor(foreground)
+		ui.Text(c, label).FontSize(13).Grow(1).MinWidth(0).SingleLine().Clip().TextColor(foreground)
+		if trailing != nil {
+			trailing()
+		}
+	})
 }
 
 func (a *app) uninstallActivityCard(c *ui.Context) {

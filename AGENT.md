@@ -8,7 +8,7 @@
 - **技术栈**: Go + github.com/egoist/mygo（原生 UI，非 Web 前端）
 - **仓库**: https://github.com/neko233-com/UnityStarter（main 分支）
 - **平台**: Windows amd64（per-user 安装）
-- **当前版本**: 1.6.25
+- **当前版本**: 1.7.0
 
 ## 目录结构
 
@@ -71,7 +71,7 @@ Unity 和 Tuanjie 不是同构 tab —— 每个 engine 有独立品牌 + 行为
 
 ```go
 type engineStrategy struct {
-    engineBranding    // 图标、品牌色、选中态背景
+    engineBranding    // 官方图标（单色 / 原色两种）
     Pages             // 路由映射
     NeedsLicenseFlow  // Unity 需要授权流程，Tuanjie 不需要
     DownloadChannel   // 下载源
@@ -84,26 +84,34 @@ type engineStrategy struct {
 **规则**:
 - 新增 engine 差异时，只改 `engine_strategy.go`，不要在 view 层加 `if kindUnity`
 - UI 层通过 `a.engineStrategy()` 或 `engineStrategyFor(kind)` 获取策略
-- 品牌色: Unity `#E4002B`（红）/ Tuanjie `#2196F3`（蓝）
+- 图标使用官方资源，不再用近似自绘；UI 保持 Vercel 单色，不按引擎染品牌色
 
 ## 侧栏布局（垂直引擎栏）
 
-参考 Tuanjie Hub 1.4.8 的三段式布局：
+参考 Tuanjie Hub 1.4.8 的三段式布局，视觉采用 Vercel 单色风格：
 
 - 最左 **64px 垂直引擎栏**：Unity 在上、团结引擎在下；当前引擎用浮起底块标记，点击只切换 `activeEngine` 与对应页面。该栏独立于导航滚动。
-- 中间 **220px 导航列**：顶部是当前引擎品牌 + 设置齿轮，中部是可滚动导航，底部是许可证单行说明，下载入口固定在最底部。
+- 图标使用团结 Hub 官方资源中的真实标志：`iconUnity` 为官方 Unity 立方体，`iconTuanjieBrand` 为官方团结引擎多面体；不要再用自绘近似图标。
+- 中间 **220px 导航列**：顶部是当前引擎品牌 + 设置齿轮，中部是自绘 Vercel 风格导航（32px 行高、灰阶、选中浮起），底部是许可证单行说明，下载入口固定在最底部。
+- 引擎栏与导航各自是 `ui.FocusGroup`：一个 Tab 站点，方向键遍历；快捷键 `Ctrl+1` / `Ctrl+2` 切引擎，`Ctrl+,` 打开设置。
+- 弹窗统一用 `modal()`（`ui_layout.go`），不要把 `ui.Modal` 直接用到黑色画布上，否则面板边界会消失。
 - 布局回归测试在 `engine_rail_test.go`；改动侧栏时同时检查 1180×760 与 900×560。
 
 ## 品牌图标链路
 
 ```
-icons.go ── iconUnity / iconTuanjie / iconBrand（内联 currentColor SVG）
+icons.go ── iconUnity / iconTuanjie / iconTuanjieBrand / iconBrand
    │                              │
-   ├── 侧栏品牌区 ── engineStrategy.Icon ── 跟随 activeEngine
+   ├── 引擎栏 / 安装卡片 ── engineStrategy.BrandIcon（官方原色标志）
+   ├── 侧栏品牌区 / 标题栏 ── engineStrategy.Icon / BrandIcon ── 跟随 activeEngine
    └── 主内容空状态 ── iconBrand（共享 Unity+X 标记）
 
-resources/icon.svg ── 应用图标（任务栏/窗口）── Unity+X Logo（彩色）
+resources/icon.svg ── 应用图标（任务栏/窗口）── 官方 Unity 标志（黑底白标）
 ```
+
+图标来源：`D:\IDE\Tuanjie Hub\resources\app.asar` 内
+`node_modules/@unity-hub-components/icon/dist/icon/assets.js` 的
+`unity_logo` / `tuanjie_hub_logo` 路径。
 
 ## MSI 自动更新链路
 

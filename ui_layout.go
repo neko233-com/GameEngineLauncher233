@@ -10,19 +10,35 @@ import (
 func pageTab(c *ui.Context, label string, selected bool, choose func()) {
 	t := c.Theme()
 	c.Key(label)
-	b := ui.Button(c, label).Height(38).Padding(0, 10).Radius(0).
-		Background(ui.Color{}).Border(0, ui.Color{}).TextColor(t.TextMuted).OnClick(choose)
+	b := ui.Button(c, label).Height(30).Padding(0, 12).Radius(6).FontSize(13).
+		Background(ui.Color{}).Border(1, ui.Color{}).TextColor(t.TextMuted).OnClick(choose)
 	if selected {
-		b.TextColor(t.Text).Bold().BorderColor(t.Accent).BorderWidth(0, 0, 2, 0)
+		b.Background(t.SurfaceHover).Border(1, t.Border).TextColor(t.Text)
 	}
 	if b.Hovered() {
 		b.Background(t.SurfaceHover)
+		b.TextColor(t.Text)
 	}
 }
 
 func panel(c *ui.Context, children func()) {
 	t := c.Theme()
-	ui.Column(c).Padding(18).Gap(12).Background(t.Surface).Border(1, t.Border).Radius(6).Children(children)
+	ui.Column(c).Padding(18).Gap(12).Background(t.Surface).Border(1, t.Border).Radius(8).Children(children)
+}
+
+// modal is the app's Vercel-style dialog shell: a deep backdrop over the
+// black canvas and a bordered surface card, since a black panel would
+// otherwise disappear into the page. It returns the dialog for Dismissed.
+func modal(c *ui.Context, open *bool, children func()) ui.Element {
+	t := c.Theme()
+	w, h := c.Size()
+	return ui.DialogBase(c, open, func(backdrop, dialog ui.Element) {
+		backdrop.Background(ui.RGBA(0, 0, 0, 0.72))
+		dialog.Padding(20).Gap(14).Radius(12).Background(t.Surface).Border(1, t.Border).
+			MaxWidth(max(320, w-40)).MaxHeight(max(200, h-40)).
+			Shadow(0, 24, 60, 0, ui.RGBA(0, 0, 0, 0.55))
+		children()
+	})
 }
 
 func tableHeading(c *ui.Context, label, sort string, active bool, reverse bool, choose func()) ui.Element {
@@ -44,6 +60,9 @@ func tableHeading(c *ui.Context, label, sort string, active bool, reverse bool, 
 		Background(ui.Color{}).Border(0, ui.Color{}).FontSize(12).TextColor(t.TextMuted).OnClick(choose)
 	if sort != "favorite" {
 		b.Justify(ui.Start)
+	}
+	if active {
+		b.TextColor(t.Text)
 	}
 	if b.Hovered() {
 		b.Background(t.SurfaceHover)
@@ -75,10 +94,10 @@ func (a *app) licenseStatusStrip(c *ui.Context) {
 		switch a.licenseCheckState {
 		case "active":
 			label = locales.LicenseStateActive()
-			color = ui.Hex("#4CAF50")
+			color = t.Success
 		case "inactive":
 			label = locales.LicenseStateInactive()
-			color = ui.Hex("#E4002B")
+			color = t.Danger
 		default:
 			label = locales.LicenseStateUnknown()
 		}

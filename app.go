@@ -37,7 +37,7 @@ const (
 
 	// appVersion is what the CLI prints and what the window shows when MyGo
 	// does not know the packaged version.
-	appVersion = "1.6.25"
+	appVersion = "1.7.0"
 	// appName is the name of the executable and of the app's data folder, as
 	// mygo.json names the app; the window shows a name with a space.
 	appName = "UnityStarter"
@@ -303,69 +303,89 @@ func (a *app) save() {
 
 func (a *app) view(c *ui.Context) {
 	c.SetTheme(starterTheme)
+	if !a.modalOpen() {
+		if c.Shortcut(ui.Cmd, ui.Key1) {
+			a.switchEngine(kindUnity)
+		}
+		if c.Shortcut(ui.Cmd, ui.Key2) {
+			a.switchEngine(kindTuanjie)
+		}
+		if c.Shortcut(ui.Cmd, ui.KeyComma) {
+			a.page = pageSettings
+		}
+	}
 	t := c.Theme()
 	bar := c.TitleBar()
 	ui.Column(c).Fill().Children(func() {
-		ui.Row(c).Height(36).Shrink(0).Padding(0, bar.Right+12, 0, bar.Left+14).Gap(8).AlignItems(ui.Center).Background(t.Surface).DragWindow().Children(func() {
-			ui.Icon(c, iconBrand).Size(16, 16).TextColor(t.TextMuted)
+		ui.Row(c).Height(36).Shrink(0).Padding(0, bar.Right+12, 0, bar.Left+14).Gap(8).AlignItems(ui.Center).Background(t.Background).BorderWidth(0, 0, 1, 0).BorderColor(t.Border).DragWindow().Children(func() {
+			if s := a.engineStrategy(); s.BrandIcon != nil {
+				ui.Image(c, s.BrandIcon).Size(14, 14)
+			} else {
+				ui.Icon(c, s.Icon).Size(14, 14).TextColor(t.TextMuted)
+			}
 			ui.Text(c, locales.AppTitle()).FontSize(12).TextColor(t.TextMuted).SingleLine()
+			ui.Box(c).Height(18).Padding(0, 6).Radius(999).Background(t.SurfaceHover).Border(1, t.Border).Center().Children(func() {
+				ui.Text(c, "v"+appVersion).FontSize(9).TextColor(t.TextMuted).SingleLine()
+			})
 		})
 		ui.Row(c).Grow(1).MinHeight(0).AlignItems(ui.Stretch).Children(func() {
 			a.engineRail(c)
 			ui.Column(c).Fill().Width(220).MinHeight(0).Background(t.Surface).Children(func() {
 				a.navigationHeader(c)
 				projects, installs, downloads, favorites := enginePages(a.activeEngine)
-				ui.Sidebar(c, &a.page, func() {
-					countBadge := func(n int) func() {
-						return func() {
+				ui.Scroll(c).Grow(1).Shrink(1).MinHeight(0).Children(func() {
+					ui.Column(c).Padding(8, 10, 16, 10).Gap(2).FocusGroup(ui.Vertical).Children(func() {
+						countBadge := func(n int) func() {
+							return func() {
+								if n > 0 {
+									ui.Badge(c, fmt.Sprint(n))
+								}
+							}
+						}
+						engineCount := func() int {
+							count := 0
+							for _, p := range a.projects {
+								if p.Kind == a.activeEngine && !a.projectHidden(p.Path) {
+									count++
+								}
+							}
+							return count
+						}
+						installCount := func() int {
+							count := 0
+							for _, e := range a.editors {
+								if e.Kind == a.activeEngine {
+									count++
+								}
+							}
+							return count
+						}
+						// Tuanjie Hub flat sidebar (no sections): workspace first,
+						// then learning/services, then help. Downloads stays pinned
+						// at the foot of the column, as in the reference. Favorites
+						// and Activity are preserved as our own additions.
+						a.navItem(c, projects, iconProjects, locales.SidebarProjects(), countBadge(engineCount()))
+						a.navItem(c, installs, iconInstalls, locales.SidebarInstalls(), countBadge(installCount()))
+						a.navItem(c, favorites, iconFavorite, locales.SidebarFavorites(), nil)
+						a.navItem(c, pageLearn, iconLearn, locales.PageLearn(), nil)
+						a.navItem(c, pageStore, iconStore, locales.PageStore(), nil)
+						a.navItem(c, pagePublish, iconPublish, locales.PagePublish(), nil)
+						a.navItem(c, pageActivity, iconDownload, locales.ActivityTitle(), func() {
+							n := a.workspaceTaskCount()
 							if n > 0 {
 								ui.Badge(c, fmt.Sprint(n))
 							}
-						}
-					}
-					engineCount := func() int {
-						count := 0
-						for _, p := range a.projects {
-							if p.Kind == a.activeEngine && !a.projectHidden(p.Path) {
-								count++
-							}
-						}
-						return count
-					}
-					installCount := func() int {
-						count := 0
-						for _, e := range a.editors {
-							if e.Kind == a.activeEngine {
-								count++
-							}
-						}
-						return count
-					}
-					// Tuanjie Hub flat sidebar (no sections): workspace first,
-					// then learning/services, then help. Downloads stays pinned
-					// at the foot of the column, as in the reference. Favorites
-					// and Activity are preserved as our own additions.
-					sidebarItem(c, projects, iconProjects, locales.SidebarProjects()).Children(countBadge(engineCount()))
-					sidebarItem(c, installs, iconInstalls, locales.SidebarInstalls()).Children(countBadge(installCount()))
-					sidebarItem(c, favorites, iconFavorite, locales.SidebarFavorites())
-					sidebarItem(c, pageLearn, iconLearn, locales.PageLearn())
-					sidebarItem(c, pageStore, iconStore, locales.PageStore())
-					sidebarItem(c, pagePublish, iconPublish, locales.PagePublish())
-					sidebarItem(c, pageActivity, iconDownload, locales.ActivityTitle()).Children(func() {
-						n := a.workspaceTaskCount()
-						if n > 0 {
-							ui.Badge(c, fmt.Sprint(n))
-						}
+						})
+						a.navItem(c, pageLicense, iconLicense, locales.PageLicense(), nil)
+						a.navItem(c, pageDocs, iconDocs, locales.PageDocs(), nil)
+						a.navItem(c, pageFeedback, iconFeedback, locales.PageFeedback(), nil)
 					})
-					sidebarItem(c, pageLicense, iconLicense, locales.PageLicense())
-					sidebarItem(c, pageDocs, iconDocs, locales.PageDocs())
-					sidebarItem(c, pageFeedback, iconFeedback, locales.PageFeedback())
-				}).Grow(1).Shrink(1).MinHeight(0)
+				})
 				a.licenseStatusStrip(c)
 				ui.Divider(c)
-				ui.Sidebar(c, &a.page, func() {
-					sidebarItem(c, downloads, iconDownload, locales.SidebarDownloads())
-				}).Shrink(0)
+				ui.Column(c).Shrink(0).Padding(8, 10, 10, 10).FocusGroup(ui.Vertical).Children(func() {
+					a.navItem(c, downloads, iconDownload, locales.SidebarDownloads(), nil)
+				})
 			})
 			ui.Column(c).Grow(1).MinWidth(0).MinHeight(0).Fill().Children(func() {
 				a.unityLicenseBanner(c)
@@ -422,7 +442,7 @@ func enginePages(engine string) (string, string, string, string) {
 func (a *app) engineRail(c *ui.Context) {
 	t := c.Theme()
 	ui.Column(c).Width(64).Shrink(0).Padding(12, 0, 0, 0).Gap(6).Background(t.Background).
-		BorderWidth(0, 1, 0, 0).BorderColor(t.Border).Children(func() {
+		BorderWidth(0, 1, 0, 0).BorderColor(t.Border).FocusGroup(ui.Vertical).Children(func() {
 		a.engineRailTab(c, kindUnity)
 		a.engineRailTab(c, kindTuanjie)
 		ui.Spacer(c)
@@ -436,23 +456,39 @@ func (a *app) engineRailTab(c *ui.Context, engine string) {
 	t := c.Theme()
 	s := engineStrategyFor(engine)
 	active := a.activeEngine == engine
+	hint := s.Name
+	if engine == kindUnity {
+		hint += " · Ctrl+1"
+	} else {
+		hint += " · Ctrl+2"
+	}
 	b := ui.Button(c, "").Size(64, 56).Padding(0).
-		Label(channelName(engine)).Tooltip(s.Name).
+		Label(channelName(engine)).Tooltip(hint).
 		Background(ui.Color{}).Border(0, ui.Color{}).
 		OnClick(func() { a.switchEngine(engine) })
-	var tile ui.Element
+	var tile, mark ui.Element
 	b.Children(func() {
 		bg := ui.Color{}
 		if active {
 			bg = t.SurfaceHover
 		}
 		tile = ui.Box(c).Size(44, 40).Radius(9).Background(bg).Center().Children(func() {
+			// Tuanjie keeps its genuine faceted mark in both states, muted
+			// when it is not the active engine; Unity's official silhouette
+			// follows the text color.
+			if s.BrandIcon != nil {
+				mark = ui.Image(c, s.BrandIcon).Size(26, 26)
+				return
+			}
 			color := t.TextMuted
-			if active {
+			if active || b.Focused() {
 				color = t.Text
 			}
-			ui.Icon(c, s.Icon).Size(25, 25).TextColor(color)
+			mark = ui.Icon(c, s.Icon).Size(25, 25).TextColor(color)
 		})
+		if active {
+			tile.Border(1, t.Border)
+		}
 	})
 	// Hover is read after the children are built, as a button's face does.
 	if b.Hovered() {
@@ -461,6 +497,16 @@ func (a *app) engineRailTab(c *ui.Context, engine string) {
 		} else {
 			tile.Background(t.Surface)
 		}
+	}
+	if s.BrandIcon != nil {
+		opacity := float32(1)
+		if !active {
+			opacity = 0.6
+			if b.Hovered() || b.Focused() {
+				opacity = 0.85
+			}
+		}
+		mark.Opacity(opacity)
 	}
 }
 
@@ -471,15 +517,19 @@ func (a *app) navigationHeader(c *ui.Context) {
 	t := c.Theme()
 	s := a.engineStrategy()
 	ui.Row(c).Height(60).Shrink(0).Padding(14, 12, 12, 14).Gap(10).AlignItems(ui.Center).Children(func() {
-		ui.Box(c).Size(30, 30).Radius(15).Background(s.BgHover).Center().Children(func() {
-			ui.Icon(c, s.Icon).Size(17, 17).TextColor(s.Accent)
+		ui.Box(c).Size(30, 30).Radius(15).Background(t.SurfaceHover).Border(1, t.Border).Center().Children(func() {
+			if s.BrandIcon != nil {
+				ui.Image(c, s.BrandIcon).Size(18, 18)
+				return
+			}
+			ui.Icon(c, s.Icon).Size(17, 17).TextColor(t.Text)
 		})
 		ui.Column(c).Grow(1).MinWidth(0).Children(func() {
-			ui.Text(c, channelName(a.activeEngine)).FontSize(13).Bold().SingleLine().Clip().Tooltip(s.Name)
+			ui.Text(c, channelName(a.activeEngine)).FontSize(13).FontWeight(600).SingleLine().Clip().Tooltip(s.Name)
 			ui.Text(c, locales.AppTitle()).FontSize(10).TextColor(t.TextMuted).SingleLine().Clip()
 		})
 		gear := ui.Button(c, "").Size(28, 28).Padding(0).Radius(6).
-			Label(locales.SidebarSettings()).Tooltip(locales.SidebarSettings()).
+			Label(locales.SidebarSettings()).Tooltip(locales.SidebarSettings()+" · Ctrl+,").
 			Background(ui.Color{}).Border(0, ui.Color{}).
 			OnClick(func() { a.page = pageSettings })
 		gear.Children(func() {
@@ -497,6 +547,13 @@ func (a *app) navigationHeader(c *ui.Context) {
 		}
 	})
 	ui.Divider(c)
+}
+
+// modalOpen reports whether a dialog owns the window, so global navigation
+// shortcuts leave its context alone.
+func (a *app) modalOpen() bool {
+	return a.alertOpen || a.availableOpen || a.manageOpen || a.installedModulesOpen ||
+		a.versionOpen || a.newOpen || a.uninstallGuardOpen || a.licenseFlowOpen
 }
 
 func (a *app) switchEngine(engine string) {
@@ -542,8 +599,10 @@ func favoritesPage(page string) bool { return page == pageFavorites || page == p
 func (a *app) header(c *ui.Context, title, subtitle string, actions func()) {
 	t := c.Theme()
 	ui.Column(c).Padding(24, 24, 18, 24).Gap(5).Shrink(0).Children(func() {
+		ui.Text(c, strings.ToUpper(channelName(a.activeEngine))).FontSize(10).FontWeight(600).
+			LetterSpacing(1.2).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(channelName(a.activeEngine))
 		ui.Row(c).Gap(16).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, title).Grow(1).MinWidth(0).FontSize(24).Bold().SingleLine().Clip().Tooltip(title)
+			ui.Text(c, title).Grow(1).MinWidth(0).FontSize(24).FontWeight(600).SingleLine().Clip().Tooltip(title)
 			if actions != nil {
 				ui.Row(c).Gap(8).Shrink(0).Children(actions)
 			}
@@ -557,7 +616,7 @@ func (a *app) header(c *ui.Context, title, subtitle string, actions func()) {
 func (a *app) emptyState(c *ui.Context, title, hint string) {
 	t := c.Theme()
 	ui.Column(c).Fill().Center().Gap(8).Padding(40).Children(func() {
-		ui.Box(c).Size(56, 56).Radius(12).Background(t.Surface).Center().Margin(0, 0, 8, 0).Children(func() {
+		ui.Box(c).Size(56, 56).Radius(12).Background(t.SurfaceHover).Border(1, t.Border).Center().Margin(0, 0, 8, 0).Children(func() {
 			ui.Icon(c, iconForPage(a.page)).Size(28, 28).TextColor(t.TextMuted)
 		})
 		ui.Text(c, title).FontSize(16).Bold().TextColor(t.TextMuted)
@@ -605,7 +664,7 @@ func (a *app) alertDialog(c *ui.Context) {
 		return
 	}
 	_, height := c.Size()
-	ui.Modal(c, &a.alertOpen, func() {
+	modal(c, &a.alertOpen, func() {
 		ui.Column(c).Width(460).Gap(16).Children(func() {
 			ui.Text(c, locales.AlertTitle()).FontSize(18).Bold()
 			ui.Scroll(c).MaxHeight(max(100, height-220)).Children(func() { ui.Text(c, a.alertMessage).FontSize(13).MaxWidth(460) })

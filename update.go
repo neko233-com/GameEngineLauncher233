@@ -104,7 +104,7 @@ func (a *app) availableUpdateDialog(c *ui.Context) {
 	if !a.availableOpen {
 		return
 	}
-	ui.Modal(c, &a.availableOpen, func() {
+	modal(c, &a.availableOpen, func() {
 		ui.Column(c).Width(460).Gap(16).Children(func() {
 			ui.Text(c, locales.AlertTitle()).FontSize(18).Bold()
 			ui.Text(c, locales.UpdateAvailable(a.availableVersion)).FontSize(13)

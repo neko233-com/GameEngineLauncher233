@@ -197,7 +197,7 @@ func (a *app) newProjectDialog(c *ui.Context) {
 	w, h := c.Size()
 	width := min(float32(1080), w-96)
 	bodyHeight := min(float32(540), max(float32(220), h-280))
-	ui.Modal(c, &a.newOpen, func() {
+	modal(c, &a.newOpen, func() {
 		ui.Column(c).Width(width).Gap(14).Children(func() {
 			ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
 				ui.Icon(c, iconProjects).Size(24, 24).TextColor(t.TextMuted)

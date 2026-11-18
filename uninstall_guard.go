@@ -118,7 +118,7 @@ func (a *app) uninstallGuardDialog(c *ui.Context) {
 	if !a.uninstallGuardOpen {
 		return
 	}
-	ui.Modal(c, &a.uninstallGuardOpen, func() {
+	modal(c, &a.uninstallGuardOpen, func() {
 		ui.Column(c).Width(560).Gap(12).Children(func() {
 			ui.Text(c, locales.UninstallGuardTitle()).FontSize(18).Bold()
 			ui.Text(c, locales.UninstallGuardExplanation()).FontSize(12).TextColor(c.Theme().TextMuted)

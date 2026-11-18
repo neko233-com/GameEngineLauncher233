@@ -294,7 +294,7 @@ func (a *app) projectVersionDialog(c *ui.Context) {
 		return
 	}
 	t := c.Theme()
-	ui.Modal(c, &a.versionOpen, func() {
+	modal(c, &a.versionOpen, func() {
 		ui.Column(c).Width(500).Gap(14).Children(func() {
 			if a.versionConfirm {
 				ui.Text(c, locales.ProjectVersionConfirm()).FontSize(18).Bold()

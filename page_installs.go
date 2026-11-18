@@ -82,12 +82,17 @@ func (a *app) installsPage(c *ui.Context) {
 	})
 }
 
-// editorBrandLogo renders the engine-specific cube mark tinted with the
-// engine's brand color, mirroring the Tuanjie Hub install card logo.
+// editorBrandLogo renders the engine's genuine mark on a neutral tile,
+// mirroring the Tuanjie Hub install card logo without recoloring the brand.
 func (a *app) editorBrandLogo(c *ui.Context, kind string) {
+	t := c.Theme()
 	s := engineStrategyFor(kind)
-	ui.Box(c).Size(44, 44).Shrink(0).Radius(6).Background(c.Theme().Background).Center().Children(func() {
-		ui.Icon(c, s.Icon).Size(26, 26).TextColor(s.Accent)
+	ui.Box(c).Size(44, 44).Shrink(0).Radius(8).Background(t.SurfaceHover).Border(1, t.Border).Center().Children(func() {
+		if s.BrandIcon != nil {
+			ui.Image(c, s.BrandIcon).Size(26, 26)
+			return
+		}
+		ui.Icon(c, s.Icon).Size(26, 26).TextColor(t.Text)
 	})
 }
 
@@ -179,7 +184,7 @@ func (a *app) installedModulesDialog(c *ui.Context) {
 	}
 	e := a.installedModulesEditor
 	_, height := c.Size()
-	ui.Modal(c, &a.installedModulesOpen, func() {
+	modal(c, &a.installedModulesOpen, func() {
 		ui.Column(c).Width(560).Gap(12).Children(func() {
 			ui.Text(c, locales.InstalledModulesTitle(len(installedModuleNames(e.Modules)))).FontSize(17).Bold()
 			ui.Text(c, displayVersion(e.Version, e.DisplayVersion)).FontSize(12).TextColor(c.Theme().TextMuted)

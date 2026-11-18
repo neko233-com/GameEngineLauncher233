@@ -434,7 +434,7 @@ func (a *app) editorManageDialog(c *ui.Context) {
 		width = min(float32(920), max(float32(560), windowWidth-80))
 		listHeight = min(float32(500), max(float32(180), windowHeight-310))
 	}
-	ui.Modal(c, &a.manageOpen, func() {
+	modal(c, &a.manageOpen, func() {
 		ui.Column(c).Width(width).MaxHeight(windowHeight - 80).Gap(12).Children(func() {
 			ui.Text(c, displayVersion(e.Version, e.DisplayVersion)+" · "+channelName(e.Kind)).FontSize(18).Bold().SingleLine().Shrink(0)
 			ui.Text(c, e.Exe).FontSize(12).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(e.Exe).Shrink(0)
