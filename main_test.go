@@ -989,12 +989,12 @@ func TestSnapshot(t *testing.T) {
 		t.Skip("set SNAPSHOT to a directory to draw the pages")
 	}
 	a := fixture()
-	for _, page := range []string{pageProjects, pageInstalls, pageDownloads, pageStore, pagePublish, pageLicense, pageDocs, pageFeedback, pageSettings} {
+	for _, page := range []string{pageProjects, pageInstalls, pageDownloads, pageStore, pagePublish, pageLicense, pageDocs, pageFeedback, pageSettings, pageEngineSettings} {
 		a.page = page
 		tt := ui.NewTester(a.view, 1180, 760)
 		tt.SetTitleBar(ui.TitleBar{Height: 36, Right: 138})
 		tt.Frame()
-		name := filepath.Join(dir, "page"+page[1:]+".png")
+		name := filepath.Join(dir, "page"+strings.ReplaceAll(page[1:], "/", "-")+".png")
 		if err := writePNG(name, tt.Image()); err != nil {
 			t.Fatal(err)
 		}

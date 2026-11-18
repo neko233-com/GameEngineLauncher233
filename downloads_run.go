@@ -122,15 +122,6 @@ func (a *app) discardDownload(e downloadEntry, job *downloadJob) {
 	go func() { err := discardResume(job.Path); win.Update(func() { finish(err) }) }()
 }
 
-// installRoot is where downloaded editors go, a folder per version, as the
-// hubs do.
-func (a *app) installRoot() string {
-	if a.prefs.InstallRoot != "" {
-		return a.prefs.InstallRoot
-	}
-	return defaultInstallRoot()
-}
-
 func editorDownloadRoot(job *downloadJob, defaultRoot string) (string, bool) {
 	if job == nil {
 		return defaultRoot, true
@@ -161,7 +152,7 @@ func (a *app) startDownload(e downloadEntry) {
 	key := jobKey(e)
 	// A retry belongs to the original operation, even if the default
 	// installation directory changed while it was running.
-	root, allowed := editorDownloadRoot(a.jobs[key], a.installRoot())
+	root, allowed := editorDownloadRoot(a.jobs[key], a.installRootFor(e.Engine))
 	if !allowed {
 		return
 	}
@@ -183,7 +174,7 @@ func (a *app) startDownload(e downloadEntry) {
 		base := int64(-1)
 		err := checkEditorInstallDestination(filepath.Join(job.Root, e.Version))
 		if err == nil {
-			err = downloadFileVerifiedSize(ctx, e.URL, job.Path, e.Integrity, editorDownloadExpectedSize(e), func(done, total int64) {
+			err = downloadFileVerifiedSizeWithWorkers(ctx, e.URL, job.Path, e.Integrity, editorDownloadExpectedSize(e), a.downloadWorkers(e.Engine), func(done, total int64) {
 				if base < 0 || done < base {
 					base, started = done, time.Now()
 				}
@@ -237,6 +228,10 @@ func downloadFileVerified(ctx context.Context, from, to, integrity string, progr
 }
 
 func downloadFileVerifiedSize(ctx context.Context, from, to, integrity string, expectedSize int64, progress func(done, total int64)) error {
+	return downloadFileVerifiedSizeWithWorkers(ctx, from, to, integrity, expectedSize, parallelWorkers, progress)
+}
+
+func downloadFileVerifiedSizeWithWorkers(ctx context.Context, from, to, integrity string, expectedSize int64, workers int, progress func(done, total int64)) error {
 	if expectedSize < 0 {
 		return fmt.Errorf("invalid expected download size")
 	}
@@ -252,7 +247,7 @@ func downloadFileVerifiedSize(ctx context.Context, from, to, integrity string, e
 		}
 		digest.Reset()
 	}
-	if handled, err := parallelDownload(ctx, from, to, integrity, expectedSize, progress); handled {
+	if handled, err := parallelDownload(ctx, from, to, integrity, expectedSize, workers, progress); handled {
 		return err
 	}
 	watch := newDownloadIdleWatch(ctx, downloadIdleTimeout)
@@ -392,7 +387,7 @@ func (a *app) installJob(job *downloadJob) {
 	}
 	root := job.Root
 	if root == "" {
-		root = a.installRoot()
+		root = a.installRootFor(job.Entry.Engine)
 	}
 	dest := filepath.Join(root, job.Entry.Version)
 	if err := validateEditorInstallEntry(job.Entry); err != nil {
@@ -467,7 +462,7 @@ func prepareEditorInstall(dest string) error {
 	if err := os.MkdirAll(dest, 0o755); err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(dest, installMarker), []byte("Installation incomplete; retry from UnityStarter.\n"), 0o644)
+	return os.WriteFile(filepath.Join(dest, installMarker), []byte("Installation incomplete; retry from GameEngineLauncher233.\n"), 0o644)
 }
 
 // Check before downloading multi-gigabyte installers and again before

@@ -106,7 +106,7 @@ func probeParallelDownload(ctx context.Context, from string, expectedSize int64)
 // parallelDownload uses only the original URL. A strong validator and byte
 // ranges are required, so different versions of an object cannot be mixed.
 // handled=false leaves servers without range support to the streaming path.
-func parallelDownload(ctx context.Context, from, to, integrity string, expectedSize int64, progress func(int64, int64)) (handled bool, err error) {
+func parallelDownload(ctx context.Context, from, to, integrity string, expectedSize int64, workers int, progress func(int64, int64)) (handled bool, err error) {
 	total, validator, supported, err := probeParallelDownload(ctx, from, expectedSize)
 	if err != nil {
 		return true, err
@@ -201,11 +201,15 @@ func parallelDownload(ctx context.Context, from, to, integrity string, expectedS
 			progress(resumed, total)
 		}
 	}
+	workers = min(max(workers, 1), parallelWorkers)
+	sem := make(chan struct{}, workers)
 	for i := 0; i < parallelWorkers; i++ {
 		start, end := downloadSegmentBoundary(total, i), downloadSegmentBoundary(total, i+1)-1
 		wg.Add(1)
+		sem <- struct{}{}
 		go func(i int, start, end int64) {
 			defer wg.Done()
+			defer func() { <-sem }()
 			var chunkErr error
 			completed := initial[i]
 			for attempt := 0; attempt < 3; attempt++ {

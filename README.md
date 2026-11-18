@@ -1,25 +1,25 @@
-# UnityStarter
+# GameEngineLauncher233
 
-Unity 国际版 Hub + 团结引擎 Hub 的合体替代品：无广告、无遥测，原生 Go 界面（[mygo](https://github.com/egoist/mygo) 原生 UI，无 WebView），同一个可执行文件也能当 CLI 用。`UnityStarter.exe` 约 12 MB；3.8 GB 是 Unity 官方引擎安装包的大小，Hub 只是替你下载和安装它。
+Unity 国际版 Hub + 团结引擎 Hub 的合体替代品，并额外支持 Godot 与社区适配器：无广告、无遥测，原生 Go 界面（[mygo](https://github.com/egoist/mygo) 原生 UI，无 WebView），同一个可执行文件也能当 CLI 用。`GameEngineLauncher233.exe` 约 12 MB；3.8 GB 是 Unity 官方引擎安装包的大小，启动器只是替你下载和安装它。
 
 Windows 10/11 x64，单文件约 10 MB。
 
 ## 功能
 
-- **项目**：扫描磁盘、Hub 项目表以及 Unity／团结 Editor 在 Windows 注册表中的最近项目；自动发现时跳过系统临时目录、Codex 自动工作树和已有项目的 `Library`／`Temp` 内的工作副本，手动添加、收藏或 Hub 明确列出的项目仍会保留。同一目录的大小写、短路径和目录联接别名合并显示，不同目录的同名项目保持独立。支持搜索、排序、收藏、双击打开、手动添加和新建项目。项目行的更多菜单可隐藏项目，在设置中可恢复；这只影响 UnityStarter，不修改项目文件或 Hub 记录。项目列表优先显示，Git 状态在后台补充；没有 Hub 或关闭同步时，收藏保存在本机。点击项目行的编辑器版本，可以选择同一引擎的已安装版本；选择不同版本时确认风险后再打开，项目版本由 Editor 实际迁移。新建项目时，同版本的多个安装目录可分别选择，项目名必须是有效的文件夹名称。
-- 新建项目在编辑器启动后先显示为等待状态；确认版本文件、`Assets` 和有效包清单出现后才登记并同步 Hub。等待状态保存在本机，重启后继续检查；可以停止跟踪而不删除文件。CLI 发起创建后，由运行中的或下次打开的 UnityStarter 完成登记。文件结构存在并不代表资源导入或许可验证已经完成。
-- **新建项目模板**：原生界面按所选编辑器读取官方模板清单，提供核心、示例、学习、已下载分类和搜索；显示 URP／HDRP、目标平台、模板版本与包依赖。支持编辑器自带模板、该编辑器在 Hub 中明确下载的模板，以及 UnityStarter 的离线缓存。远程模板按官方摘要校验后保存在本机，可后台下载、取消、重试或重新校验。创建时将完整模板包交给 Editor，保留模板场景、渲染管线资产与配置；不会通过给空项目添加单个 URP 包来冒充模板。切换编辑器时重新加载兼容模板；需要条款确认的模板须先阅读并接受。CLI `new` 保持原来的默认空项目行为，模板选择目前在原生新建项目界面提供。
+- **项目**：扫描磁盘、Hub 项目表以及 Unity／团结 Editor 在 Windows 注册表中的最近项目；自动发现时跳过系统临时目录、Codex 自动工作树和已有项目的 `Library`／`Temp` 内的工作副本，手动添加、收藏或 Hub 明确列出的项目仍会保留。同一目录的大小写、短路径和目录联接别名合并显示，不同目录的同名项目保持独立。支持搜索、排序、收藏、双击打开、手动添加和新建项目。项目行的更多菜单可隐藏项目，在设置中可恢复；这只影响 GameEngineLauncher233，不修改项目文件或 Hub 记录。项目列表优先显示，Git 状态在后台补充；没有 Hub 或关闭同步时，收藏保存在本机。点击项目行的编辑器版本，可以选择同一引擎的已安装版本；选择不同版本时确认风险后再打开，项目版本由 Editor 实际迁移。新建项目时，同版本的多个安装目录可分别选择，项目名必须是有效的文件夹名称。
+- 新建项目在编辑器启动后先显示为等待状态；确认版本文件、`Assets` 和有效包清单出现后才登记并同步 Hub。等待状态保存在本机，重启后继续检查；可以停止跟踪而不删除文件。CLI 发起创建后，由运行中的或下次打开的 GameEngineLauncher233 完成登记。文件结构存在并不代表资源导入或许可验证已经完成。
+- **新建项目模板**：原生界面按所选编辑器读取官方模板清单，提供核心、示例、学习、已下载分类和搜索；显示 URP／HDRP、目标平台、模板版本与包依赖。支持编辑器自带模板、该编辑器在 Hub 中明确下载的模板，以及 GameEngineLauncher233 的离线缓存。远程模板按官方摘要校验后保存在本机，可后台下载、取消、重试或重新校验。创建时将完整模板包交给 Editor，保留模板场景、渲染管线资产与配置；不会通过给空项目添加单个 URP 包来冒充模板。切换编辑器时重新加载兼容模板；需要条款确认的模板须先阅读并接受。CLI `new` 保持原来的默认空项目行为，模板选择目前在原生新建项目界面提供。
 - 跨版本确认会显示目标编辑器的版本和路径；确认期间编辑器列表发生变化时须重新选择。GUI 和 CLI 在启动前会核对可读取的编辑器程序版本，发现与扫描结果不一致时停止打开并提示刷新。
 - 项目行的直接打开也会核对当前编辑器与显示版本是否一致。跨版本启动后，程序最多观察 20 分钟；只有 Editor 实际写入新的完整版本号时才自动刷新项目列表，不会自行修改项目版本。
 - **安装与下载**：识别 Unity / 团结引擎已安装的编辑器（默认目录、Hub 的 `secondaryInstallPath.json`、自定义目录），同版本的不同安装目录也可分别管理；可选择版本父目录、版本目录或 `Editor` 文件夹，Windows 上优先读取编辑器程序的实际版本。下载页分别读取两个引擎的官方版本清单，可按版本号查询 Unity 官方历史版本（每次最多 25 个匹配项），一次点击下载并安装具备官方校验信息的版本，安装目录在点击时确定；执行安装程序前再次核对文件。官方服务器支持时使用最多 6 个连接并行下载；具有校验值的编辑器及 OpenJDK 包支持网络中断或异常退出后续传，取消下载会清理进度；不支持分段时使用单连接。离线时使用本程序最近一次缓存，首次使用可回退到本机 Hub 缓存。
 - **接管 Hub（双向）**：读取并写回 Hub 自己的文件。
   - Unity Hub：项目表 `projects-v1.json`、收藏 `favoriteProjects.json`，新增项目与收藏会写入 Hub，Hub 侧改动实时同步回来。
-  - 团结引擎 Hub：收藏与目录双向；项目来自磁盘扫描及编辑器最近项目记录，UnityStarter 不写入团结 Hub 使用的注册表记录。
+  - 团结引擎 Hub：收藏与目录双向；项目来自磁盘扫描及编辑器最近项目记录，GameEngineLauncher233 不写入团结 Hub 使用的注册表记录。
   - 写入保留 Hub 原有字段，临时文件 + rename 原子替换；Hub 运行时可能用内存状态覆盖，下一次 Hub 写文件时本程序会重新导入。
-- **服务页**：资源商店、游戏发行、付费与许可、技术文档、问题反馈，链接取自当前引擎的适配器与 `cloudConfig.json`；团结引擎才有“游戏发行”，Unity 商店/文档/许可只显示 Unity 入口，团结则显示团结入口。许可页提供官方 CLI 状态检查和 Personal 登录激活流程，并列出本机许可文件，不展示账号或许可详情。Unity CLI 本身可能发送匿名使用数据，UnityStarter 不会在启动时自动调用它。反馈页一键生成带诊断信息的 GitHub Issue。
+- **服务页**：资源商店、游戏发行、付费与许可、技术文档、问题反馈，链接取自当前引擎的适配器与 `cloudConfig.json`；团结引擎才有“游戏发行”，Unity 商店/文档/许可只显示 Unity 入口，团结则显示团结入口。许可页提供官方 CLI 状态检查和 Personal 登录激活流程，并列出本机许可文件，不展示账号或许可详情。Unity CLI 本身可能发送匿名使用数据，GameEngineLauncher233 不会在启动时自动调用它。反馈页一键生成带诊断信息的 GitHub Issue。
 - **多语言**：默认跟随系统语言，内置 English 与简体中文，窗口与 CLI 共用文案。
-- **工作台**：原生深色界面包含一体化标题栏和系统窗口控制；左侧垂直切换 Unity 国际版和团结引擎，每个引擎有独立的项目、安装、下载与收藏；编辑器和下载版本按版本从新到旧排列。团结版本映射可用时同时显示产品版本和底层版本。
-- **引擎适配器**：Unity 与团结引擎只是注册表里的前两个适配器。每个适配器拥有自己的左侧图标、导航页面、链接和可选功能（例如只有团结引擎有“游戏发行”）。设置 → 引擎适配可从 GitHub 仓库、`owner/repo` 或 `adapter.json` 地址导入社区适配器；适配器可用声明式链接页，也可带一个 LSP 风格的 stdio JSON-RPC 进程来检测编辑器/项目并按自己的命令行约定启动。规范见 [ENGINE_ADAPTERS.md](ENGINE_ADAPTERS.md)，示例见 [examples/engine-adapter](examples/engine-adapter)。
+- **工作台**：原生深色界面包含一体化标题栏和系统窗口控制；左侧垂直切换 Unity 国际版、团结引擎和 Godot，每个引擎有独立的项目、安装、收藏、安装目录与下载并发设置；编辑器和下载版本按版本从新到旧排列。团结版本映射可用时同时显示产品版本和底层版本。
+- **引擎适配器**：Unity、团结引擎和 Godot 只是注册表里的前三个适配器。每个适配器拥有自己的左侧图标、导航页面、链接和可选功能（例如只有团结引擎有“游戏发行”）。引擎设置（导航列顶部齿轮）分别保存安装目录与并行下载连接数；系统设置（左下角）管理语言、Hub 接管、适配器导入与更新。设置 → 引擎适配可从 GitHub 仓库、`owner/repo` 或 `adapter.json` 地址导入社区适配器；适配器可用声明式链接页，也可带一个 LSP 风格的 stdio JSON-RPC 进程来检测编辑器/项目并按自己的命令行约定启动。规范见 [ENGINE_ADAPTERS.md](ENGINE_ADAPTERS.md)，示例见 [examples/engine-adapter](examples/engine-adapter)。
 - **编辑器管理**：安装页提供搜索、正式版／预览版筛选、定位、安装入口、已安装模块和卸载入口，并可直接选择新安装目录；切换目录后仍会扫描此前的安装目录。Unity 官方模块清单按编辑器版本缓存，离线时显示保存的清单与经文件核对的本地安装状态，并可手动刷新。可直接安装官方清单中受支持的独立平台模块、OpenJDK、Unity 和团结语言包及离线文档，以及部分 Android SDK／NDK 依赖；其他模块需使用官方 Hub。已安装的 Unity 和团结离线文档可从文档页打开手册和脚本 API。
 - 添加模块时可多选受支持的模块并批量安装：按依赖顺序逐项执行，Android SDK／NDK 会暂停等待许可确认；失败或取消后保留尚未完成的选择。选择按编辑器路径、版本和引擎保存在本机；重启后重新核对模块状态，由用户检查后手动继续，不会自动开始安装或接受许可。
 - 下载任务页汇总两个引擎的编辑器与模块任务；模块窗口可收起到后台，下载阶段显示实际进度并可取消，安装阶段以不确定进度显示，可随时返回任务或待确认的 Android 许可。
@@ -30,35 +30,35 @@ Windows 10/11 x64，单文件约 10 MB。
 - 支持团结 Arm Linux 和 OpenHarmony 官方平台模块；核对 Arm Linux 开发版与非开发版 Player，以及 OpenHarmony 编辑器扩展和两种 ARM64 Player 文件。OpenHarmony Node.js 18.14.1 使用官方 Node.js 公布的 SHA-256 校验腾讯镜像包；支持官方 6.1 Release SDK，校验官方 SHA-256 后解压 Windows 组件到 API 23 目录。模块可按依赖排队安装，其他 SDK 版本尚未支持；文件检查不代表已完成平台构建。
 - 团结 Embedded Linux、QNX 和 HMI Android 使用官方平台安装包，并核对编辑器扩展及对应架构的开发版、发布版 Player；HMI Android 的 SDK／NDK 依赖尚未支持，文件检查不代表已完成平台构建。
 - 模块窗口按开发工具、平台、文档和语言分组，将依赖显示在父平台下，并显示官方清单的下载和磁盘用量估计及目标磁盘可用空间；实际下载大小和安装后占用可能不同。
-- 卸载编辑器前需确认操作；原生界面调用该安装自带的官方静默卸载器，先检查同一路径的编辑器进程，等待 `Editor` 目录消失后才报告完成。超时、进程异常退出或目录仍有文件时会保留保护记录，阻止 UnityStarter 再次操作该安装；确认官方卸载器已停止后可在界面解除保护。仍可选择打开官方交互式卸载器；项目目录不由 UnityStarter 删除。
-- UnityStarter 的窗口和 CLI 通过跨进程锁协调同一编辑器的启动、安装、模块写入与卸载。其他程序不受此锁约束，因此卸载时仍应避免通过官方 Hub 或其他工具启动该编辑器。
+- 卸载编辑器前需确认操作；原生界面调用该安装自带的官方静默卸载器，先检查同一路径的编辑器进程，等待 `Editor` 目录消失后才报告完成。超时、进程异常退出或目录仍有文件时会保留保护记录，阻止 GameEngineLauncher233 再次操作该安装；确认官方卸载器已停止后可在界面解除保护。仍可选择打开官方交互式卸载器；项目目录不由 GameEngineLauncher233 删除。
+- GameEngineLauncher233 的窗口和 CLI 通过跨进程锁协调同一编辑器的启动、安装、模块写入与卸载。其他程序不受此锁约束，因此卸载时仍应避免通过官方 Hub 或其他工具启动该编辑器。
 
 ## 安装
 
 从 [Releases](https://github.com/neko233-com/UnityStarter/releases) 下载：
 
-- `unitystarter-<version>-amd64.msi`：推荐的当前用户安装包，安装到 `%LOCALAPPDATA%\Programs\UnityStarterMSI`，注册开始菜单、App Paths 和用户 PATH。后台检查正式版更新，校验 MSI 的大小和 SHA-256 后下载；可以点击「更新并重启」，也可以下次启动时自动安装。安装失败会保留原程序并显示错误，可手动重试。
-- `unitystarter-setup-<version>-amd64.exe`：原 NSIS 安装包，安装到 `%LOCALAPPDATA%\Programs\UnityStarter`，带开始菜单与桌面快捷方式；更新时请手动下载新版 MSI 或安装包。
-- `UnityStarter.exe`：免安装，直接运行；若需命令行别名，可执行 `_tools\register-cli.ps1 -InstallDir <目录>`。
+- `gameenginelauncher233-<version>-amd64.msi`：推荐的当前用户安装包，安装到 `%LOCALAPPDATA%\Programs\GameEngineLauncher233`，注册开始菜单、App Paths 和用户 PATH。后台检查正式版更新，校验 MSI 的大小和 SHA-256 后下载；可以点击「更新并重启」，也可以下次启动时自动安装。安装失败会保留原程序并显示错误，可手动重试。
+- `gameenginelauncher233-setup-<version>-amd64.exe`：原 NSIS 安装包，安装到 `%LOCALAPPDATA%\Programs\GameEngineLauncher233`，带开始菜单与桌面快捷方式；更新时请手动下载新版 MSI 或安装包。
+- `GameEngineLauncher233.exe`：免安装，直接运行；若需命令行别名，可执行 `_tools\register-cli.ps1 -InstallDir <目录>`。
 
 发布页的 `SHA256SUMS.txt` 可用于检查下载完整性。MSI 与旧版 NSIS 安装在不同目录，不会删除旧安装目录里的编辑器；安装 MSI 后，新终端优先使用 MSI 的命令行入口。
 
 ## CLI
 
-安装包安装后，在**新开的**终端里可直接用 `unitystarter`（底层仍是同一 `UnityStarter.exe`）。带参数时不打开窗口：
+安装包安装后，在**新开的**终端里可直接用 `GameEngineLauncher233`（底层仍是同一 `GameEngineLauncher233.exe`）。带参数时不打开窗口：
 
 ```sh
-unitystarter projects [--query 文本] [--json]
-unitystarter editors [--json]
-unitystarter open <路径|名称>
-unitystarter new <目录> [--editor 版本]
-unitystarter hub status [--json]
-unitystarter hub sync [--json]
-unitystarter releases [--json]
-unitystarter install <版本> [--simulate]
-unitystarter update [--json]
-unitystarter version
-unitystarter help
+GameEngineLauncher233 projects [--query 文本] [--json]
+GameEngineLauncher233 editors [--json]
+GameEngineLauncher233 open <路径|名称>
+GameEngineLauncher233 new <目录> [--editor 版本]
+GameEngineLauncher233 hub status [--json]
+GameEngineLauncher233 hub sync [--json]
+GameEngineLauncher233 releases [--json]
+GameEngineLauncher233 install <版本> [--simulate]
+GameEngineLauncher233 update [--json]
+GameEngineLauncher233 version
+GameEngineLauncher233 help
 ```
 
 - `--json`：稳定字段（`name`/`path`/`version`/`engine`/`hub`/`favorite`/`editor`，Hub 的 `mode` 为 `two-way`/`import-only`）。
@@ -70,14 +70,14 @@ unitystarter help
 
 设置页打开「演示模式」，下载页的按钮变成「模拟安装」：只创建 `<安装目录>\<版本>\Editor\Unity.exe` 的占位结构与标记文件，安装页会立刻出现该版本并标为「模拟」，可一键移除。用于验证下载→安装→项目匹配整条链路，不需要真的拉 3.8 GB。
 
-CLI 同样可用：`unitystarter install 6000.0.85f2 --simulate`。
+CLI 同样可用：`GameEngineLauncher233 install 6000.0.85f2 --simulate`。
 
 模拟编辑器不会用于打开或新建真实项目；存在同版本真实编辑器时优先使用真实编辑器。关闭演示模式后仍可安装真实版本，但如果模拟目录正好占用了目标安装路径，需要先移除该模拟项或选择其他安装目录。
 
 ## 数据与日志
 
-- 设置：`%APPDATA%\UnityStarter\settings.json`（旧的带空格目录会在首次运行时读取）。
-- 日志：`%APPDATA%\UnityStarter\logs\app.log`，超过 1 MB 轮转，最多保留 5 份且超过 14 天自动删除；设置页有「打开日志」。
+- 设置：`%APPDATA%\GameEngineLauncher233\settings.json`（旧的带空格目录会在首次运行时读取）。
+- 日志：`%APPDATA%\GameEngineLauncher233\logs\app.log`，超过 1 MB 轮转，最多保留 5 份且超过 14 天自动删除；设置页有「打开日志」。
 - Hub 接管：`%APPDATA%\UnityHub`、`%APPDATA%\TuanjieHub`。
 
 ## 开发
@@ -94,7 +94,7 @@ task checksums        # 生成 SHA256SUMS.txt
 go tool mygo generate # 修改 locales/*.json 后重新生成语言包
 ```
 
-`task install-local` 会先关闭本机 UnityStarter；若窗口未及时关闭，会强制结束受管理的 UnityStarter 进程，然后安装并启动本机构建。`task install` 使用环境变量 `MSI_PATH`、`MSI_SHA256` 和 `EXE_SHA256` 校验、安装并启动 MSI。CI 见 `.github/workflows/ci.yml`：测试并构建产物；推送与版本一致的 `v*` 标签后通过 `task release` 发布 Release。
+`task install-local` 会先关闭本机 GameEngineLauncher233；若窗口未及时关闭，会强制结束受管理的 GameEngineLauncher233 进程，然后安装并启动本机构建。`task install` 使用环境变量 `MSI_PATH`、`MSI_SHA256` 和 `EXE_SHA256` 校验、安装并启动 MSI。CI 见 `.github/workflows/ci.yml`：测试并构建产物；推送与版本一致的 `v*` 标签后通过 `task release` 发布 Release。
 
 设置 `UNITYSTARTER_TEST_OFFICIAL_BATCH=1` 后运行 `go test . -run TestOfficialLanguage`，可在临时编辑器目录实测官方语言包的批量下载、安装、取消和目标文件冲突；测试不会修改现有编辑器。队列调度使用测试回调，不能代替真实桌面交互或平台构建验收。
 
@@ -108,8 +108,8 @@ go tool mygo generate # 修改 locales/*.json 后重新生成语言包
 - 发布包未做代码签名，Windows 可能提示未知发布者。
 - Unity Alpha / Beta 属于预览版本，兼容性和稳定性与正式版不同。
 - 打开 Unity 编辑器、打开或新建 Unity 项目时，通过本机官方 Unity CLI 在后台检查许可；没有有效许可时保留待执行操作，先显示原生许可处理界面。不会在应用启动时调用 CLI。CLI 缺失或检查失败时显示状态未知，可打开 Unity Hub，或由编辑器继续执行官方许可检查。
-- Personal 用户确认使用资格和 Unity 软件条款后，可一键发起官方浏览器登录、激活和重新验证；许可验证通过才继续待执行操作，取消流程不会启动编辑器或创建项目目录。[Personal 首次激活需要 Unity 账号](https://docs.unity.com/en-us/hub/manage-license)，无法免账号跳过。Pro、Enterprise、序列号及离线许可通过 Unity Hub 管理。账号、凭据和许可文件由 Unity 管理，UnityStarter 不保存这些详情、不生成或绕过许可。官方 CLI 可能发送其自身的匿名使用数据。
-- 新安装的编辑器默认保存在 `%LOCALAPPDATA%\UnityStarter\Editors`，独立于应用安装目录。旧版本若将编辑器放在应用目录的 `Editors` 中，卸载器会阻止卸载，先将其移到应用目录之外即可。
+- Personal 用户确认使用资格和 Unity 软件条款后，可一键发起官方浏览器登录、激活和重新验证；许可验证通过才继续待执行操作，取消流程不会启动编辑器或创建项目目录。[Personal 首次激活需要 Unity 账号](https://docs.unity.com/en-us/hub/manage-license)，无法免账号跳过。Pro、Enterprise、序列号及离线许可通过 Unity Hub 管理。账号、凭据和许可文件由 Unity 管理，GameEngineLauncher233 不保存这些详情、不生成或绕过许可。官方 CLI 可能发送其自身的匿名使用数据。
+- 新安装的编辑器默认按引擎保存在 `%LOCALAPPDATA%\GameEngineLauncher233\Editors\{Unity,Tuanjie,Godot}`，独立于应用安装目录；每个引擎可在引擎设置中改用不同目录。旧版本若将编辑器放在应用目录的 `Editors` 中，卸载器会阻止卸载，先将其移到应用目录之外即可。
 - 安装中断的编辑器不会显示为已安装；安装完成前核对编辑器程序版本和必要核心文件，可从下载页重新尝试安装或检查下载并重试。重试沿用首次选择的安装目录；已有编辑器目录不会被自动覆盖。文件存在和版本匹配仍不代表 Editor 的许可或项目启动已验证。
 - 断点续传需要官方文件校验值、分段支持和服务器文件标识；版本标识变化或校验失败时不会使用旧数据。已下载的完整文件校验通过后可离线复用。Android 多包下载中断后可在重新确认许可时复用缓存；主动取消下载会清理该计划的缓存，设置页可打开缓存目录。
 - 下载等待服务器响应或数据超过 45 秒会中断该请求；分段下载会先自动重试，并在最终失败时保留可续传进度。持续有数据到达的慢下载没有总时长限制。

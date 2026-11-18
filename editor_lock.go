@@ -47,7 +47,7 @@ func acquireEditorLockRaw(exe string) (func(), error) {
 	}
 	release, err := acquireDownloadLock("editor-" + id)
 	if err != nil {
-		return nil, fmt.Errorf("editor is busy in another UnityStarter operation: %w", err)
+		return nil, fmt.Errorf("editor is busy in another GameEngineLauncher233 operation: %w", err)
 	}
 	return release, nil
 }

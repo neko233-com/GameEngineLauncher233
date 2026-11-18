@@ -26,6 +26,12 @@ const (
 	pageTuanjieFavorites = "/tuanjie/favorites"
 	pageTuanjieInstalls  = "/tuanjie/installs"
 	pageTuanjieDownloads = "/tuanjie/downloads"
+	pageGodotProjects    = "/godot/projects"
+	pageGodotInstalls    = "/godot/installs"
+	pageGodotFavorites   = "/godot/favorites"
+	pageGodotGet         = "/godot/get"
+	pageGodotDocs        = "/godot/docs"
+	pageGodotCommunity   = "/godot/community"
 	pageStore            = "/store"
 	pagePublish          = "/publish"
 	pageLicense          = "/license"
@@ -33,14 +39,15 @@ const (
 	pageLearn            = "/learn"
 	pageFeedback         = "/feedback"
 	pageSettings         = "/settings"
+	pageEngineSettings   = "/settings/engine"
 	pageActivity         = "/activity"
 
 	// appVersion is what the CLI prints and what the window shows when MyGo
 	// does not know the packaged version.
-	appVersion = "1.8.0"
+	appVersion = "1.9.0"
 	// appName is the name of the executable and of the app's data folder, as
 	// mygo.json names the app; the window shows a name with a space.
-	appName = "UnityStarter"
+	appName = "GameEngineLauncher233"
 )
 
 // app is the state of the window: what was found on this machine, the page
@@ -401,13 +408,16 @@ func (a *app) view(c *ui.Context) {
 						}
 					})
 				})
-				a.licenseStatusStrip(c)
-				if a.hasDownloadsFooter(s) {
-					ui.Divider(c)
-					ui.Column(c).Shrink(0).Padding(8, 10, 10, 10).FocusGroup(ui.Vertical).Children(func() {
-						a.navItem(c, downloads, iconDownload, locales.SidebarDownloads(), nil)
-					})
+				if a.hasLicenseStatus(s) {
+					a.licenseStatusStrip(c)
 				}
+				ui.Divider(c)
+				ui.Column(c).Shrink(0).Padding(8, 10, 10, 10).FocusGroup(ui.Vertical).Children(func() {
+					if a.hasDownloadsFooter(s) {
+						a.navItem(c, downloads, iconDownload, locales.SidebarDownloads(), nil)
+					}
+					a.navItem(c, pageSettings, iconGear, locales.SidebarSettings(), nil)
+				})
 			})
 			ui.Column(c).Grow(1).MinWidth(0).MinHeight(0).Fill().Children(func() {
 				a.unityLicenseBanner(c)
@@ -439,6 +449,8 @@ func (a *app) view(c *ui.Context) {
 					a.feedbackPage(c)
 				case pageSettings:
 					a.settingsPage(c)
+				case pageEngineSettings:
+					a.engineSettingsPage(c)
 				case pageActivity:
 					a.activityPage(c)
 				default:
@@ -554,17 +566,17 @@ func (a *app) navigationHeader(c *ui.Context) {
 			ui.Text(c, locales.AppTitle()).FontSize(10).TextColor(t.TextMuted).SingleLine().Clip()
 		})
 		gear := ui.Button(c, "").Size(28, 28).Padding(0).Radius(6).
-			Label(locales.SidebarSettings()).Tooltip(locales.SidebarSettings()+" · Ctrl+,").
+			Label(locales.EngineSettings()).Tooltip(locales.EngineSettings()).
 			Background(ui.Color{}).Border(0, ui.Color{}).
-			OnClick(func() { a.page = pageSettings })
+			OnClick(func() { a.page = pageEngineSettings })
 		gear.Children(func() {
 			color := t.TextMuted
-			if a.page == pageSettings {
+			if a.page == pageEngineSettings {
 				color = t.Text
 			}
 			ui.Icon(c, iconGear).Size(17, 17).TextColor(color)
 		})
-		if a.page == pageSettings {
+		if a.page == pageEngineSettings {
 			gear.Background(t.SurfaceHover)
 		}
 		if gear.Hovered() {
@@ -606,8 +618,9 @@ func (a *app) switchEngine(engine string) {
 		} else {
 			a.page = next.LandingPage()
 		}
-	case a.page == pageSettings:
-		// Settings is shared by every engine.
+	case a.page == pageSettings || a.page == pageEngineSettings:
+		// System and engine settings belong to the launcher context and stay
+		// open while the active engine changes.
 	default:
 		if _, ok := next.PageForRoute(a.page); !ok {
 			a.page = next.LandingPage()
@@ -649,7 +662,7 @@ func (a *app) favoritesPage() bool {
 // hasDownloadsFooter keeps the pinned downloads entry for engines that
 // actually have a downloads workspace; a links-only adapter does not.
 func (a *app) hasDownloadsFooter(s engineStrategy) bool {
-	if s.Adapter == nil || s.Adapter.BuiltIn {
+	if s.Adapter == nil {
 		return true
 	}
 	if !s.Adapter.Features.Downloads {
@@ -657,6 +670,15 @@ func (a *app) hasDownloadsFooter(s engineStrategy) bool {
 	}
 	_, ok := s.Adapter.PageForKind("downloads")
 	return ok
+}
+
+// hasLicenseStatus keeps license text on engines that actually use a license
+// workspace. Godot and links-only adapters should not show "free license".
+func (a *app) hasLicenseStatus(s engineStrategy) bool {
+	if s.Adapter == nil {
+		return true
+	}
+	return s.Adapter.ID == kindUnity || s.Adapter.ID == kindTuanjie
 }
 
 // header is the title of a page, with its count and its actions.
@@ -772,6 +794,10 @@ func (a *app) openProjectWithEditorChecked(p projectEntry, expected editorInstal
 		a.alert(locales.EditorMissing(p.Version))
 		return
 	}
+	if p.Kind == kindGodot {
+		a.openGodotProject(p, expected)
+		return
+	}
 	if isExternalEngine(p.Kind) {
 		a.openExternalProject(p, expected)
 		return
@@ -817,6 +843,20 @@ func (a *app) openProjectWithEditorChecked(p projectEntry, expected editorInstal
 	}
 	if !strings.EqualFold(expected.Version, p.Version) {
 		a.watchProjectVersion(p.Path, p.Version)
+	}
+}
+
+// openGodotProject uses Godot's own --path convention; Godot projects have
+// project.godot rather than Unity's ProjectVersion.txt.
+func (a *app) openGodotProject(p projectEntry, expected editorInstall) {
+	current, ok := a.editorInstall(p.Editor)
+	if !ok || !strings.EqualFold(current.Exe, expected.Exe) || current.Kind != kindGodot {
+		a.alert(locales.ProjectEditorChanged())
+		a.refresh()
+		return
+	}
+	if err := startDetached(current.Exe, []string{"--path", p.Path}, filepath.Dir(current.Exe)); err != nil {
+		a.alert(locales.OpenFailed(err.Error()))
 	}
 }
 

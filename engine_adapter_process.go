@@ -187,7 +187,7 @@ func (r *adapterRPC) readResponse() (adapterRPCResponse, error) {
 func (r *adapterRPC) initialize(ctx context.Context, adapter *engineAdapter) error {
 	params := map[string]any{
 		"protocolVersion": engineAdapterProtocolVersion,
-		"client":          map[string]any{"name": "UnityStarter", "version": appVersion},
+		"client":          map[string]any{"name": "GameEngineLauncher233", "version": appVersion},
 		"engine":          map[string]any{"id": adapter.ID, "name": adapter.DisplayName()},
 	}
 	var result map[string]any

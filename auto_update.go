@@ -32,7 +32,7 @@ func updatesDir() string        { return filepath.Join(userDataDir(), "updates")
 func pendingUpdatePath() string { return filepath.Join(updatesDir(), "pending.json") }
 func updateFailurePath() string { return filepath.Join(updatesDir(), "failure.json") }
 func updateMSIPath(version string) string {
-	return filepath.Join(updatesDir(), "unitystarter-"+version+"-amd64.msi")
+	return filepath.Join(updatesDir(), "gameenginelauncher233-"+version+"-amd64.msi")
 }
 
 func validSHA256(value string) bool {
@@ -49,10 +49,10 @@ func updateAssets(release latestRelease) (releaseAsset, releaseAsset, error) {
 	version := strings.TrimPrefix(release.Tag, "v")
 	var msi, exe releaseAsset
 	for _, asset := range release.Assets {
-		if asset.Name == "unitystarter-"+version+"-amd64.msi" {
+		if asset.Name == "gameenginelauncher233-"+version+"-amd64.msi" {
 			msi = asset
 		}
-		if asset.Name == "UnityStarter.exe" {
+		if asset.Name == "GameEngineLauncher233.exe" {
 			exe = asset
 		}
 	}

@@ -48,8 +48,15 @@ func (a *app) unityLicenseControls(c *ui.Context) {
 		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
 			ui.Icon(c, iconLicense).Size(22, 22).Shrink(0).TextColor(t.TextMuted)
 			ui.Text(c, locales.LicenseUnityStatus()).FontSize(16).Bold().Grow(1)
-			if a.licenseCheckState == "active" && !a.licenseCheckBusy {
-				ui.Badge(c, locales.LicenseReady())
+			switch {
+			case a.licenseCheckBusy:
+				ui.Badge(c, locales.LicenseBackgroundHint()).FontSize(10).TextColor(t.TextMuted)
+			case a.licenseCheckState == "active":
+				ui.Badge(c, locales.LicenseReady()).FontSize(10)
+			case a.licenseCheckState == "inactive":
+				ui.Badge(c, locales.LicenseStateInactive()).FontSize(10).TextColor(t.Warning)
+			default:
+				ui.Badge(c, locales.LicenseStateUnknown()).FontSize(10).TextColor(t.TextMuted)
 			}
 		})
 		ui.Text(c, a.unityLicenseMessage()).FontSize(13)

@@ -219,7 +219,7 @@ func resetEngineRegistry() {
 	defer engineRegistryMu.Unlock()
 	engineRegistryByID = map[string]*engineAdapter{}
 	engineRegistryOrder = nil
-	for _, a := range []*engineAdapter{builtinUnityAdapter(), builtinTuanjieAdapter()} {
+	for _, a := range []*engineAdapter{builtinUnityAdapter(), builtinTuanjieAdapter(), builtinGodotAdapter()} {
 		engineRegistryByID[a.ID] = a
 		engineRegistryOrder = append(engineRegistryOrder, a.ID)
 	}
@@ -297,6 +297,63 @@ func builtinUnityAdapter() *engineAdapter {
 			pageDef(pageDocs, "docs", iconDocs, locales.PageDocs),
 			pageDef(pageFeedback, "feedback", iconFeedback, locales.PageFeedback),
 			pageDef(pageDownloads, "downloads", iconDownload, locales.SidebarDownloads),
+		},
+	}
+}
+
+func builtinGodotAdapter() *engineAdapter {
+	return &engineAdapter{
+		ID:          kindGodot,
+		Version:     appVersion,
+		Description: locales.EnginesGodotDescription(),
+		Homepage:    "https://godotengine.org/",
+		BuiltIn:     true,
+		Icon:        iconGodot,
+		BrandIcon:   iconGodotBrand,
+		name:        func() string { return "Godot" },
+		Features:    engineAdapterFeatures{LicenseFlow: false, CreateProject: false, Downloads: false, Templates: false},
+		URLs: engineAdapterURLs{
+			Docs:      "https://docs.godotengine.org/en/stable/",
+			Community: "https://forum.godotengine.org/",
+			Learn:     "https://docs.godotengine.org/en/stable/community/tutorials.html",
+		},
+		Pages: []enginePage{
+			pageDef(pageGodotProjects, "projects", iconProjects, locales.SidebarProjects),
+			pageDef(pageGodotInstalls, "installs", iconInstalls, locales.SidebarInstalls),
+			pageDef(pageGodotFavorites, "favorites", iconFavorite, locales.SidebarFavorites),
+			{
+				Key: "get", Route: pageGodotGet, Kind: "links", Icon: iconDownload,
+				title: locales.GodotGet,
+				Groups: []engineLinkGroup{{
+					Title: "Godot Engine",
+					Links: []engineLink{
+						{Title: locales.GodotDownload(), Detail: locales.GodotDownloadHint(), URL: "https://godotengine.org/download/windows/"},
+						{Title: locales.GodotAssetLibrary(), Detail: locales.GodotAssetLibraryHint(), URL: "https://godotengine.org/asset-library/asset"},
+					},
+				}},
+			},
+			{
+				Key: "docs", Route: pageGodotDocs, Kind: "links", Icon: iconDocs,
+				title: locales.PageDocs,
+				Groups: []engineLinkGroup{{
+					Title: locales.PageDocs(),
+					Links: []engineLink{
+						{Title: locales.GodotManual(), Detail: locales.GodotManualHint(), URL: "https://docs.godotengine.org/en/stable/"},
+						{Title: locales.GodotScripting(), Detail: locales.GodotScriptingHint(), URL: "https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/"},
+					},
+				}},
+			},
+			{
+				Key: "community", Route: pageGodotCommunity, Kind: "links", Icon: iconFeedback,
+				title: locales.LinkCommunity,
+				Groups: []engineLinkGroup{{
+					Title: locales.LinkCommunity(),
+					Links: []engineLink{
+						{Title: "Forum", Detail: locales.LinkCommunityHint(), URL: "https://forum.godotengine.org/"},
+						{Title: locales.GodotChat(), Detail: locales.GodotChatHint(), URL: "https://godotengine.org/community/"},
+					},
+				}},
+			},
 		},
 	}
 }

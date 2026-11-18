@@ -10,14 +10,14 @@ $root = Split-Path -Parent $PSScriptRoot
 $version = (Get-Content (Join-Path $root 'mygo.json') -Raw | ConvertFrom-Json).version
 if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Invalid MSI version: $version" }
 $output = [IO.Path]::GetFullPath((Join-Path $root $OutputDir))
-$exe = Join-Path $output 'UnityStarter.exe'
+$exe = Join-Path $output 'GameEngineLauncher233.exe'
 if (-not (Test-Path -LiteralPath $exe)) { throw "Missing app executable: $exe" }
-$msi = Join-Path $output "unitystarter-$version-amd64.msi"
+$msi = Join-Path $output "gameenginelauncher233-$version-amd64.msi"
 Push-Location $root
 try {
     dotnet tool restore
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    dotnet tool run wix build -arch x64 -d "Version=$version" -d "AppExe=$exe" -d "CliCmd=$(Join-Path $PSScriptRoot 'unitystarter.cmd')" -pdbtype none -o $msi (Join-Path $PSScriptRoot 'UnityStarter.wxs')
+    dotnet tool run wix build -arch x64 -d "Version=$version" -d "AppExe=$exe" -d "CliCmd=$(Join-Path $PSScriptRoot 'gameenginelauncher233.cmd')" -pdbtype none -o $msi (Join-Path $PSScriptRoot 'GameEngineLauncher233.wxs')
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     Write-Host "Built $msi"
 } finally { Pop-Location }

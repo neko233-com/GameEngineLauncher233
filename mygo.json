@@ -1,14 +1,14 @@
 {
-  "name": "UnityStarter",
-  "slug": "unitystarter",
-  "identifier": "com.neko233.unitystarter",
-  "version": "1.8.0",
+  "name": "GameEngineLauncher233",
+  "slug": "gameenginelauncher233",
+  "identifier": "com.neko233.gameenginelauncher233",
+  "version": "1.9.0",
   "out": "build",
   "resources": [
     "_tools/register-cli.ps1"
   ],
   "windows": {
-    "displayName": "UnityStarter",
+    "displayName": "GameEngineLauncher233",
     "installerInclude": "_tools/installer.nsh"
   },
   "i18n": {
@@ -16,7 +16,3 @@
     "source": "en"
   }
 }
-
-
-
-

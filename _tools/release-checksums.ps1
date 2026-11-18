@@ -9,7 +9,7 @@ if (-not [Environment]::Is64BitProcess) {
 $root = Split-Path -Parent $PSScriptRoot
 $version = (Get-Content (Join-Path $root 'mygo.json') -Raw | ConvertFrom-Json).version
 $dir = [IO.Path]::GetFullPath((Join-Path $root $OutputDir))
-$names = @('UnityStarter.exe', "unitystarter-setup-$version-amd64.exe", "unitystarter-$version-amd64.msi")
+$names = @('GameEngineLauncher233.exe', "gameenginelauncher233-setup-$version-amd64.exe", "gameenginelauncher233-$version-amd64.msi")
 $lines = foreach ($name in $names) {
     $path = Join-Path $dir $name
     if (-not (Test-Path -LiteralPath $path)) { throw "Missing release file: $path" }

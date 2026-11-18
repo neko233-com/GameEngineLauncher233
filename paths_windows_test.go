@@ -10,11 +10,12 @@ import (
 func TestEditorRootsAreSeparateFromAppInstall(t *testing.T) {
 	local := t.TempDir()
 	t.Setenv("LOCALAPPDATA", local)
-	if got, want := defaultInstallRoot(), filepath.Join(local, "UnityStarter", "Editors"); got != want {
+	if got, want := defaultInstallRoot(), filepath.Join(local, appName, "Editors"); got != want {
 		t.Fatalf("default install root %q, want %q", got, want)
 	}
 	legacy := legacyInstallRoots()
-	if len(legacy) != 1 || legacy[0] != filepath.Join(local, "Programs", "UnityStarter", "Editors") {
+	if len(legacy) != 2 || legacy[0] != filepath.Join(local, "UnityStarter", "Editors") ||
+		legacy[1] != filepath.Join(local, "Programs", "UnityStarter", "Editors") {
 		t.Fatalf("legacy roots %v", legacy)
 	}
 }

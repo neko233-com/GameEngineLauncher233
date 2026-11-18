@@ -37,9 +37,13 @@ func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 	if !ok || projects.X < railWidth {
 		t.Fatalf("navigation overlaps the engine rail: %+v, found=%v", projects, ok)
 	}
-	gear, ok := tt.Find(locales.SidebarSettings())
+	gear, ok := tt.Find(locales.EngineSettings())
 	if !ok || gear.Y+gear.H > 120 {
-		t.Fatalf("settings gear is not in the navigation header: %+v, found=%v", gear, ok)
+		t.Fatalf("engine settings gear is not in the navigation header: %+v, found=%v", gear, ok)
+	}
+	system, ok := tt.Find(locales.SidebarSettings())
+	if !ok || system.Y < 600 {
+		t.Fatalf("system settings is not pinned at the bottom: %+v, found=%v", system, ok)
 	}
 	license, ok := tt.Find(locales.SidebarLicenseLabel() + ":")
 	if !ok {

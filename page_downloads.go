@@ -346,11 +346,11 @@ func (a *app) downloadAction(c *ui.Context, e downloadEntry) {
 	// In demo mode the flow is tried with a stand-in editor, not gigabytes.
 	if a.prefs.DemoMode && (job == nil || job.Status == "installed") {
 		if ui.PrimaryButton(c, locales.ActionSimulate()).Clicked() {
-			if _, err := simulateEditorInstall(e.Engine, e.Version, a.installRoot()); err != nil {
+			if _, err := simulateEditorInstall(e.Engine, e.Version, a.installRootFor(e.Engine)); err != nil {
 				a.alert(err.Error())
 				return
 			}
-			a.prefs.EditorRoots = dedupe(append(a.prefs.EditorRoots, a.installRoot()))
+			a.prefs.EditorRoots = dedupe(append(a.prefs.EditorRoots, a.installRootFor(e.Engine)))
 			a.save()
 			a.refresh()
 		}

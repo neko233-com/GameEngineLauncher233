@@ -5,7 +5,7 @@
 Function un.onInit
   IfFileExists "$INSTDIR\Editors\*.*" 0 safe
   IfSilent +2
-  MessageBox MB_OK|MB_ICONEXCLAMATION "UnityStarter found editors in $INSTDIR\Editors. Move them outside the app folder before uninstalling."
+  MessageBox MB_OK|MB_ICONEXCLAMATION "GameEngineLauncher233 found editors in $INSTDIR\Editors. Move them outside the app folder before uninstalling."
   Abort
   safe:
 FunctionEnd
@@ -16,7 +16,7 @@ FunctionEnd
   StrCpy $R9 "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
   ExecWait '"$R9" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$INSTDIR\register-cli.ps1" -InstallDir "$INSTDIR"' $R8
   StrCmp $R8 "0" +2
-  Abort "UnityStarter CLI registration failed."
+  Abort "GameEngineLauncher233 CLI registration failed."
 !macroend
 
 !macro customInstall

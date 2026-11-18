@@ -74,7 +74,7 @@ func readPathJSON(path string) []string {
 func defaultInstallRoot() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return filepath.Join(os.TempDir(), "UnityStarter", "Editors")
+		return filepath.Join(os.TempDir(), appName, "Editors")
 	}
-	return filepath.Join(home, ".local", "share", "UnityStarter", "editors")
+	return filepath.Join(home, ".local", "share", appName, "editors")
 }

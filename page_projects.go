@@ -29,8 +29,10 @@ func (a *app) projectsPage(c *ui.Context) {
 	external := isExternalEngine(engine)
 	a.header(c, title, locales.ProjectsCount(len(items)), func() {
 		ui.Button(c, locales.ActionRefresh()).OnClick(a.refresh).Disabled(a.scanning)
-		if !external {
+		if !external && (engine == kindUnity || engine == kindTuanjie) {
 			ui.Button(c, locales.ActionAddProject()).OnClick(func() { a.addProjectForEngine(engine) })
+		}
+		if supportsProjectCreation(engine) && !external {
 			ui.PrimaryButton(c, locales.ActionNewProject()).OnClick(a.openNewProject)
 		}
 	})

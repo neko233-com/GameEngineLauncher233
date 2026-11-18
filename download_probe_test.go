@@ -270,3 +270,42 @@ func TestOfficialUnityDirectParallelProbe(t *testing.T) {
 	}
 	t.Logf("official Unity 7 installer supports parallel ranges: %d bytes, proxy disabled", total)
 }
+
+func TestParallelDownloadHonorsPerEngineWorkerSetting(t *testing.T) {
+	payload := bytes.Repeat([]byte("range-source"), parallelMinimumSize/12+1)
+	var mu sync.Mutex
+	active, maximum, ranges := 0, 0, 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("ETag", `"stable"`)
+		if r.Method == http.MethodHead {
+			w.Header().Set("Accept-Ranges", "bytes")
+			w.Header().Set("Content-Length", fmt.Sprint(len(payload)))
+			return
+		}
+		if r.Header.Get("Range") != "" && r.Header.Get("Range") != "bytes=0-0" {
+			mu.Lock()
+			ranges++
+			active++
+			if active > maximum {
+				maximum = active
+			}
+			mu.Unlock()
+			time.Sleep(30 * time.Millisecond)
+			defer func() { mu.Lock(); active--; mu.Unlock() }()
+		}
+		http.ServeContent(w, r, "editor.exe", time.Time{}, bytes.NewReader(payload))
+	}))
+	defer server.Close()
+	sum := sha256.Sum256(payload)
+	dest := filepath.Join(t.TempDir(), "editor.exe")
+	err := downloadFileVerifiedSizeWithWorkers(context.Background(), server.URL, dest,
+		"sha256-"+base64.StdEncoding.EncodeToString(sum[:]), int64(len(payload)), 2, func(int64, int64) {})
+	if err != nil {
+		t.Fatal(err)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if ranges != parallelWorkers || maximum > 2 || maximum < 1 {
+		t.Fatalf("ranges=%d max concurrency=%d, want segments=%d and max<=2", ranges, maximum, parallelWorkers)
+	}
+}

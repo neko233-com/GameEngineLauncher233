@@ -139,7 +139,7 @@ func (a *app) publishPage(c *ui.Context) {
 
 func (a *app) licensePage(c *ui.Context) {
 	t := c.Theme()
-	found := licenseLocations()
+	found := licenseLocationsFor(a.activeEngine)
 	s := a.engineStrategy()
 	a.linksPage(c, locales.PageLicense(), locales.PageLicenseHint(), func() {
 		title, hint := locales.LinkLicenseUnity(), locales.LinkLicenseUnityHint()

@@ -56,8 +56,8 @@ func TestUpdateWaitsForEditorAndModuleInstallations(t *testing.T) {
 func TestUpdateAssetsRejectsUntrustedOrIncompleteRelease(t *testing.T) {
 	digest := "sha256:" + strings.Repeat("a", 64)
 	r := latestRelease{Tag: "v9.0.0", Assets: []releaseAsset{
-		{Name: "unitystarter-9.0.0-amd64.msi", URL: "https://github.com/neko233-com/UnityStarter/releases/download/v9.0.0/unitystarter-9.0.0-amd64.msi", Digest: digest, Size: 100},
-		{Name: "UnityStarter.exe", URL: "https://github.com/neko233-com/UnityStarter/releases/download/v9.0.0/UnityStarter.exe", Digest: digest, Size: 100},
+		{Name: "gameenginelauncher233-9.0.0-amd64.msi", URL: "https://github.com/neko233-com/UnityStarter/releases/download/v9.0.0/gameenginelauncher233-9.0.0-amd64.msi", Digest: digest, Size: 100},
+		{Name: "GameEngineLauncher233.exe", URL: "https://github.com/neko233-com/UnityStarter/releases/download/v9.0.0/GameEngineLauncher233.exe", Digest: digest, Size: 100},
 	}}
 	if _, _, err := updateAssets(r); err != nil {
 		t.Fatal(err)
@@ -66,7 +66,7 @@ func TestUpdateAssetsRejectsUntrustedOrIncompleteRelease(t *testing.T) {
 	if _, _, err := updateAssets(r); err == nil {
 		t.Fatal("untrusted URL accepted")
 	}
-	r.Assets[0].URL = "https://github.com/neko233-com/UnityStarter/releases/download/v9.0.0/unitystarter-9.0.0-amd64.msi"
+	r.Assets[0].URL = "https://github.com/neko233-com/UnityStarter/releases/download/v9.0.0/gameenginelauncher233-9.0.0-amd64.msi"
 	r.Assets[0].Digest = ""
 	if _, _, err := updateAssets(r); err == nil {
 		t.Fatal("missing digest accepted")

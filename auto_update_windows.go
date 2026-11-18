@@ -14,7 +14,7 @@ import (
 )
 
 func managedUpdateExe() string {
-	return filepath.Join(os.Getenv("LOCALAPPDATA"), "Programs", "UnityStarterMSI", "UnityStarter.exe")
+	return filepath.Join(os.Getenv("LOCALAPPDATA"), "Programs", "GameEngineLauncher233", "GameEngineLauncher233.exe")
 }
 
 func isManagedInstall() bool {
@@ -133,7 +133,7 @@ func waitForUpdateParent(pid int) error {
 		return err
 	}
 	if result != syscall.WAIT_OBJECT_0 {
-		return fmt.Errorf("timed out waiting for UnityStarter to exit")
+		return fmt.Errorf("timed out waiting for GameEngineLauncher233 to exit")
 	}
 	return nil
 }

@@ -1,6 +1,16 @@
 package main
 
-import "github.com/egoist/mygo/ui"
+import (
+	_ "embed"
+
+	"github.com/egoist/mygo/ui"
+)
+
+//go:embed resources/icon-godot-color.svg
+var godotColorSVG []byte
+
+//go:embed resources/icon-godot-mono.svg
+var godotMonoSVG []byte
 
 // Engine-specific brand SVGs. Unity and Tuanjie are real marks taken from
 // the installed Tuanjie Hub's own icon set (unity_logo, tuanjie_hub_logo),
@@ -16,6 +26,8 @@ var (
 	iconUnity        = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19 7.5L13 4V6.3L16 8.1L12 10.4L8 8.1L11 6.3V4L5 7.5V14.4L7 13.2V9.8L11 12.1V16.8L8.1 15.1L6.1 16.3L12 20L17.9 16.4L15.9 15.2L13 16.9V12.2L17 9.9V13.2L19 14.4V7.5Z"/></svg>`))
 	iconTuanjie      = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M9.90234 3.41555L11.9717 4.61039L14.0412 3.41555L11.9717 2.2207L9.90234 3.41555Z"/><path fill="currentColor" d="M9.90234 3.41555H14.0412L11.9717 2.2207L9.90234 3.41555Z"/><path fill="currentColor" d="M16.9023 13.6718V9.22505L20.7578 7.00781V11.4423L16.9023 13.6718Z"/><path fill="currentColor" d="M16.9038 9.2212L13.0605 7.00397L16.9038 4.77441L20.7593 7.00397L16.9038 9.2212Z"/><path fill="currentColor" d="M16.9038 9.22505V13.6718L13.0605 11.4423V7.00781L16.9038 9.22505Z"/><path fill="currentColor" d="M7.11919 13.6718V9.22505L3.26367 7.00781V11.4423L7.11919 13.6718Z"/><path fill="currentColor" d="M3.26367 7.00397L7.11919 4.77441L10.9624 7.00397L7.11919 9.2212L3.26367 7.00397Z"/><path fill="currentColor" d="M7.10266 13.6373L10.9135 11.4423V7.00781L7.07031 9.21282L7.10266 13.6373Z"/><path fill="currentColor" d="M8.13867 19.5591L11.9819 21.7763V17.3419L8.13867 15.1123V19.5591Z"/><path fill="currentColor" d="M11.9805 17.3419L15.8237 15.1123V19.5591L11.9805 21.7763V17.3419Z"/><path fill="currentColor" d="M8.13867 15.1166L11.9819 12.8994L15.8251 15.1166L11.9819 17.3462L8.13867 15.1166Z"/><path fill="currentColor" d="M20.7452 14.292L18.6758 15.4868V17.8765L20.7452 16.6817V14.292Z"/><path fill="currentColor" d="M20.7452 14.292L18.6758 17.8765L20.7452 16.6817V14.292Z"/><path fill="currentColor" d="M9.90234 10.8711L11.9717 14.4556V12.0659L9.90234 10.8711Z"/><path fill="currentColor" d="M14.0401 10.8711L11.9707 12.0659V14.4556L14.0401 10.8711Z"/><path fill="currentColor" d="M9.90234 10.8711H14.0412L11.9717 12.0659L9.90234 10.8711Z"/><path fill="currentColor" d="M5.3331 17.8765V15.4868L3.26367 14.292V16.6817L5.3331 17.8765Z"/><path fill="currentColor" d="M5.3331 17.8765L3.26367 14.292V16.6817L5.3331 17.8765Z"/></svg>`))
 	iconTuanjieBrand = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.90234 3.41555L11.9717 4.61039L14.0412 3.41555L11.9717 2.2207L9.90234 3.41555Z" fill="#CCCCCC"/><path d="M9.90234 3.41555H14.0412L11.9717 2.2207L9.90234 3.41555Z" fill="#ffffff"/><path d="M16.9023 13.6718V9.22505L20.7578 7.00781V11.4423L16.9023 13.6718Z" fill="#CCCCCC"/><path d="M16.9038 9.2212L13.0605 7.00397L16.9038 4.77441L20.7593 7.00397L16.9038 9.2212Z" fill="#ffffff"/><path d="M16.9038 9.22505V13.6718L13.0605 11.4423V7.00781L16.9038 9.22505Z" fill="#373737"/><path d="M7.11919 13.6718V9.22505L3.26367 7.00781V11.4423L7.11919 13.6718Z" fill="#7F7F7F"/><path d="M3.26367 7.00397L7.11919 4.77441L10.9624 7.00397L7.11919 9.2212L3.26367 7.00397Z" fill="#ffffff"/><path d="M7.10266 13.6373L10.9135 11.4423V7.00781L7.07031 9.21282L7.10266 13.6373Z" fill="#373737"/><path d="M8.13867 19.5591L11.9819 21.7763V17.3419L8.13867 15.1123V19.5591Z" fill="#7F7F7F"/><path d="M11.9805 17.3419L15.8237 15.1123V19.5591L11.9805 21.7763V17.3419Z" fill="#CCCCCC"/><path d="M8.13867 15.1166L11.9819 12.8994L15.8251 15.1166L11.9819 17.3462L8.13867 15.1166Z" fill="#373737"/><path d="M20.7452 14.292L18.6758 15.4868V17.8765L20.7452 16.6817V14.292Z" fill="#7F7F7F"/><path d="M20.7452 14.292L18.6758 17.8765L20.7452 16.6817V14.292Z" fill="#CCCCCC"/><path d="M9.90234 10.8711L11.9717 14.4556V12.0659L9.90234 10.8711Z" fill="#7F7F7F"/><path d="M14.0401 10.8711L11.9707 12.0659V14.4556L14.0401 10.8711Z" fill="#CCCCCC"/><path d="M9.90234 10.8711H14.0412L11.9717 12.0659L9.90234 10.8711Z" fill="#ffffff"/><path d="M5.3331 17.8765V15.4868L3.26367 14.292V16.6817L5.3331 17.8765Z" fill="#373737"/><path d="M5.3331 17.8765L3.26367 14.292V16.6817L5.3331 17.8765Z" fill="#7F7F7F"/></svg>`))
+	iconGodot        = ui.MustParseSVG(godotMonoSVG)
+	iconGodotBrand   = ui.MustParseSVG(godotColorSVG)
 	iconBrand        = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 1 22 6.5v11L12 23 2 17.5v-11L12 1zm0 3.1L5 8v8l7 3.9 7-3.9V8l-7-3.9zM9 7.5v9l7-4.5-7-4.5z"/><path fill="currentColor" d="M17.4 1.5h5.1c.6 0 1 .4 1 1v4.5c0 .6-.4 1-1 1h-5.1c-.6 0-1-.4-1-1V2.5c0-.6.4-1 1-1zm.4 1.7l-.8.8 1.2 1.2-1.2 1.2.8.8 1.2-1.2 1.2 1.2.8-.8-1.2-1.2 1.2-1.2-.8-.8-1.2 1.2-1.2-1.2z"/></svg>`))
 	iconEngine       = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 21 7v10l-9 5-9-5V7l9-5zm0 2.2L5.4 8v8l6.6 3.7 6.6-3.7V8L12 4.2z"/></svg>`))
 	iconFavorite     = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m12 2 3 6.2 6.8 1-4.9 4.8 1.2 6.8-6.1-3.2-6.1 3.2 1.2-6.8-4.9-4.8 6.8-1L12 2z"/></svg>`))

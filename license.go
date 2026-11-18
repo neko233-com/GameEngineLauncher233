@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -66,6 +67,23 @@ func licenseLocations() []licenseLocation {
 			}
 		}
 		out = append(out, loc)
+	}
+	return out
+}
+
+// licenseLocationsFor keeps each engine's license page about that engine.
+// Shared machine-wide files stay visible only where they belong.
+func licenseLocationsFor(engine string) []licenseLocation {
+	all := licenseLocations()
+	if engine != kindUnity && engine != kindTuanjie {
+		return nil
+	}
+	out := make([]licenseLocation, 0, len(all))
+	for _, loc := range all {
+		tuanjie := strings.Contains(strings.ToLower(loc.Path), "tuanjie")
+		if engine == kindTuanjie && tuanjie || engine == kindUnity && !tuanjie {
+			out = append(out, loc)
+		}
 	}
 	return out
 }

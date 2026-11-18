@@ -53,7 +53,7 @@ func TestWorkspaceNavigationAtMinimumSize(t *testing.T) {
 	tt.Frame()
 	for _, tab := range []struct{ label, content string }{
 		{locales.SettingsProjectsTab(), locales.SettingsProjectRoots()},
-		{locales.SettingsInstallsTab(), locales.SettingsInstallRoot()},
+		{locales.SettingsInstallsTab(), locales.SettingsEditorRoots()},
 		{locales.SettingsAbout(), locales.ActionCheckUpdate()},
 		{locales.SettingsGeneral(), locales.SettingsLanguage()},
 	} {
@@ -159,7 +159,7 @@ func TestWorkspaceGallery(t *testing.T) {
 	i18n.SetLocaleFunc(func() string { return locale })
 	t.Cleanup(func() { i18n.SetLocaleFunc(func() string { return old }) })
 	for _, size := range []struct{ w, h int }{{1400, 820}, {900, 560}} {
-		for _, page := range []string{pageProjects, pageFavorites, pageTuanjieProjects, pageTuanjieFavorites, pageInstalls, pageTuanjieInstalls, pageDownloads, pageTuanjieDownloads, pageActivity, pageStore, pagePublish, pageLicense, pageDocs, pageLearn, pageFeedback, pageSettings} {
+		for _, page := range []string{pageProjects, pageFavorites, pageTuanjieProjects, pageTuanjieFavorites, pageGodotProjects, pageGodotInstalls, pageInstalls, pageTuanjieInstalls, pageDownloads, pageTuanjieDownloads, pageActivity, pageStore, pagePublish, pageLicense, pageDocs, pageLearn, pageFeedback, pageSettings} {
 			for _, tab := range []string{"", "projects", "installs", "engines", "about"} {
 				if page != pageSettings && tab != "" {
 					continue
@@ -168,6 +168,9 @@ func TestWorkspaceGallery(t *testing.T) {
 				a.page, a.settingsTab = page, tab
 				if strings.HasPrefix(page, "/tuanjie/") {
 					a.activeEngine = kindTuanjie
+				}
+				if strings.HasPrefix(page, "/godot/") {
+					a.activeEngine = kindGodot
 				}
 				tt := ui.NewTester(a.view, size.w, size.h)
 				tt.SetTitleBar(ui.TitleBar{Height: 36, Right: 138})

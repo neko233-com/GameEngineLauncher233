@@ -1,19 +1,19 @@
-# UnityStarter — Agent 执行手册
+# GameEngineLauncher233 — Agent 执行手册
 
 本文档给后续 Agent 使用。所有构建/安装链路已自动化，Agent 只需按步骤执行。
 
 ## 项目概要
 
-- **产品**: UnityStarter — Unity 国际版 + 团结引擎 Hub 的无广告替代品
+- **产品**: GameEngineLauncher233 — 面向 Unity、团结引擎、Godot 与社区适配器的游戏引擎启动器
 - **技术栈**: Go + github.com/egoist/mygo（原生 UI，非 Web 前端）
 - **仓库**: https://github.com/neko233-com/UnityStarter（main 分支）
 - **平台**: Windows amd64（per-user 安装）
-- **当前版本**: 1.8.0
+- **当前版本**: 1.9.0
 
 ## 目录结构
 
 ```
-UnityStarter/
+GameEngineLauncher233/
 ├── Taskfile.yml            # ⭐ 所有构建/发布的入口
 ├── mygo.json               # mygo 构建配置（版本号在这里）
 ├── icons.go                # SVG 品牌图标（官方 Unity/团结标志 + 通用图标）
@@ -29,7 +29,7 @@ UnityStarter/
 ├── auto_update_windows.go  # 在线 MSI 自动更新（msiexec /i ... /qn）
 ├── resources/icon.svg      # 应用图标（任务栏/窗口）
 ├── _tools/
-│   ├── UnityStarter.wxs        # WiX 源（MSI 安装包定义）
+│   ├── GameEngineLauncher233.wxs        # WiX 源（MSI 安装包定义）
 │   ├── build-msi.ps1          # 从 .wxs 构建 MSI
 │   ├── install-local.ps1      # 构建 + 静默安装 + 启动
 │   ├── install-msi.ps1       # 验证 SHA256 后 msiexec /qn
@@ -44,9 +44,9 @@ UnityStarter/
 每次 `task build` 产出：
 | 文件 | 用途 | 大小 |
 |---|---|---|
-| `UnityStarter.exe` | 原生可执行文件 | ~13.7 MB |
-| `unitystarter-setup-<ver>-amd64.exe` | NSIS 安装程序（mygo 产） | ~4.6 MB |
-| `unitystarter-<ver>-amd64.msi` | MSI 安装包（WiX 产，自动更新用） | ~5.1 MB |
+| `GameEngineLauncher233.exe` | 原生可执行文件 | ~13.7 MB |
+| `gameenginelauncher233-setup-<ver>-amd64.exe` | NSIS 安装程序（mygo 产） | ~4.6 MB |
+| `gameenginelauncher233-<ver>-amd64.msi` | MSI 安装包（WiX 产，自动更新用） | ~5.1 MB |
 
 ## ⭐ 标准执行流程（每次处理完必走）
 
@@ -61,7 +61,7 @@ task build
 task install-local
 
 # 4. 验证安装版本（必须输出目标版本号才算成功）
-& "$env:LOCALAPPDATA\Programs\UnityStarterMSI\UnityStarter.exe" version
+& "$env:LOCALAPPDATA\Programs\GameEngineLauncher233\GameEngineLauncher233.exe" version
 
 # 5. 提交 + push（workspace 干净）
 git add -A
@@ -69,7 +69,7 @@ git commit -m "<type>: <summary>"
 git push origin main
 ```
 
-**安装位置**: `%LOCALAPPDATA%\Programs\UnityStarterMSI\`
+**安装位置**: `%LOCALAPPDATA%\Programs\GameEngineLauncher233\`
 **卸载**: `msiexec /x {b3373319-8b2b-4b88-a782-725de6fb774a} /qn`（WiX UpgradeCode）
 
 ## 引擎适配器（engine_adapter*.go）
@@ -91,7 +91,7 @@ type engineAdapter struct {
 
 **规则**：
 - 内置适配器在 `engine_adapter.go`；用户适配器从
-  `%APPDATA%\UnityStarter\engine-adapters\<id>\adapter.json` 加载。
+  `%APPDATA%\GameEngineLauncher233\engine-adapters\<id>\adapter.json` 加载。
 - 视图只读 `a.engineStrategy()`：`Pages`、`Nav`、`BrandIcon`、功能标记都从
   适配器投影出来；`engineAdapterByID` / `engineAdapters` 是唯一注册表入口。
 - Unity 适配器没有“游戏发行”；团结适配器有。新增页面时改对应适配器的
@@ -113,32 +113,33 @@ type engineAdapter struct {
 参考 Tuanjie Hub 1.4.8 的三段式布局，视觉采用 Vercel 单色风格：
 
 - 最左 **64px 垂直引擎栏**：注册表里的每个适配器从上往下排列；当前引擎用浮起底块标记，点击切换 `activeEngine` 与对应页面。该栏独立于导航滚动。
-- 图标使用官方资源：`iconUnity` 为官方 Unity 立方体，`iconTuanjieBrand` 为官方团结引擎多面体；不要再用自绘近似图标。
-- 中间 **220px 导航列**：顶部是当前引擎品牌 + 设置齿轮，中部是适配器自己的页面（32px 行高、灰阶、选中浮起），底部是许可证单行说明；有下载页面的引擎才显示固定下载入口。
-- 引擎栏与导航各自是 `ui.FocusGroup`：一个 Tab 站点，方向键遍历；快捷键 `Ctrl+1…9` 按注册表顺序切引擎，`Ctrl+,` 打开设置。
+- 图标使用官方资源：`iconUnity` 为官方 Unity 立方体，`iconTuanjieBrand` 为官方团结引擎多面体，`iconGodotBrand` 为官方 Godot 标志；不要用自绘近似图标。
+- 中间 **220px 导航列**：顶部是当前引擎品牌 + 引擎设置齿轮，中部是适配器自己的页面（32px 行高、灰阶、选中浮起），底部是许可证单行说明、下载入口和固定的 **系统设置** 入口。Godot / 链接型适配器不显示许可证或下载。
+- 引擎栏与导航各自是 `ui.FocusGroup`：一个 Tab 站点，方向键遍历；快捷键 `Ctrl+1…9` 按注册表顺序切引擎，`Ctrl+,` 打开系统设置。
 - 弹窗统一用 `modal()`（`ui_layout.go`），不要把 `ui.Modal` 直接用到黑色画布上，否则面板边界会消失。
 - 布局回归测试在 `engine_rail_test.go`；改动侧栏时同时检查 1180×760 与 900×560。
 
 ## 品牌图标链路
 
 ```
-icons.go ── iconUnity / iconTuanjie / iconTuanjieBrand / iconBrand
+icons.go ── iconUnity / iconTuanjie / iconTuanjieBrand / iconGodot / iconGodotBrand / iconBrand
    │                              │
    ├── 引擎栏 / 安装卡片 ── engineStrategy.BrandIcon（官方原色标志）
    ├── 侧栏品牌区 / 标题栏 ── engineStrategy.Icon / BrandIcon ── 跟随 activeEngine
    └── 主内容空状态 ── iconBrand（共享 Unity+X 标记）
 
-resources/icon.svg ── 应用图标（任务栏/窗口）── 官方 Unity 标志（黑底白标）
+resources/icon.svg ── 应用图标（任务栏/窗口）── 通用引擎启动标志（黑底白标）
 ```
 
 图标来源：`D:\IDE\Tuanjie Hub\resources\app.asar` 内
 `node_modules/@unity-hub-components/icon/dist/icon/assets.js` 的
-`unity_logo` / `tuanjie_hub_logo` 路径。
+`unity_logo` / `tuanjie_hub_logo` 路径；Godot 图标来自
+`https://godotengine.org/press`。完整署名见 `resources/ATTRIBUTION.md`。
 
 ## MSI 自动更新链路
 
 ```
-auto_update_windows.go → msiexec /i unitystarter-<ver>-amd64.msi /qn /norestart
+auto_update_windows.go → msiexec /i gameenginelauncher233-<ver>-amd64.msi /qn /norestart
                                     ↑
                            GitHub Release asset（sha256 校验）
 ```

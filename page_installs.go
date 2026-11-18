@@ -14,28 +14,28 @@ import (
 func (a *app) installsPage(c *ui.Context) {
 	t := c.Theme()
 	engine := a.engineForPage(a.page)
-	external := isExternalEngine(engine)
+	installable := supportsInstallFlow(engine)
 	editors := a.filteredEditors(engine)
 	// Tuanjie Hub layout: the title row carries the location picker and the
 	// primary "install editor" action; external adapters detect their own
 	// editors and have no built-in installer.
 	var actions func()
-	if !external {
+	if installable {
 		actions = func() {
 			ui.Button(c, locales.InstallChooseLocation()).OnClick(a.chooseInstallRoot)
 			ui.PrimaryButton(c, locales.InstallEditor()).OnClick(func() { _, _, page, _ := enginePages(engine); a.page = page })
 		}
 	}
 	a.header(c, locales.InstallsTitle(), locales.InstallsCount(len(editors)), actions)
-	if !external {
+	if installable {
 		ui.Row(c).Padding(0, 24, 10, 24).Gap(8).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, locales.SettingsInstallRoot()+":").FontSize(12).TextColor(t.TextMuted)
-			ui.Text(c, a.installRoot()).Grow(1).MinWidth(0).FontSize(12).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(a.installRoot())
+			ui.Text(c, a.installRootFor(engine)).Grow(1).MinWidth(0).FontSize(12).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(a.installRootFor(engine))
 			ui.Button(c, locales.ActionAddFolder()).OnClick(a.addEditorRoot)
 		})
 	}
 	ui.Row(c).Padding(0, 24, 0, 24).Gap(6).Wrap().AlignItems(ui.Center).Children(func() {
-		if !external {
+		if installable {
 			for _, tab := range []struct{ id, label string }{{"", locales.InstallAll()}, {"official", locales.InstallOfficial()}, {"preview", locales.InstallPreview()}} {
 				tab := tab
 				pageTab(c, tab.label, a.installFilter == tab.id, func() { a.installFilter = tab.id })
@@ -123,7 +123,7 @@ func (a *app) editorCardGear(c *ui.Context, e editorInstall) {
 			}
 			return
 		}
-		if isExternalEngine(e.Kind) {
+		if isExternalEngine(e.Kind) || !supportsEditorManagement(e.Kind) {
 			return
 		}
 		otherBusy := (a.moduleBusy || a.moduleLoading || a.uninstallBusy || len(a.moduleQueue) > 0 || a.androidPlan != nil) && !strings.EqualFold(a.manageEditor.Exe, e.Exe)
@@ -132,7 +132,7 @@ func (a *app) editorCardGear(c *ui.Context, e editorInstall) {
 		}
 	}
 	label := locales.InstallManage()
-	if isExternalEngine(e.Kind) {
+	if !supportsEditorManagement(e.Kind) {
 		label = locales.ProjectMore()
 	}
 	ui.Button(c, "").Label(label).Tooltip(label).

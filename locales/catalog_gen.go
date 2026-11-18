@@ -308,6 +308,120 @@ func (msgs Messages) SettingsHint() string {
 	return Catalog.Format(msgs.locale, "settingsHint", nil)
 }
 
+// EngineSettings says "Engine settings"
+// in the language the app shows.
+func EngineSettings() string { return In(i18n.Locale()).EngineSettings() }
+
+// EngineSettings says "Engine settings"
+// in the language of msgs.
+func (msgs Messages) EngineSettings() string {
+	return Catalog.Format(msgs.locale, "engineSettings", nil)
+}
+
+// EngineSettingsHint says "Settings and links for {engine}."
+// in the language the app shows.
+func EngineSettingsHint(engine string) string { return In(i18n.Locale()).EngineSettingsHint(engine) }
+
+// EngineSettingsHint says "Settings and links for {engine}."
+// in the language of msgs.
+func (msgs Messages) EngineSettingsHint(engine string) string {
+	return Catalog.Format(msgs.locale, "engineSettingsHint", map[string]any{"engine": engine})
+}
+
+// EngineInstallRoot says "Editor install folder"
+// in the language the app shows.
+func EngineInstallRoot() string { return In(i18n.Locale()).EngineInstallRoot() }
+
+// EngineInstallRoot says "Editor install folder"
+// in the language of msgs.
+func (msgs Messages) EngineInstallRoot() string {
+	return Catalog.Format(msgs.locale, "engineInstallRoot", nil)
+}
+
+// EngineInstallRootHint says "Downloaded {engine} editors are installed in a version folder here."
+// in the language the app shows.
+func EngineInstallRootHint(engine string) string {
+	return In(i18n.Locale()).EngineInstallRootHint(engine)
+}
+
+// EngineInstallRootHint says "Downloaded {engine} editors are installed in a version folder here."
+// in the language of msgs.
+func (msgs Messages) EngineInstallRootHint(engine string) string {
+	return Catalog.Format(msgs.locale, "engineInstallRootHint", map[string]any{"engine": engine})
+}
+
+// EngineDownloadWorkers says "Parallel download connections"
+// in the language the app shows.
+func EngineDownloadWorkers() string { return In(i18n.Locale()).EngineDownloadWorkers() }
+
+// EngineDownloadWorkers says "Parallel download connections"
+// in the language of msgs.
+func (msgs Messages) EngineDownloadWorkers() string {
+	return Catalog.Format(msgs.locale, "engineDownloadWorkers", nil)
+}
+
+// EngineDownloadWorkersHint says "How many HTTP range connections one {engine} download may use."
+// in the language the app shows.
+func EngineDownloadWorkersHint(engine string) string {
+	return In(i18n.Locale()).EngineDownloadWorkersHint(engine)
+}
+
+// EngineDownloadWorkersHint says "How many HTTP range connections one {engine} download may use."
+// in the language of msgs.
+func (msgs Messages) EngineDownloadWorkersHint(engine string) string {
+	return Catalog.Format(msgs.locale, "engineDownloadWorkersHint", map[string]any{"engine": engine})
+}
+
+// EngineAdapterInfo says "Adapter"
+// in the language the app shows.
+func EngineAdapterInfo() string { return In(i18n.Locale()).EngineAdapterInfo() }
+
+// EngineAdapterInfo says "Adapter"
+// in the language of msgs.
+func (msgs Messages) EngineAdapterInfo() string {
+	return Catalog.Format(msgs.locale, "engineAdapterInfo", nil)
+}
+
+// EngineAdapterInfoHint says "Identity, version and source of the active engine adapter."
+// in the language the app shows.
+func EngineAdapterInfoHint() string { return In(i18n.Locale()).EngineAdapterInfoHint() }
+
+// EngineAdapterInfoHint says "Identity, version and source of the active engine adapter."
+// in the language of msgs.
+func (msgs Messages) EngineAdapterInfoHint() string {
+	return Catalog.Format(msgs.locale, "engineAdapterInfoHint", nil)
+}
+
+// EngineOpenDocs says "Open documentation"
+// in the language the app shows.
+func EngineOpenDocs() string { return In(i18n.Locale()).EngineOpenDocs() }
+
+// EngineOpenDocs says "Open documentation"
+// in the language of msgs.
+func (msgs Messages) EngineOpenDocs() string {
+	return Catalog.Format(msgs.locale, "engineOpenDocs", nil)
+}
+
+// EngineManageLicense says "Manage license"
+// in the language the app shows.
+func EngineManageLicense() string { return In(i18n.Locale()).EngineManageLicense() }
+
+// EngineManageLicense says "Manage license"
+// in the language of msgs.
+func (msgs Messages) EngineManageLicense() string {
+	return Catalog.Format(msgs.locale, "engineManageLicense", nil)
+}
+
+// EngineNoExtraSettings says "This adapter has no engine-specific settings yet."
+// in the language the app shows.
+func EngineNoExtraSettings() string { return In(i18n.Locale()).EngineNoExtraSettings() }
+
+// EngineNoExtraSettings says "This adapter has no engine-specific settings yet."
+// in the language of msgs.
+func (msgs Messages) EngineNoExtraSettings() string {
+	return Catalog.Format(msgs.locale, "engineNoExtraSettings", nil)
+}
+
 // SettingsProjectsTab says "Project settings"
 // in the language the app shows.
 func SettingsProjectsTab() string { return In(i18n.Locale()).SettingsProjectsTab() }
@@ -570,11 +684,131 @@ func (msgs Messages) EnginesTuanjieDescription() string {
 	return Catalog.Format(msgs.locale, "enginesTuanjieDescription", nil)
 }
 
-// ActivityBackgroundHint says "Downloads and installations continue while you use other pages. Keep UnityStarter open."
+// EnginesGodotDescription says "Godot Engine editor and project integration"
+// in the language the app shows.
+func EnginesGodotDescription() string { return In(i18n.Locale()).EnginesGodotDescription() }
+
+// EnginesGodotDescription says "Godot Engine editor and project integration"
+// in the language of msgs.
+func (msgs Messages) EnginesGodotDescription() string {
+	return Catalog.Format(msgs.locale, "enginesGodotDescription", nil)
+}
+
+// GodotGet says "Get Godot"
+// in the language the app shows.
+func GodotGet() string { return In(i18n.Locale()).GodotGet() }
+
+// GodotGet says "Get Godot"
+// in the language of msgs.
+func (msgs Messages) GodotGet() string {
+	return Catalog.Format(msgs.locale, "godotGet", nil)
+}
+
+// GodotDownload says "Download Godot"
+// in the language the app shows.
+func GodotDownload() string { return In(i18n.Locale()).GodotDownload() }
+
+// GodotDownload says "Download Godot"
+// in the language of msgs.
+func (msgs Messages) GodotDownload() string {
+	return Catalog.Format(msgs.locale, "godotDownload", nil)
+}
+
+// GodotDownloadHint says "Official Windows builds."
+// in the language the app shows.
+func GodotDownloadHint() string { return In(i18n.Locale()).GodotDownloadHint() }
+
+// GodotDownloadHint says "Official Windows builds."
+// in the language of msgs.
+func (msgs Messages) GodotDownloadHint() string {
+	return Catalog.Format(msgs.locale, "godotDownloadHint", nil)
+}
+
+// GodotAssetLibrary says "Asset Library"
+// in the language the app shows.
+func GodotAssetLibrary() string { return In(i18n.Locale()).GodotAssetLibrary() }
+
+// GodotAssetLibrary says "Asset Library"
+// in the language of msgs.
+func (msgs Messages) GodotAssetLibrary() string {
+	return Catalog.Format(msgs.locale, "godotAssetLibrary", nil)
+}
+
+// GodotAssetLibraryHint says "Community assets and add-ons."
+// in the language the app shows.
+func GodotAssetLibraryHint() string { return In(i18n.Locale()).GodotAssetLibraryHint() }
+
+// GodotAssetLibraryHint says "Community assets and add-ons."
+// in the language of msgs.
+func (msgs Messages) GodotAssetLibraryHint() string {
+	return Catalog.Format(msgs.locale, "godotAssetLibraryHint", nil)
+}
+
+// GodotManual says "Godot manual"
+// in the language the app shows.
+func GodotManual() string { return In(i18n.Locale()).GodotManual() }
+
+// GodotManual says "Godot manual"
+// in the language of msgs.
+func (msgs Messages) GodotManual() string {
+	return Catalog.Format(msgs.locale, "godotManual", nil)
+}
+
+// GodotManualHint says "Official documentation."
+// in the language the app shows.
+func GodotManualHint() string { return In(i18n.Locale()).GodotManualHint() }
+
+// GodotManualHint says "Official documentation."
+// in the language of msgs.
+func (msgs Messages) GodotManualHint() string {
+	return Catalog.Format(msgs.locale, "godotManualHint", nil)
+}
+
+// GodotScripting says "GDScript reference"
+// in the language the app shows.
+func GodotScripting() string { return In(i18n.Locale()).GodotScripting() }
+
+// GodotScripting says "GDScript reference"
+// in the language of msgs.
+func (msgs Messages) GodotScripting() string {
+	return Catalog.Format(msgs.locale, "godotScripting", nil)
+}
+
+// GodotScriptingHint says "Language and API reference."
+// in the language the app shows.
+func GodotScriptingHint() string { return In(i18n.Locale()).GodotScriptingHint() }
+
+// GodotScriptingHint says "Language and API reference."
+// in the language of msgs.
+func (msgs Messages) GodotScriptingHint() string {
+	return Catalog.Format(msgs.locale, "godotScriptingHint", nil)
+}
+
+// GodotChat says "Community chat"
+// in the language the app shows.
+func GodotChat() string { return In(i18n.Locale()).GodotChat() }
+
+// GodotChat says "Community chat"
+// in the language of msgs.
+func (msgs Messages) GodotChat() string {
+	return Catalog.Format(msgs.locale, "godotChat", nil)
+}
+
+// GodotChatHint says "Godot community chat."
+// in the language the app shows.
+func GodotChatHint() string { return In(i18n.Locale()).GodotChatHint() }
+
+// GodotChatHint says "Godot community chat."
+// in the language of msgs.
+func (msgs Messages) GodotChatHint() string {
+	return Catalog.Format(msgs.locale, "godotChatHint", nil)
+}
+
+// ActivityBackgroundHint says "Downloads and installations continue while you use other pages. Keep GameEngineLauncher233 open."
 // in the language the app shows.
 func ActivityBackgroundHint() string { return In(i18n.Locale()).ActivityBackgroundHint() }
 
-// ActivityBackgroundHint says "Downloads and installations continue while you use other pages. Keep UnityStarter open."
+// ActivityBackgroundHint says "Downloads and installations continue while you use other pages. Keep GameEngineLauncher233 open."
 // in the language of msgs.
 func (msgs Messages) ActivityBackgroundHint() string {
 	return Catalog.Format(msgs.locale, "activityBackgroundHint", nil)
@@ -700,11 +934,11 @@ func (msgs Messages) HiddenProjectsTitle() string {
 	return Catalog.Format(msgs.locale, "hiddenProjectsTitle", nil)
 }
 
-// HiddenProjectsHint says "Only affects UnityStarter. Restore projects here; files and Hub records are unchanged."
+// HiddenProjectsHint says "Only affects GameEngineLauncher233. Restore projects here; files and Hub records are unchanged."
 // in the language the app shows.
 func HiddenProjectsHint() string { return In(i18n.Locale()).HiddenProjectsHint() }
 
-// HiddenProjectsHint says "Only affects UnityStarter. Restore projects here; files and Hub records are unchanged."
+// HiddenProjectsHint says "Only affects GameEngineLauncher233. Restore projects here; files and Hub records are unchanged."
 // in the language of msgs.
 func (msgs Messages) HiddenProjectsHint() string {
 	return Catalog.Format(msgs.locale, "hiddenProjectsHint", nil)
@@ -1614,11 +1848,11 @@ func (msgs Messages) InstallUninstallMissing() string {
 	return Catalog.Format(msgs.locale, "installUninstallMissing", nil)
 }
 
-// AppTitle says "UnityStarter"
+// AppTitle says "GameEngineLauncher233"
 // in the language the app shows.
 func AppTitle() string { return In(i18n.Locale()).AppTitle() }
 
-// AppTitle says "UnityStarter"
+// AppTitle says "GameEngineLauncher233"
 // in the language of msgs.
 func (msgs Messages) AppTitle() string {
 	return Catalog.Format(msgs.locale, "appTitle", nil)
@@ -1774,11 +2008,11 @@ func (msgs Messages) SidebarInstalls() string {
 	return Catalog.Format(msgs.locale, "sidebarInstalls", nil)
 }
 
-// SidebarSettings says "Settings"
+// SidebarSettings says "System settings"
 // in the language the app shows.
 func SidebarSettings() string { return In(i18n.Locale()).SidebarSettings() }
 
-// SidebarSettings says "Settings"
+// SidebarSettings says "System settings"
 // in the language of msgs.
 func (msgs Messages) SidebarSettings() string {
 	return Catalog.Format(msgs.locale, "sidebarSettings", nil)
@@ -2522,11 +2756,11 @@ func (msgs Messages) PagePublishHint() string {
 	return Catalog.Format(msgs.locale, "pagePublishHint", nil)
 }
 
-// PageLicense says "Plans and licenses"
+// PageLicense says "License"
 // in the language the app shows.
 func PageLicense() string { return In(i18n.Locale()).PageLicense() }
 
-// PageLicense says "Plans and licenses"
+// PageLicense says "License"
 // in the language of msgs.
 func (msgs Messages) PageLicense() string {
 	return Catalog.Format(msgs.locale, "pageLicense", nil)
@@ -2942,11 +3176,11 @@ func (msgs Messages) LinkScriptingHint() string {
 	return Catalog.Format(msgs.locale, "linkScriptingHint", nil)
 }
 
-// LinkRepo says "UnityStarter on GitHub"
+// LinkRepo says "GameEngineLauncher233 on GitHub"
 // in the language the app shows.
 func LinkRepo() string { return In(i18n.Locale()).LinkRepo() }
 
-// LinkRepo says "UnityStarter on GitHub"
+// LinkRepo says "GameEngineLauncher233 on GitHub"
 // in the language of msgs.
 func (msgs Messages) LinkRepo() string {
 	return Catalog.Format(msgs.locale, "linkRepo", nil)
@@ -3062,11 +3296,11 @@ func (msgs Messages) LicenseCheckFailed() string {
 	return Catalog.Format(msgs.locale, "licenseCheckFailed", nil)
 }
 
-// LicenseCheckHint says "Checks and activation use the official Unity CLI, which may send anonymous usage data. Unity manages accounts, creden…"
+// LicenseCheckHint says "Uses the official Unity CLI, which may send anonymous usage data. Unity manages accounts, credentials and license files."
 // in the language the app shows.
 func LicenseCheckHint() string { return In(i18n.Locale()).LicenseCheckHint() }
 
-// LicenseCheckHint says "Checks and activation use the official Unity CLI, which may send anonymous usage data. Unity manages accounts, creden…"
+// LicenseCheckHint says "Uses the official Unity CLI, which may send anonymous usage data. Unity manages accounts, credentials and license files."
 // in the language of msgs.
 func (msgs Messages) LicenseCheckHint() string {
 	return Catalog.Format(msgs.locale, "licenseCheckHint", nil)
@@ -3102,11 +3336,11 @@ func (msgs Messages) LicensePersonalTitle() string {
 	return Catalog.Format(msgs.locale, "licensePersonalTitle", nil)
 }
 
-// LicensePersonalHint says "Already signed in? Activation runs automatically. Otherwise, sign in in the official browser window. Your pending act…"
+// LicensePersonalHint says "Sign in through the official browser to activate Personal. Pro, Enterprise and offline licenses use Unity Hub."
 // in the language the app shows.
 func LicensePersonalHint() string { return In(i18n.Locale()).LicensePersonalHint() }
 
-// LicensePersonalHint says "Already signed in? Activation runs automatically. Otherwise, sign in in the official browser window. Your pending act…"
+// LicensePersonalHint says "Sign in through the official browser to activate Personal. Pro, Enterprise and offline licenses use Unity Hub."
 // in the language of msgs.
 func (msgs Messages) LicensePersonalHint() string {
 	return Catalog.Format(msgs.locale, "licensePersonalHint", nil)
@@ -3312,11 +3546,11 @@ func (msgs Messages) Diagnostics() string {
 	return Catalog.Format(msgs.locale, "diagnostics", nil)
 }
 
-// IssueTitle says "UnityStarter: "
+// IssueTitle says "GameEngineLauncher233: "
 // in the language the app shows.
 func IssueTitle() string { return In(i18n.Locale()).IssueTitle() }
 
-// IssueTitle says "UnityStarter: "
+// IssueTitle says "GameEngineLauncher233: "
 // in the language of msgs.
 func (msgs Messages) IssueTitle() string {
 	return Catalog.Format(msgs.locale, "issueTitle", nil)
@@ -3332,11 +3566,11 @@ func (msgs Messages) IssueBody(diagnostics string) string {
 	return Catalog.Format(msgs.locale, "issueBody", map[string]any{"diagnostics": diagnostics})
 }
 
-// CliHelp says "UnityStarter, a hub for Unity and Tuanjie.\n\nUsage:\n  unitystarter projects [--query text]           list projects\n  u…"
+// CliHelp says "GameEngineLauncher233, a game engine launcher for Unity, Tuanjie, Godot and community adapters.\n\nUsage:\n  gameenginel…"
 // in the language the app shows.
 func CliHelp() string { return In(i18n.Locale()).CliHelp() }
 
-// CliHelp says "UnityStarter, a hub for Unity and Tuanjie.\n\nUsage:\n  unitystarter projects [--query text]           list projects\n  u…"
+// CliHelp says "GameEngineLauncher233, a game engine launcher for Unity, Tuanjie, Godot and community adapters.\n\nUsage:\n  gameenginel…"
 // in the language of msgs.
 func (msgs Messages) CliHelp() string {
 	return Catalog.Format(msgs.locale, "cliHelp", nil)
@@ -3352,11 +3586,11 @@ func (msgs Messages) CliUnknownCommand(name string) string {
 	return Catalog.Format(msgs.locale, "cliUnknownCommand", map[string]any{"name": name})
 }
 
-// CliUsageHint says "Run \"unitystarter help\" for the commands."
+// CliUsageHint says "Run \"gameenginelauncher233 help\" for the commands."
 // in the language the app shows.
 func CliUsageHint() string { return In(i18n.Locale()).CliUsageHint() }
 
-// CliUsageHint says "Run \"unitystarter help\" for the commands."
+// CliUsageHint says "Run \"gameenginelauncher233 help\" for the commands."
 // in the language of msgs.
 func (msgs Messages) CliUsageHint() string {
 	return Catalog.Format(msgs.locale, "cliUsageHint", nil)
@@ -3414,11 +3648,11 @@ func (msgs Messages) CliOpened(path string) string {
 	return Catalog.Format(msgs.locale, "cliOpened", map[string]any{"path": path})
 }
 
-// CliCreated says "Editor started creating {path}. Open UnityStarter to register it after the project files appear."
+// CliCreated says "Editor started creating {path}. Open GameEngineLauncher233 to register it after the project files appear."
 // in the language the app shows.
 func CliCreated(path string) string { return In(i18n.Locale()).CliCreated(path) }
 
-// CliCreated says "Editor started creating {path}. Open UnityStarter to register it after the project files appear."
+// CliCreated says "Editor started creating {path}. Open GameEngineLauncher233 to register it after the project files appear."
 // in the language of msgs.
 func (msgs Messages) CliCreated(path string) string {
 	return Catalog.Format(msgs.locale, "cliCreated", map[string]any{"path": path})
@@ -3514,11 +3748,11 @@ func (msgs Messages) CliHubsHeading() string {
 	return Catalog.Format(msgs.locale, "cliHubsHeading", nil)
 }
 
-// CliVersion says "UnityStarter {version}"
+// CliVersion says "GameEngineLauncher233 {version}"
 // in the language the app shows.
 func CliVersion(version string) string { return In(i18n.Locale()).CliVersion(version) }
 
-// CliVersion says "UnityStarter {version}"
+// CliVersion says "GameEngineLauncher233 {version}"
 // in the language of msgs.
 func (msgs Messages) CliVersion(version string) string {
 	return Catalog.Format(msgs.locale, "cliVersion", map[string]any{"version": version})
@@ -3772,11 +4006,11 @@ func (msgs Messages) ChannelTuanjie() string {
 	return Catalog.Format(msgs.locale, "channelTuanjie", nil)
 }
 
-// SettingsTitle says "Settings"
+// SettingsTitle says "System settings"
 // in the language the app shows.
 func SettingsTitle() string { return In(i18n.Locale()).SettingsTitle() }
 
-// SettingsTitle says "Settings"
+// SettingsTitle says "System settings"
 // in the language of msgs.
 func (msgs Messages) SettingsTitle() string {
 	return Catalog.Format(msgs.locale, "settingsTitle", nil)
@@ -4042,11 +4276,11 @@ func (msgs Messages) SettingsAbout() string {
 	return Catalog.Format(msgs.locale, "settingsAbout", nil)
 }
 
-// SettingsAboutText says "A Hub for Unity and Tuanjie, with no ads and no telemetry."
+// SettingsAboutText says "A game engine launcher for Unity, Tuanjie, Godot and community adapters, with no ads and no telemetry."
 // in the language the app shows.
 func SettingsAboutText() string { return In(i18n.Locale()).SettingsAboutText() }
 
-// SettingsAboutText says "A Hub for Unity and Tuanjie, with no ads and no telemetry."
+// SettingsAboutText says "A game engine launcher for Unity, Tuanjie, Godot and community adapters, with no ads and no telemetry."
 // in the language of msgs.
 func (msgs Messages) SettingsAboutText() string {
 	return Catalog.Format(msgs.locale, "settingsAboutText", nil)

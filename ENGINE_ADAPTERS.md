@@ -1,8 +1,8 @@
-# UnityStarter Engine Adapter Specification
+# GameEngineLauncher233 Engine Adapter Specification
 
 Status: **v1** (experimental, stable enough for community adapters)
 
-UnityStarter is an engine manager, not a game engine front-end. Built-in
+GameEngineLauncher233 is an engine manager, not a game engine front-end. Built-in
 adapters manage Unity and Tuanjie; every other engine is a removable adapter.
 The contract is deliberately small and process-based, in the spirit of a
 language server: a manifest teaches the launcher what pages an engine owns,
@@ -40,8 +40,8 @@ The importer downloads only `adapter.json` (max 1 MiB), validates it, and
 stores it at:
 
 ```
-%APPDATA%\UnityStarter\engine-adapters\<id>\adapter.json
-%APPDATA%\UnityStarter\engine-adapters\<id>\source.txt
+%APPDATA%\GameEngineLauncher233\engine-adapters\<id>\adapter.json
+%APPDATA%\GameEngineLauncher233\engine-adapters\<id>\source.txt
 ```
 
 A process adapter must place its executable inside that folder, or use an
@@ -49,7 +49,7 @@ absolute command. Importing never executes downloaded code.
 
 ### Locally
 
-Copy the folder into `%APPDATA%\UnityStarter\engine-adapters\<id>\` and restart
+Copy the folder into `%APPDATA%\GameEngineLauncher233\engine-adapters\<id>\` and restart
 or re-open Settings → Engine adapters. `adapter.json` must be the top file.
 
 ## 3. Manifest
@@ -61,7 +61,7 @@ or re-open Settings → Engine adapters. `adapter.json` must be the top file.
   "name": "Godot",
   "version": "0.1.0",
   "description": "Godot editor adapter",
-  "homepage": "https://github.com/example/unitystarter-godot",
+  "homepage": "https://github.com/example/GameEngineLauncher233-godot",
   "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"...\"/></svg>",
   "brandIconSvg": "<svg ...>...</svg>",
   "features": {
@@ -174,7 +174,7 @@ Request:
   "jsonrpc": "2.0", "id": 1, "method": "initialize",
   "params": {
     "protocolVersion": 1,
-    "client": {"name": "UnityStarter", "version": "1.8.0"},
+    "client": {"name": "GameEngineLauncher233", "version": "1.9.0"},
     "engine": {"id": "godot", "name": "Godot"}
   }
 }

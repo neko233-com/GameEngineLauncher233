@@ -72,7 +72,7 @@ func TestCLIUnknownCommand(t *testing.T) {
 
 func TestCLIHelp(t *testing.T) {
 	code, out := run(t, "help")
-	if code != 0 || !strings.Contains(out, "unitystarter projects") {
+	if code != 0 || !strings.Contains(out, "gameenginelauncher233 projects") {
 		t.Errorf("exit %d, output %q", code, out)
 	}
 }

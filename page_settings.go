@@ -51,7 +51,10 @@ func (a *app) settingsPage(c *ui.Context) {
 						a.refresh()
 					}, a.addProject)
 			case "installs":
-				a.installRootSection(c)
+				panel(c, func() {
+					a.sectionTitle(c, locales.EngineSettings(), locales.EngineInstallRootHint(channelName(a.activeEngine)))
+					ui.Button(c, locales.EngineSettings()).OnClick(func() { a.page = pageEngineSettings })
+				})
 				a.rootsSection(c, locales.SettingsEditorRoots(), locales.SettingsEditorRootsHint(), a.prefs.EditorRoots,
 					func(next []string) {
 						a.prefs.EditorRoots = next
@@ -186,24 +189,7 @@ func (a *app) rootsSection(c *ui.Context, title, hint string, roots []string, se
 	})
 }
 
-// installRootSection is where downloaded editors go.
-func (a *app) installRootSection(c *ui.Context) {
-	t := c.Theme()
-	root := a.installRoot()
-	panel(c, func() {
-		a.sectionTitle(c, locales.SettingsInstallRoot(), locales.SettingsInstallRootHint())
-		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, root).FontSize(12).TextColor(t.TextMuted).Grow(1).MinWidth(0).SingleLine().Clip().Tooltip(root)
-			if ui.Button(c, locales.ActionFolder()).Clicked() {
-				_ = mygo.Shell.OpenPath(root)
-			}
-			if ui.Button(c, locales.ActionChoose()).Clicked() {
-				a.chooseInstallRoot()
-			}
-		})
-	})
-}
-
+// chooseInstallRoot changes the active engine's editor install folder.
 func (a *app) chooseInstallRoot() {
 	a.pickFolder(locales.DialogChooseFolder(), func(dir string) {
 		a.setInstallRoot(dir)
@@ -213,9 +199,7 @@ func (a *app) chooseInstallRoot() {
 }
 
 func (a *app) setInstallRoot(dir string) {
-	previous := a.installRoot()
-	a.prefs.EditorRoots = dedupe(append(a.prefs.EditorRoots, previous))
-	a.prefs.InstallRoot = dir
+	a.setInstallRootFor(a.activeEngine, dir)
 }
 
 // demoSection turns installs into stand-ins, for trying the flow.

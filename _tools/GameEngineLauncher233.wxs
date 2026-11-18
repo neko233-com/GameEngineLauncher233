@@ -1,11 +1,11 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Name="UnityStarter" Manufacturer="neko233" Version="$(var.Version)"
+  <Package Name="GameEngineLauncher233" Manufacturer="neko233" Version="$(var.Version)"
            UpgradeCode="b3373319-8b2b-4b88-a782-725de6fb774a" Scope="perUser">
-    <MajorUpgrade Schedule="afterInstallInitialize" AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer UnityStarter is already installed." />
+    <MajorUpgrade Schedule="afterInstallInitialize" AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer GameEngineLauncher233 is already installed." />
     <MediaTemplate EmbedCab="yes" />
     <StandardDirectory Id="LocalAppDataFolder">
       <Directory Id="ProgramsDir" Name="Programs">
-        <Directory Id="INSTALLFOLDER" Name="UnityStarterMSI">
+        <Directory Id="INSTALLFOLDER" Name="GameEngineLauncher233">
           <Component Id="AppFiles" Guid="*">
             <File Id="AppExe" Source="$(var.AppExe)" KeyPath="yes" />
           </Component>
@@ -16,16 +16,16 @@
             </Component>
           </Directory>
           <Component Id="AppPaths" Guid="*">
-            <RegistryValue Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\UnityStarter.exe" Type="string" Value="[INSTALLFOLDER]UnityStarter.exe" KeyPath="yes" />
-            <RegistryValue Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\UnityStarter.exe" Name="Path" Type="string" Value="[INSTALLFOLDER]" />
+            <RegistryValue Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\GameEngineLauncher233.exe" Type="string" Value="[INSTALLFOLDER]GameEngineLauncher233.exe" KeyPath="yes" />
+            <RegistryValue Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\GameEngineLauncher233.exe" Name="Path" Type="string" Value="[INSTALLFOLDER]" />
           </Component>
         </Directory>
       </Directory>
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder">
       <Component Id="StartMenu" Guid="*">
-        <Shortcut Id="AppShortcut" Name="UnityStarterMSI" Target="[INSTALLFOLDER]UnityStarter.exe" WorkingDirectory="INSTALLFOLDER" />
-        <RegistryValue Root="HKCU" Key="Software\neko233\UnityStarterMSI" Name="Shortcut" Type="integer" Value="1" KeyPath="yes" />
+        <Shortcut Id="AppShortcut" Name="GameEngineLauncher233" Target="[INSTALLFOLDER]GameEngineLauncher233.exe" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\neko233\GameEngineLauncher233" Name="Shortcut" Type="integer" Value="1" KeyPath="yes" />
       </Component>
     </StandardDirectory>
     <Feature Id="Main">

@@ -41,7 +41,7 @@ func defaultEditorRoots() []string {
 // Versions installed by older releases remain discoverable.
 func legacyInstallRoots() []string {
 	if local := os.Getenv("LOCALAPPDATA"); local != "" {
-		return []string{filepath.Join(local, "Programs", "UnityStarter", "Editors")}
+		return []string{filepath.Join(local, "UnityStarter", "Editors"), filepath.Join(local, "Programs", "UnityStarter", "Editors")}
 	}
 	return nil
 }
@@ -84,7 +84,7 @@ func readPathJSON(path string) []string {
 // editors are installed.
 func defaultInstallRoot() string {
 	if local := os.Getenv("LOCALAPPDATA"); local != "" {
-		return filepath.Join(local, "UnityStarter", "Editors")
+		return filepath.Join(local, appName, "Editors")
 	}
-	return filepath.Join(os.TempDir(), "UnityStarter", "Editors")
+	return filepath.Join(os.TempDir(), appName, "Editors")
 }

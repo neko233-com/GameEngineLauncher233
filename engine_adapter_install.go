@@ -92,7 +92,7 @@ func importEngineAdapter(ctx context.Context, client *http.Client, rawURL, dir s
 		return nil, fmt.Errorf("adapter request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json, text/plain;q=0.9")
-	req.Header.Set("User-Agent", "UnityStarter/"+appVersion)
+	req.Header.Set("User-Agent", "GameEngineLauncher233/"+appVersion)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("download adapter: %w", err)
@@ -182,7 +182,7 @@ func reloadEngineAdapters(dir string) []error {
 	engineRegistryMu.Lock()
 	engineRegistryByID = map[string]*engineAdapter{}
 	engineRegistryOrder = nil
-	for _, a := range []*engineAdapter{builtinUnityAdapter(), builtinTuanjieAdapter()} {
+	for _, a := range []*engineAdapter{builtinUnityAdapter(), builtinTuanjieAdapter(), builtinGodotAdapter()} {
 		engineRegistryByID[a.ID] = a
 		engineRegistryOrder = append(engineRegistryOrder, a.ID)
 	}

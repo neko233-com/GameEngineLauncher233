@@ -19,6 +19,7 @@ import (
 const (
 	kindUnity   = "unity"
 	kindTuanjie = "tuanjie"
+	kindGodot   = "godot"
 )
 
 // editorInstall is an editor installed on this machine.
@@ -67,9 +68,11 @@ type prefs struct {
 	PinnedProjects []string          `json:"pinnedProjects"`
 	LocalFavorites map[string]bool   `json:"localFavorites,omitempty"`
 	HiddenProjects map[string]string `json:"hiddenProjects,omitempty"`
-	// InstallRoot is where downloaded editors are installed, a folder per
-	// version.
+	// InstallRoot is the legacy single install root. New installs use
+	// EngineSettings[kind].InstallRoot.
 	InstallRoot string `json:"installRoot"`
+	// EngineSettings holds per-engine install roots and download concurrency.
+	EngineSettings map[string]enginePrefs `json:"engineSettings,omitempty"`
 	// DemoMode installs stand-in editors instead of downloading, so that the
 	// flow can be tried without the gigabytes.
 	DemoMode bool `json:"demoMode"`
@@ -97,7 +100,7 @@ func prefsPath() string {
 
 // legacyPrefsDirs are the data folders of earlier names of the app, whose
 // settings are read when there are none of this name.
-var legacyPrefsDirs = []string{"Unity Starter", "unitystarter.test", "UnityStarter Dev"}
+var legacyPrefsDirs = []string{"UnityStarter", "Unity Starter", "unitystarter.test", "UnityStarter Dev"}
 
 func loadPrefs() prefs {
 	data, err := os.ReadFile(prefsPath())
@@ -159,12 +162,22 @@ func scanWithVCS(p prefs, withVCS bool) ([]editorInstall, []projectEntry, []hub)
 	roots := append([]string{}, p.EditorRoots...)
 	if p.InstallRoot != "" {
 		roots = append(roots, p.InstallRoot)
-	} else {
-		roots = append(roots, defaultInstallRoot())
 	}
+	roots = append(roots, defaultInstallRoot())
 	roots = append(roots, legacyInstallRoots()...)
+	for _, settings := range p.EngineSettings {
+		if settings.InstallRoot != "" {
+			roots = append(roots, settings.InstallRoot)
+		}
+	}
+	for _, kind := range []string{kindUnity, kindTuanjie, "godot"} {
+		roots = append(roots, defaultInstallRootFor(kind))
+	}
+	roots = dedupe(roots)
 	editors := scanEditors(roots)
+	editors = append(editors, scanGodotEditors(roots)...)
 	projects := scanProjectsMode(p, editors, hubs, withVCS)
+	projects = append(projects, scanGodotProjects(p, editors)...)
 	versions := readTuanjieVersionMap(hubConfigDirs())
 	for i := range editors {
 		if editors[i].Kind == kindTuanjie {

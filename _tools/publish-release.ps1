@@ -17,7 +17,7 @@ try {
     if ($LASTEXITCODE -ne 0 -or $tagCommit -ne $head) { throw 'Release tag does not point at HEAD.' }
     $dir = Join-Path $root 'build/windows-amd64'
     $sumFile = Join-Path $dir 'SHA256SUMS.txt'
-    $names = @('UnityStarter.exe', "unitystarter-setup-$version-amd64.exe", "unitystarter-$version-amd64.msi")
+    $names = @('GameEngineLauncher233.exe', "gameenginelauncher233-setup-$version-amd64.exe", "gameenginelauncher233-$version-amd64.msi")
     $sums = @{}
     foreach ($line in Get-Content -LiteralPath $sumFile) {
         if ($line -notmatch '^([0-9a-f]{64})  ([A-Za-z0-9._-]+)$') { throw 'Invalid checksum manifest.' }
@@ -31,6 +31,6 @@ try {
     }
     $notes = Join-Path $dir 'release-notes.txt'
     Copy-Item -LiteralPath (Join-Path $root 'RELEASE_NOTES.md') -Destination $notes -Force
-    gh release create $tag @assets $sumFile --verify-tag --title "UnityStarter $version" --notes-file $notes --generate-notes
+    gh release create $tag @assets $sumFile --verify-tag --title "GameEngineLauncher233 $version" --notes-file $notes --generate-notes
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 } finally { Pop-Location }

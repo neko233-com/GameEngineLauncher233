@@ -11,22 +11,23 @@ $exeHash = $env:EXE_SHA256
 if (-not $msi -or $msiHash -notmatch '^[0-9a-fA-F]{64}$' -or $exeHash -notmatch '^[0-9a-fA-F]{64}$') { throw 'Set MSI_PATH, MSI_SHA256 and EXE_SHA256.' }
 $msi = (Resolve-Path -LiteralPath $msi).Path
 if ((Get-FileHash -LiteralPath $msi -Algorithm SHA256).Hash -ine $msiHash) { throw 'MSI checksum mismatch.' }
-$managed = Join-Path $env:LOCALAPPDATA 'Programs\UnityStarterMSI\UnityStarter.exe'
+$managed = Join-Path $env:LOCALAPPDATA 'Programs\GameEngineLauncher233\GameEngineLauncher233.exe'
 $legacy = Join-Path $env:LOCALAPPDATA 'Programs\UnityStarter\UnityStarter.exe'
-foreach ($proc in Get-CimInstance Win32_Process -Filter "Name='UnityStarter.exe'") {
-    if ($proc.ExecutablePath -and ($proc.ExecutablePath -ieq $managed -or $proc.ExecutablePath -ieq $legacy)) {
+$oldManaged = Join-Path $env:LOCALAPPDATA 'Programs\UnityStarterMSI\UnityStarter.exe'
+foreach ($proc in Get-CimInstance Win32_Process -Filter "Name='GameEngineLauncher233.exe' OR Name='UnityStarter.exe'") {
+    if ($proc.ExecutablePath -and ($proc.ExecutablePath -ieq $managed -or $proc.ExecutablePath -ieq $legacy -or $proc.ExecutablePath -ieq $oldManaged)) {
         $app = Get-Process -Id $proc.ProcessId -ErrorAction SilentlyContinue
         if ($app -and -not $app.HasExited) {
             $closed = $app.CloseMainWindow() -and $app.WaitForExit(5000)
             if (-not $closed) {
-                if ($env:UNITYSTARTER_FORCE_CLOSE -ne '1') { throw "UnityStarter did not close: $($proc.ProcessId)." }
+                if ($env:UNITYSTARTER_FORCE_CLOSE -ne '1') { throw "GameEngineLauncher233 did not close: $($proc.ProcessId)." }
                 Stop-Process -Id $proc.ProcessId -Force -ErrorAction Stop
                 $app.WaitForExit()
             }
         }
     }
 }
-$log = Join-Path $env:TEMP 'UnityStarterMSI-install.log'
+$log = Join-Path $env:TEMP 'GameEngineLauncher233-install.log'
 $msiexec = Join-Path $env:WINDIR 'System32\msiexec.exe'
 $p = Start-Process -FilePath $msiexec -ArgumentList @('/i', "`"$msi`"", '/qn', '/norestart', '/L*v', "`"$log`"") -Wait -PassThru -WindowStyle Hidden
 if ($p.ExitCode -ne 0) { throw "MSI installation returned $($p.ExitCode); see $log" }
