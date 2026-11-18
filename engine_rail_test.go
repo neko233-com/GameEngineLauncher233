@@ -177,3 +177,22 @@ func TestVercelMonochromePalette(t *testing.T) {
 		t.Fatalf("navigation surface is not near black: %+v", nav)
 	}
 }
+
+// Navigation rows answer the pointer with the quiet Vercel hover face.
+func TestNavigationHoverFace(t *testing.T) {
+	a := fixture()
+	tt := ui.NewTester(a.view, 1180, 760)
+	r, ok := tt.Find(locales.SidebarInstalls())
+	if !ok {
+		t.Fatal("installs navigation row is missing")
+	}
+	x, y := int(r.X)+4, int(r.Y+r.H/2)
+	before := tt.Image().RGBAAt(x, y)
+	tt.Move(r.X+r.W/2, r.Y+r.H/2)
+	tt.Frame()
+	tt.Frame()
+	after := tt.Image().RGBAAt(x, y)
+	if after.R < before.R+4 || after.G < before.G+4 || after.B < before.B+4 {
+		t.Fatalf("navigation row did not light on hover: before=%+v after=%+v", before, after)
+	}
+}

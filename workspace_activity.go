@@ -65,7 +65,7 @@ func (a *app) navItem(c *ui.Context, id string, icon *ui.SVG, label string, trai
 	t := c.Theme()
 	chosen := a.page == id
 	b := ui.Button(c, "").Height(32).Padding(0, 10).Radius(6).Gap(10).
-		Justify(ui.Start).Label(label).Tooltip(label).
+		Justify(ui.Start).Label(label).
 		Background(ui.Color{}).Border(0, ui.Color{}).
 		OnClick(func() { a.page = id })
 	if chosen {
