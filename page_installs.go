@@ -131,7 +131,11 @@ func (a *app) editorCardGear(c *ui.Context, e editorInstall) {
 			a.openEditorManagement(e)
 		}
 	}
-	ui.Button(c, "").Label(locales.InstallManage()).Tooltip(locales.InstallManage()).
+	label := locales.InstallManage()
+	if isExternalEngine(e.Kind) {
+		label = locales.ProjectMore()
+	}
+	ui.Button(c, "").Label(label).Tooltip(label).
 		Size(36, 36).Padding(0).PopoverMenuButton(menu).Children(func() {
 		ui.Icon(c, iconGear).Size(18, 18).TextColor(t.TextMuted)
 	})

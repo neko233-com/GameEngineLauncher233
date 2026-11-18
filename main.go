@@ -52,7 +52,7 @@ func main() {
 			MinHeight:       560,
 			TitleBarStyle:   mygo.TitleBarHidden,
 			TitleBarHeight:  36,
-			BackgroundColor: "#19191a",
+			BackgroundColor: "#000000",
 			// Opens where the user left it last time.
 			StateKey: "main",
 			// The window shows the interface MyGo draws, not a web page.
