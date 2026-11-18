@@ -104,23 +104,22 @@ func serviceIcon(page string) *ui.SVG {
 	}
 }
 
-func (a *app) engineLinks(unity, tuanjie link) []link {
-	if a.activeEngine == kindTuanjie {
-		return []link{tuanjie, unity}
-	}
-	return []link{unity, tuanjie}
-}
-
 func (a *app) storePage(c *ui.Context) {
+	s := a.engineStrategy()
+	storeTitle, storeHint := locales.LinkAssetStoreUnity(), locales.LinkAssetStoreUnityHint()
+	if a.activeEngine == kindTuanjie {
+		storeTitle, storeHint = locales.LinkAssetStoreTuanjie(), locales.LinkAssetStoreTuanjieHint()
+	}
 	a.linksPage(c, locales.PageStore(), locales.PageStoreHint(), func() {
-		a.linkGroup(c, locales.GroupStores(), a.engineLinks(
-			link{locales.LinkAssetStoreUnity(), locales.LinkAssetStoreUnityHint(), urlAssetStoreUnity},
-			link{locales.LinkAssetStoreTuanjie(), locales.LinkAssetStoreTuanjieHint(), urlAssetStoreTuanjie},
-		))
-		a.linkGroup(c, locales.GroupLearning(), []link{
+		a.linkGroup(c, locales.GroupStores(), []link{{storeTitle, storeHint, s.AssetStoreURL}})
+		learning := []link{
 			{"Unity 中文课堂", locales.LinkLearnHint(), urlLearn},
 			{locales.LinkCommunity(), locales.LinkCommunityHint(), urlCommunity},
-		})
+		}
+		if a.activeEngine != kindTuanjie {
+			learning = append([]link{{"Unity Learn", locales.LinkUnityLearnHint(), "https://learn.unity.com/"}}, learning...)
+		}
+		a.linkGroup(c, locales.GroupLearning(), learning)
 	}, nil)
 }
 
@@ -141,14 +140,21 @@ func (a *app) publishPage(c *ui.Context) {
 func (a *app) licensePage(c *ui.Context) {
 	t := c.Theme()
 	found := licenseLocations()
+	s := a.engineStrategy()
 	a.linksPage(c, locales.PageLicense(), locales.PageLicenseHint(), func() {
-		links := a.engineLinks(
-			link{locales.LinkLicenseUnity(), locales.LinkLicenseUnityHint(), urlLicenseUnity},
-			link{locales.LinkLicenseTuanjie(), locales.LinkLicenseTuanjieHint(), urlLicenseTuanjie},
-		)
-		a.linkGroup(c, locales.GroupLicenses(), append(links, link{locales.LinkAccount(), locales.LinkAccountHint(), urlUnityID}))
+		title, hint := locales.LinkLicenseUnity(), locales.LinkLicenseUnityHint()
+		if a.activeEngine == kindTuanjie {
+			title, hint = locales.LinkLicenseTuanjie(), locales.LinkLicenseTuanjieHint()
+		}
+		links := []link{{title, hint, s.LicenseURL}}
+		if a.activeEngine == kindUnity {
+			links = append(links, link{locales.LinkAccount(), locales.LinkAccountHint(), urlUnityID})
+		}
+		a.linkGroup(c, locales.GroupLicenses(), links)
 	}, func() {
-		a.unityLicenseControls(c)
+		if a.activeEngine == kindUnity {
+			a.unityLicenseControls(c)
+		}
 		panel(c, func() {
 			ui.Text(c, locales.LicensesFound()).FontSize(14).Bold()
 			ui.Text(c, locales.LicensesStatusHint()).FontSize(12).TextColor(t.TextMuted)
@@ -173,12 +179,17 @@ func (a *app) licensePage(c *ui.Context) {
 }
 
 func (a *app) docsPage(c *ui.Context) {
+	s := a.engineStrategy()
+	title, hint := locales.LinkDocsUnity(), locales.LinkDocsUnityHint()
+	if a.activeEngine == kindTuanjie {
+		title, hint = locales.LinkDocsTuanjie(), locales.LinkDocsTuanjieHint()
+	}
 	a.linksPage(c, locales.PageDocs(), locales.PageDocsHint(), func() {
-		links := a.engineLinks(
-			link{locales.LinkDocsUnity(), locales.LinkDocsUnityHint(), urlDocsUnity},
-			link{locales.LinkDocsTuanjie(), locales.LinkDocsTuanjieHint(), urlDocsTuanjie},
-		)
-		a.linkGroup(c, locales.GroupEngineDocs(), append(links, link{locales.LinkScripting(), locales.LinkScriptingHint(), urlScriptingAPI}))
+		links := []link{{title, hint, s.DocsURL}}
+		if a.activeEngine == kindUnity {
+			links = append(links, link{locales.LinkScripting(), locales.LinkScriptingHint(), urlScriptingAPI})
+		}
+		a.linkGroup(c, locales.GroupEngineDocs(), links)
 		a.linkGroup(c, locales.GroupProjectDocs(), []link{
 			{locales.LinkRepo(), locales.LinkRepoHint(), urlRepo},
 		})
@@ -232,12 +243,18 @@ func offlineDocumentationEntry(e editorInstall, section string) string {
 }
 
 func (a *app) learnPage(c *ui.Context) {
+	s := a.engineStrategy()
 	a.linksPage(c, locales.PageLearn(), locales.PageLearnHint(), func() {
-		a.linkGroup(c, locales.GroupLearning(), []link{
-			{"Unity Learn", locales.LinkUnityLearnHint(), "https://learn.unity.com/"},
+		links := []link{
 			{"Unity 中文课堂", locales.LinkLearnHint(), urlLearn},
-			{locales.LinkCommunity(), locales.LinkCommunityHint(), urlCommunity},
-		})
+			{locales.LinkCommunity(), locales.LinkCommunityHint(), s.CommunityURL},
+		}
+		if a.activeEngine != kindTuanjie {
+			links = append([]link{{"Unity Learn", locales.LinkUnityLearnHint(), s.LearnURL}}, links...)
+		} else {
+			links = append(links, link{locales.LinkDocsTuanjie(), locales.LinkDocsTuanjieHint(), s.DocsURL})
+		}
+		a.linkGroup(c, locales.GroupLearning(), links)
 	}, nil)
 }
 

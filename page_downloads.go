@@ -84,7 +84,7 @@ func (a *app) applyReleaseCatalog(result releaseCatalogResult) {
 func (a *app) downloadsPage(c *ui.Context) {
 	a.ensureDownloads(false)
 	t := c.Theme()
-	engine := engineForPage(a.page)
+	engine := a.engineForPage(a.page)
 	entries := a.visibleDownloads(engine)
 	matchCount := len(entries)
 	active := a.activeDownloads(engine)

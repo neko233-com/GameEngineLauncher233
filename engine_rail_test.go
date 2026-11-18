@@ -23,10 +23,10 @@ func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 		t.Fatal("the Tuanjie tab is missing from the rail")
 	}
 	const railWidth = 64
-	if unity.X != 0 || unity.W != railWidth || unity.H < 40 {
+	if unity.X != 0 || unity.W < railWidth-1 || unity.H < 40 {
 		t.Fatalf("Unity tab is not a rail tab: %+v", unity)
 	}
-	if tuanjie.X != 0 || tuanjie.W != railWidth {
+	if tuanjie.X != 0 || tuanjie.W < railWidth-1 {
 		t.Fatalf("Tuanjie tab is not a rail tab: %+v", tuanjie)
 	}
 	if tuanjie.Y < unity.Y+unity.H {

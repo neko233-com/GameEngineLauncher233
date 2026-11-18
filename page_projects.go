@@ -14,7 +14,7 @@ import (
 )
 
 func (a *app) projectsPage(c *ui.Context) {
-	engine := engineForPage(a.page)
+	engine := a.engineForPage(a.page)
 	width, _ := c.Size()
 	compact := width < 1100
 	if a.queryEngine != engine {
@@ -23,13 +23,16 @@ func (a *app) projectsPage(c *ui.Context) {
 	}
 	items := a.filteredProjects()
 	title := locales.ProjectsTitle()
-	if favoritesPage(a.page) {
+	if a.favoritesPage() {
 		title = locales.SidebarFavorites()
 	}
+	external := isExternalEngine(engine)
 	a.header(c, title, locales.ProjectsCount(len(items)), func() {
 		ui.Button(c, locales.ActionRefresh()).OnClick(a.refresh).Disabled(a.scanning)
-		ui.Button(c, locales.ActionAddProject()).OnClick(func() { a.addProjectForEngine(engine) })
-		ui.PrimaryButton(c, locales.ActionNewProject()).OnClick(a.openNewProject)
+		if !external {
+			ui.Button(c, locales.ActionAddProject()).OnClick(func() { a.addProjectForEngine(engine) })
+			ui.PrimaryButton(c, locales.ActionNewProject()).OnClick(a.openNewProject)
+		}
 	})
 	ui.Row(c).Padding(0, 24, 16, 24).Justify(ui.End).Children(func() {
 		ui.SearchField(c, &a.query).Placeholder(locales.ProjectsSearch()).Label(locales.ProjectsSearch()).Width(245)
@@ -90,7 +93,7 @@ func (a *app) projectsPage(c *ui.Context) {
 		if len(items) == 0 {
 			if strings.TrimSpace(a.query) != "" {
 				a.searchEmpty(c, func() { a.query = "" })
-			} else if favoritesPage(a.page) {
+			} else if a.favoritesPage() {
 				a.emptyState(c, locales.FavoritesEmptyTitle(), locales.FavoritesEmptyHint())
 			} else {
 				a.emptyState(c, locales.ProjectsEmptyTitle(), locales.ProjectsEmptyHint())
@@ -103,7 +106,7 @@ func (a *app) filteredProjects() []projectEntry {
 	q := strings.ToLower(strings.TrimSpace(a.query))
 	out := make([]projectEntry, 0, len(a.projects))
 	for _, p := range a.projects {
-		if p.Kind != engineForPage(a.page) || a.projectHidden(p.Path) || favoritesPage(a.page) && !p.Favorite {
+		if p.Kind != a.engineForPage(a.page) || a.projectHidden(p.Path) || a.favoritesPage() && !p.Favorite {
 			continue
 		}
 		if strings.Contains(strings.ToLower(p.Name), q) ||
@@ -389,6 +392,9 @@ func isWebURL(raw string) bool {
 }
 
 func channelName(kind string) string {
+	if a := engineAdapterByID(kind); a != nil {
+		return a.DisplayName()
+	}
 	if kind == kindTuanjie {
 		return locales.ChannelTuanjie()
 	}
@@ -433,7 +439,7 @@ func (a *app) openNewProject() {
 		a.newOpen = true
 		return
 	}
-	a.newEngine = engineForPage(a.page)
+	a.newEngine = a.engineForPage(a.page)
 	_, exes := a.editorLabels()
 	if len(exes) == 0 {
 		a.alert(locales.NoEditorInstalled())

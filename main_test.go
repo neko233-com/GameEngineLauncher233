@@ -283,8 +283,11 @@ func TestModuleDialogLabelsUnverifiedHubState(t *testing.T) {
 		{ID: "unknown", Name: "Vendor module", Visible: true, Selected: true, PresenceUnverified: true},
 	}}
 	tt := ui.NewTester(a.view, 1180, 760)
-	if !tt.HasText(locales.InstallModuleReported()) || tt.HasText(locales.DownloadsInstalled()) {
+	if !tt.HasText(locales.InstallModuleReported()) {
 		t.Fatalf("Hub-only state was not distinguished: %q", tt.Texts())
+	}
+	if _, ok := tt.Find(locales.DownloadsInstalled()); ok {
+		t.Fatalf("Hub-only module was labeled as installed: %q", tt.Texts())
 	}
 }
 
@@ -513,9 +516,16 @@ func TestView(t *testing.T) {
 	if err := tt.Click(locales.PageStore()); err != nil {
 		t.Fatal(err)
 	}
-	if !tt.HasText(locales.LinkAssetStoreTuanjie()) {
-		t.Errorf("texts %q after choosing the store", tt.Texts())
+	if !tt.HasText(locales.LinkAssetStoreUnity()) || tt.HasText(locales.LinkAssetStoreTuanjie()) {
+		t.Errorf("Unity store should be Unity-only: %q", tt.Texts())
 	}
+	a.switchEngine(kindTuanjie)
+	tt.Frame()
+	if !tt.HasText(locales.LinkAssetStoreTuanjie()) || tt.HasText(locales.LinkAssetStoreUnity()) {
+		t.Errorf("Tuanjie store should be Tuanjie-only: %q", tt.Texts())
+	}
+	a.switchEngine(kindUnity)
+	tt.Frame()
 	if err := tt.Click(locales.PageFeedback()); err != nil {
 		t.Fatal(err)
 	}

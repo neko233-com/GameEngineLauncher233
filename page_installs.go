@@ -13,23 +13,33 @@ import (
 
 func (a *app) installsPage(c *ui.Context) {
 	t := c.Theme()
-	engine := engineForPage(a.page)
+	engine := a.engineForPage(a.page)
+	external := isExternalEngine(engine)
 	editors := a.filteredEditors(engine)
 	// Tuanjie Hub layout: the title row carries the location picker and the
-	// primary "install editor" action; scanning stays automatic (hubChanged).
-	a.header(c, locales.InstallsTitle(), locales.InstallsCount(len(editors)), func() {
-		ui.Button(c, locales.InstallChooseLocation()).OnClick(a.chooseInstallRoot)
-		ui.PrimaryButton(c, locales.InstallEditor()).OnClick(func() { _, _, page, _ := enginePages(engine); a.page = page })
-	})
-	ui.Row(c).Padding(0, 24, 10, 24).Gap(8).AlignItems(ui.Center).Children(func() {
-		ui.Text(c, locales.SettingsInstallRoot()+":").FontSize(12).TextColor(t.TextMuted)
-		ui.Text(c, a.installRoot()).Grow(1).MinWidth(0).FontSize(12).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(a.installRoot())
-		ui.Button(c, locales.ActionAddFolder()).OnClick(a.addEditorRoot)
-	})
+	// primary "install editor" action; external adapters detect their own
+	// editors and have no built-in installer.
+	var actions func()
+	if !external {
+		actions = func() {
+			ui.Button(c, locales.InstallChooseLocation()).OnClick(a.chooseInstallRoot)
+			ui.PrimaryButton(c, locales.InstallEditor()).OnClick(func() { _, _, page, _ := enginePages(engine); a.page = page })
+		}
+	}
+	a.header(c, locales.InstallsTitle(), locales.InstallsCount(len(editors)), actions)
+	if !external {
+		ui.Row(c).Padding(0, 24, 10, 24).Gap(8).AlignItems(ui.Center).Children(func() {
+			ui.Text(c, locales.SettingsInstallRoot()+":").FontSize(12).TextColor(t.TextMuted)
+			ui.Text(c, a.installRoot()).Grow(1).MinWidth(0).FontSize(12).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(a.installRoot())
+			ui.Button(c, locales.ActionAddFolder()).OnClick(a.addEditorRoot)
+		})
+	}
 	ui.Row(c).Padding(0, 24, 0, 24).Gap(6).Wrap().AlignItems(ui.Center).Children(func() {
-		for _, tab := range []struct{ id, label string }{{"", locales.InstallAll()}, {"official", locales.InstallOfficial()}, {"preview", locales.InstallPreview()}} {
-			tab := tab
-			pageTab(c, tab.label, a.installFilter == tab.id, func() { a.installFilter = tab.id })
+		if !external {
+			for _, tab := range []struct{ id, label string }{{"", locales.InstallAll()}, {"official", locales.InstallOfficial()}, {"preview", locales.InstallPreview()}} {
+				tab := tab
+				pageTab(c, tab.label, a.installFilter == tab.id, func() { a.installFilter = tab.id })
+			}
 		}
 		ui.Spacer(c)
 		ui.SearchField(c, &a.installQuery).Placeholder(locales.InstallSearch()).Label(locales.InstallSearch()).Width(210).Margin(0, 0, 8, 0)
@@ -111,6 +121,9 @@ func (a *app) editorCardGear(c *ui.Context, e editorInstall) {
 					a.refresh()
 				}
 			}
+			return
+		}
+		if isExternalEngine(e.Kind) {
 			return
 		}
 		otherBusy := (a.moduleBusy || a.moduleLoading || a.uninstallBusy || len(a.moduleQueue) > 0 || a.androidPlan != nil) && !strings.EqualFold(a.manageEditor.Exe, e.Exe)

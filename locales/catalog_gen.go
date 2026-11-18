@@ -328,6 +328,248 @@ func (msgs Messages) SettingsInstallsTab() string {
 	return Catalog.Format(msgs.locale, "settingsInstallsTab", nil)
 }
 
+// SettingsEnginesTab says "Engine adapters"
+// in the language the app shows.
+func SettingsEnginesTab() string { return In(i18n.Locale()).SettingsEnginesTab() }
+
+// SettingsEnginesTab says "Engine adapters"
+// in the language of msgs.
+func (msgs Messages) SettingsEnginesTab() string {
+	return Catalog.Format(msgs.locale, "settingsEnginesTab", nil)
+}
+
+// EnginesTitle says "Engine adapters"
+// in the language the app shows.
+func EnginesTitle() string { return In(i18n.Locale()).EnginesTitle() }
+
+// EnginesTitle says "Engine adapters"
+// in the language of msgs.
+func (msgs Messages) EnginesTitle() string {
+	return Catalog.Format(msgs.locale, "enginesTitle", nil)
+}
+
+// EnginesHint says "Install declarative engine adapters, or import one from a GitHub adapter.json. Each engine owns its navigation, links…"
+// in the language the app shows.
+func EnginesHint() string { return In(i18n.Locale()).EnginesHint() }
+
+// EnginesHint says "Install declarative engine adapters, or import one from a GitHub adapter.json. Each engine owns its navigation, links…"
+// in the language of msgs.
+func (msgs Messages) EnginesHint() string {
+	return Catalog.Format(msgs.locale, "enginesHint", nil)
+}
+
+// EnginesImportPlaceholder says "GitHub repository or adapter.json URL"
+// in the language the app shows.
+func EnginesImportPlaceholder() string { return In(i18n.Locale()).EnginesImportPlaceholder() }
+
+// EnginesImportPlaceholder says "GitHub repository or adapter.json URL"
+// in the language of msgs.
+func (msgs Messages) EnginesImportPlaceholder() string {
+	return Catalog.Format(msgs.locale, "enginesImportPlaceholder", nil)
+}
+
+// EnginesImport says "Import"
+// in the language the app shows.
+func EnginesImport() string { return In(i18n.Locale()).EnginesImport() }
+
+// EnginesImport says "Import"
+// in the language of msgs.
+func (msgs Messages) EnginesImport() string {
+	return Catalog.Format(msgs.locale, "enginesImport", nil)
+}
+
+// EnginesImporting says "Importing adapter…"
+// in the language the app shows.
+func EnginesImporting() string { return In(i18n.Locale()).EnginesImporting() }
+
+// EnginesImporting says "Importing adapter…"
+// in the language of msgs.
+func (msgs Messages) EnginesImporting() string {
+	return Catalog.Format(msgs.locale, "enginesImporting", nil)
+}
+
+// EnginesImported says "Imported {name}. It is now in the engine rail."
+// in the language the app shows.
+func EnginesImported(name string) string { return In(i18n.Locale()).EnginesImported(name) }
+
+// EnginesImported says "Imported {name}. It is now in the engine rail."
+// in the language of msgs.
+func (msgs Messages) EnginesImported(name string) string {
+	return Catalog.Format(msgs.locale, "enginesImported", map[string]any{"name": name})
+}
+
+// EnginesImportFailed says "Import failed: {error}"
+// in the language the app shows.
+func EnginesImportFailed(error string) string { return In(i18n.Locale()).EnginesImportFailed(error) }
+
+// EnginesImportFailed says "Import failed: {error}"
+// in the language of msgs.
+func (msgs Messages) EnginesImportFailed(error string) string {
+	return Catalog.Format(msgs.locale, "enginesImportFailed", map[string]any{"error": error})
+}
+
+// EnginesInstalled says "Installed adapters"
+// in the language the app shows.
+func EnginesInstalled() string { return In(i18n.Locale()).EnginesInstalled() }
+
+// EnginesInstalled says "Installed adapters"
+// in the language of msgs.
+func (msgs Messages) EnginesInstalled() string {
+	return Catalog.Format(msgs.locale, "enginesInstalled", nil)
+}
+
+// EnginesInstalledHint says "Built-in adapters are always available. Imported adapters appear in the engine rail and can be removed here."
+// in the language the app shows.
+func EnginesInstalledHint() string { return In(i18n.Locale()).EnginesInstalledHint() }
+
+// EnginesInstalledHint says "Built-in adapters are always available. Imported adapters appear in the engine rail and can be removed here."
+// in the language of msgs.
+func (msgs Messages) EnginesInstalledHint() string {
+	return Catalog.Format(msgs.locale, "enginesInstalledHint", nil)
+}
+
+// EnginesBuiltin says "Built in"
+// in the language the app shows.
+func EnginesBuiltin() string { return In(i18n.Locale()).EnginesBuiltin() }
+
+// EnginesBuiltin says "Built in"
+// in the language of msgs.
+func (msgs Messages) EnginesBuiltin() string {
+	return Catalog.Format(msgs.locale, "enginesBuiltin", nil)
+}
+
+// EnginesExternal says "Imported"
+// in the language the app shows.
+func EnginesExternal() string { return In(i18n.Locale()).EnginesExternal() }
+
+// EnginesExternal says "Imported"
+// in the language of msgs.
+func (msgs Messages) EnginesExternal() string {
+	return Catalog.Format(msgs.locale, "enginesExternal", nil)
+}
+
+// EnginesPages says "{count} pages"
+// in the language the app shows.
+func EnginesPages(count string) string { return In(i18n.Locale()).EnginesPages(count) }
+
+// EnginesPages says "{count} pages"
+// in the language of msgs.
+func (msgs Messages) EnginesPages(count string) string {
+	return Catalog.Format(msgs.locale, "enginesPages", map[string]any{"count": count})
+}
+
+// EnginesRemove says "Remove"
+// in the language the app shows.
+func EnginesRemove() string { return In(i18n.Locale()).EnginesRemove() }
+
+// EnginesRemove says "Remove"
+// in the language of msgs.
+func (msgs Messages) EnginesRemove() string {
+	return Catalog.Format(msgs.locale, "enginesRemove", nil)
+}
+
+// EnginesRemoved says "Removed {name}."
+// in the language the app shows.
+func EnginesRemoved(name string) string { return In(i18n.Locale()).EnginesRemoved(name) }
+
+// EnginesRemoved says "Removed {name}."
+// in the language of msgs.
+func (msgs Messages) EnginesRemoved(name string) string {
+	return Catalog.Format(msgs.locale, "enginesRemoved", map[string]any{"name": name})
+}
+
+// EnginesOpenFolder says "Open adapter folder"
+// in the language the app shows.
+func EnginesOpenFolder() string { return In(i18n.Locale()).EnginesOpenFolder() }
+
+// EnginesOpenFolder says "Open adapter folder"
+// in the language of msgs.
+func (msgs Messages) EnginesOpenFolder() string {
+	return Catalog.Format(msgs.locale, "enginesOpenFolder", nil)
+}
+
+// EnginesSpec says "Adapter specification"
+// in the language the app shows.
+func EnginesSpec() string { return In(i18n.Locale()).EnginesSpec() }
+
+// EnginesSpec says "Adapter specification"
+// in the language of msgs.
+func (msgs Messages) EnginesSpec() string {
+	return Catalog.Format(msgs.locale, "enginesSpec", nil)
+}
+
+// EnginesProcess says "Process adapter"
+// in the language the app shows.
+func EnginesProcess() string { return In(i18n.Locale()).EnginesProcess() }
+
+// EnginesProcess says "Process adapter"
+// in the language of msgs.
+func (msgs Messages) EnginesProcess() string {
+	return Catalog.Format(msgs.locale, "enginesProcess", nil)
+}
+
+// EnginesEmpty says "No external adapters installed."
+// in the language the app shows.
+func EnginesEmpty() string { return In(i18n.Locale()).EnginesEmpty() }
+
+// EnginesEmpty says "No external adapters installed."
+// in the language of msgs.
+func (msgs Messages) EnginesEmpty() string {
+	return Catalog.Format(msgs.locale, "enginesEmpty", nil)
+}
+
+// EnginesNoLinks says "This adapter page has no links yet."
+// in the language the app shows.
+func EnginesNoLinks() string { return In(i18n.Locale()).EnginesNoLinks() }
+
+// EnginesNoLinks says "This adapter page has no links yet."
+// in the language of msgs.
+func (msgs Messages) EnginesNoLinks() string {
+	return Catalog.Format(msgs.locale, "enginesNoLinks", nil)
+}
+
+// EnginesBadManifest says "Could not load {name}: {error}"
+// in the language the app shows.
+func EnginesBadManifest(name string, error string) string {
+	return In(i18n.Locale()).EnginesBadManifest(name, error)
+}
+
+// EnginesBadManifest says "Could not load {name}: {error}"
+// in the language of msgs.
+func (msgs Messages) EnginesBadManifest(name string, error string) string {
+	return Catalog.Format(msgs.locale, "enginesBadManifest", map[string]any{"name": name, "error": error})
+}
+
+// EnginesNoLaunch says "This adapter does not provide a project launch process. Add \"process\" to adapter.json."
+// in the language the app shows.
+func EnginesNoLaunch() string { return In(i18n.Locale()).EnginesNoLaunch() }
+
+// EnginesNoLaunch says "This adapter does not provide a project launch process. Add \"process\" to adapter.json."
+// in the language of msgs.
+func (msgs Messages) EnginesNoLaunch() string {
+	return Catalog.Format(msgs.locale, "enginesNoLaunch", nil)
+}
+
+// EnginesUnityDescription says "Official Unity Hub integration"
+// in the language the app shows.
+func EnginesUnityDescription() string { return In(i18n.Locale()).EnginesUnityDescription() }
+
+// EnginesUnityDescription says "Official Unity Hub integration"
+// in the language of msgs.
+func (msgs Messages) EnginesUnityDescription() string {
+	return Catalog.Format(msgs.locale, "enginesUnityDescription", nil)
+}
+
+// EnginesTuanjieDescription says "Official Tuanjie Hub integration"
+// in the language the app shows.
+func EnginesTuanjieDescription() string { return In(i18n.Locale()).EnginesTuanjieDescription() }
+
+// EnginesTuanjieDescription says "Official Tuanjie Hub integration"
+// in the language of msgs.
+func (msgs Messages) EnginesTuanjieDescription() string {
+	return Catalog.Format(msgs.locale, "enginesTuanjieDescription", nil)
+}
+
 // ActivityBackgroundHint says "Downloads and installations continue while you use other pages. Keep UnityStarter open."
 // in the language the app shows.
 func ActivityBackgroundHint() string { return In(i18n.Locale()).ActivityBackgroundHint() }

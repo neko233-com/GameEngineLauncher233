@@ -16,7 +16,8 @@ func (a *app) settingsPage(c *ui.Context) {
 	ui.Row(c).Padding(0, 24).Gap(8).Children(func() {
 		for _, tab := range []struct{ id, label string }{
 			{"", locales.SettingsGeneral()}, {"projects", locales.SettingsProjectsTab()},
-			{"installs", locales.SettingsInstallsTab()}, {"about", locales.SettingsAbout()},
+			{"installs", locales.SettingsInstallsTab()}, {"engines", locales.SettingsEnginesTab()},
+			{"about", locales.SettingsAbout()},
 		} {
 			tab := tab
 			pageTab(c, tab.label, a.settingsTab == tab.id, func() { a.settingsTab = tab.id })
@@ -66,6 +67,8 @@ func (a *app) settingsPage(c *ui.Context) {
 					})
 
 				a.downloadCacheSection(c)
+			case "engines":
+				a.enginesSection(c)
 			case "about":
 				a.aboutSection(c)
 			default:

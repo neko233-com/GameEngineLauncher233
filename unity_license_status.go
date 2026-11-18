@@ -115,7 +115,7 @@ func (a *app) unityLicenseBanner(c *ui.Context) {
 	engine := a.activeEngine
 	switch a.page {
 	case pageProjects, pageFavorites, pageInstalls, pageDownloads, pageTuanjieProjects, pageTuanjieFavorites, pageTuanjieInstalls, pageTuanjieDownloads:
-		engine = engineForPage(a.page)
+		engine = a.engineForPage(a.page)
 	}
 	if engine != kindUnity {
 		return

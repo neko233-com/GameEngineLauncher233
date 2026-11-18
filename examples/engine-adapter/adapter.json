@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "example-engine",
+  "name": "Example Engine",
+  "version": "0.1.0",
+  "description": "A copyable declarative engine adapter for UnityStarter.",
+  "homepage": "https://github.com/example/unitystarter-example-engine",
+  "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M12 2 21 7v10l-9 5-9-5V7l9-5zm0 2.2L5.4 8v8l6.6 3.7 6.6-3.7V8L12 4.2z\"/></svg>",
+  "features": {
+    "licenseFlow": false,
+    "createProject": false,
+    "downloads": false,
+    "templates": false
+  },
+  "urls": {
+    "docs": "https://example.com/docs",
+    "community": "https://example.com/community"
+  },
+  "pages": [
+    {
+      "id": "hub",
+      "title": "Example Engine",
+      "kind": "links",
+      "icon": "projects",
+      "groups": [
+        {
+          "title": "Example Engine",
+          "links": [
+            {
+              "title": "Documentation",
+              "detail": "Getting started and API reference.",
+              "url": "https://example.com/docs"
+            },
+            {
+              "title": "Download the editor",
+              "detail": "Official engine downloads.",
+              "url": "https://example.com/download"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "community",
+      "title": "Community",
+      "kind": "links",
+      "icon": "feedback",
+      "groups": [
+        {
+          "title": "Community",
+          "links": [
+            {
+              "title": "Forum",
+              "detail": "Ask and answer questions.",
+              "url": "https://example.com/community"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

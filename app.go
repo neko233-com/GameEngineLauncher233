@@ -37,7 +37,7 @@ const (
 
 	// appVersion is what the CLI prints and what the window shows when MyGo
 	// does not know the packaged version.
-	appVersion = "1.7.0"
+	appVersion = "1.8.0"
 	// appName is the name of the executable and of the app's data folder, as
 	// mygo.json names the app; the window shows a name with a space.
 	appName = "UnityStarter"
@@ -178,6 +178,13 @@ type app struct {
 	templateJob            *templateDownloadJob
 	pendingProjectList     []pendingProject
 	pendingProjectErrors   map[string]string
+
+	// User-installed engine adapters and the import form.
+	adapterURL           string
+	adapterBusy          bool
+	adapterStatus        string
+	adapterStatusIsError bool
+	adapterErrors        []error
 }
 
 func newApp() *app {
@@ -190,8 +197,13 @@ func (a *app) load() {
 	if a.prefs.Locale != "" {
 		mygo.App.SetLocale(a.prefs.Locale)
 	}
-	if a.prefs.ActiveEngine == kindTuanjie {
-		a.activeEngine, a.page = kindTuanjie, pageTuanjieProjects
+	a.adapterErrors = reloadEngineAdapters(adaptersDir())
+	if !engineValid(a.activeEngine) {
+		a.activeEngine, a.page = kindUnity, pageProjects
+	}
+	if a.prefs.ActiveEngine != "" && engineValid(a.prefs.ActiveEngine) {
+		a.activeEngine = a.prefs.ActiveEngine
+		a.page = engineStrategyFor(a.activeEngine).Pages.Projects
 	}
 }
 
@@ -222,6 +234,9 @@ func (a *app) refresh() {
 	go func() {
 		started := time.Now()
 		editors, projects, hubs := scanWithVCS(settings, false)
+		externalEditors, externalProjects := scanExternalEngineAdapters(ctx, engineAdapters())
+		editors = append(editors, externalEditors...)
+		projects = append(projects, externalProjects...)
 		logger.Printf("scan: %d editors, %d projects, %d hubs in %s",
 			len(editors), len(projects), len(hubs), time.Since(started).Round(time.Millisecond))
 		if ctx.Err() != nil {
@@ -304,11 +319,15 @@ func (a *app) save() {
 func (a *app) view(c *ui.Context) {
 	c.SetTheme(starterTheme)
 	if !a.modalOpen() {
-		if c.Shortcut(ui.Cmd, ui.Key1) {
-			a.switchEngine(kindUnity)
-		}
-		if c.Shortcut(ui.Cmd, ui.Key2) {
-			a.switchEngine(kindTuanjie)
+		for i, adapter := range engineAdapters() {
+			key, ok := engineShortcutKey(i)
+			if !ok {
+				break
+			}
+			if c.Shortcut(ui.Cmd, key) {
+				a.switchEngine(adapter.ID)
+				break
+			}
 		}
 		if c.Shortcut(ui.Cmd, ui.KeyComma) {
 			a.page = pageSettings
@@ -332,16 +351,10 @@ func (a *app) view(c *ui.Context) {
 			a.engineRail(c)
 			ui.Column(c).Fill().Width(220).MinHeight(0).Background(t.Surface).Children(func() {
 				a.navigationHeader(c)
-				projects, installs, downloads, favorites := enginePages(a.activeEngine)
+				s := a.engineStrategy()
+				downloads := s.Pages.Downloads
 				ui.Scroll(c).Grow(1).Shrink(1).MinHeight(0).Children(func() {
 					ui.Column(c).Padding(8, 10, 16, 10).Gap(2).FocusGroup(ui.Vertical).Children(func() {
-						countBadge := func(n int) func() {
-							return func() {
-								if n > 0 {
-									ui.Badge(c, fmt.Sprint(n))
-								}
-							}
-						}
 						engineCount := func() int {
 							count := 0
 							for _, p := range a.projects {
@@ -360,38 +373,51 @@ func (a *app) view(c *ui.Context) {
 							}
 							return count
 						}
-						// Tuanjie Hub flat sidebar (no sections): workspace first,
-						// then learning/services, then help. Downloads stays pinned
-						// at the foot of the column, as in the reference. Favorites
-						// and Activity are preserved as our own additions.
-						a.navItem(c, projects, iconProjects, locales.SidebarProjects(), countBadge(engineCount()))
-						a.navItem(c, installs, iconInstalls, locales.SidebarInstalls(), countBadge(installCount()))
-						a.navItem(c, favorites, iconFavorite, locales.SidebarFavorites(), nil)
-						a.navItem(c, pageLearn, iconLearn, locales.PageLearn(), nil)
-						a.navItem(c, pageStore, iconStore, locales.PageStore(), nil)
-						a.navItem(c, pagePublish, iconPublish, locales.PagePublish(), nil)
-						a.navItem(c, pageActivity, iconDownload, locales.ActivityTitle(), func() {
-							n := a.workspaceTaskCount()
-							if n > 0 {
-								ui.Badge(c, fmt.Sprint(n))
+						badge := func(n int) func() {
+							if n <= 0 {
+								return nil
 							}
-						})
-						a.navItem(c, pageLicense, iconLicense, locales.PageLicense(), nil)
-						a.navItem(c, pageDocs, iconDocs, locales.PageDocs(), nil)
-						a.navItem(c, pageFeedback, iconFeedback, locales.PageFeedback(), nil)
+							return func() { ui.Badge(c, fmt.Sprint(n)) }
+						}
+						// Each adapter owns its navigation. Unity has no game
+						// publishing; Tuanjie does. An imported adapter can add
+						// links pages without the view learning about them.
+						for _, item := range s.Nav {
+							item := item
+							var trailing func()
+							switch item.Kind {
+							case "projects":
+								trailing = badge(engineCount())
+							case "installs":
+								trailing = badge(installCount())
+							case "activity":
+								trailing = func() {
+									if n := a.workspaceTaskCount(); n > 0 {
+										ui.Badge(c, fmt.Sprint(n))
+									}
+								}
+							}
+							a.navItem(c, item.Route, item.Icon, item.TitleText(), trailing)
+						}
 					})
 				})
 				a.licenseStatusStrip(c)
-				ui.Divider(c)
-				ui.Column(c).Shrink(0).Padding(8, 10, 10, 10).FocusGroup(ui.Vertical).Children(func() {
-					a.navItem(c, downloads, iconDownload, locales.SidebarDownloads(), nil)
-				})
+				if a.hasDownloadsFooter(s) {
+					ui.Divider(c)
+					ui.Column(c).Shrink(0).Padding(8, 10, 10, 10).FocusGroup(ui.Vertical).Children(func() {
+						a.navItem(c, downloads, iconDownload, locales.SidebarDownloads(), nil)
+					})
+				}
 			})
 			ui.Column(c).Grow(1).MinWidth(0).MinHeight(0).Fill().Children(func() {
 				a.unityLicenseBanner(c)
 				a.uninstallGuardBanner(c)
 				a.workspaceActivityBanner(c)
 				a.updateBanner(c)
+				if adapter, page, ok := enginePageForRoute(a.page); ok && !adapter.BuiltIn {
+					a.externalPage(c, adapter, page)
+					return
+				}
 				switch a.page {
 				case pageProjects, pageFavorites, pageTuanjieProjects, pageTuanjieFavorites:
 					a.projectsPage(c)
@@ -431,39 +457,38 @@ func (a *app) view(c *ui.Context) {
 	a.alertDialog(c)
 }
 
-func enginePages(engine string) (string, string, string, string) {
-	s := engineStrategyFor(engine)
-	return s.Pages.Projects, s.Pages.Installs, s.Pages.Downloads, s.Pages.Favorites
-}
-
 // engineRail is the vertical engine switcher at the far left, as Tuanjie
-// Hub's: both engines stack from the top, the active one wears a raised
-// tile, and the rest of the rail is empty. It never scrolls with the nav.
+// Hub's: every registered adapter stacks from the top, the active one wears a
+// raised tile, and the rest of the rail is empty. It never scrolls with the
+// nav.
 func (a *app) engineRail(c *ui.Context) {
 	t := c.Theme()
-	ui.Column(c).Width(64).Shrink(0).Padding(12, 0, 0, 0).Gap(6).Background(t.Background).
-		BorderWidth(0, 1, 0, 0).BorderColor(t.Border).FocusGroup(ui.Vertical).Children(func() {
-		a.engineRailTab(c, kindUnity)
-		a.engineRailTab(c, kindTuanjie)
-		ui.Spacer(c)
+	ui.Column(c).Width(64).Shrink(0).Padding(12, 0, 0, 0).Background(t.Background).
+		BorderWidth(0, 1, 0, 0).BorderColor(t.Border).Children(func() {
+		ui.Scroll(c).Grow(1).Shrink(1).MinHeight(0).Children(func() {
+			ui.Column(c).Gap(6).FocusGroup(ui.Vertical).Children(func() {
+				for i, adapter := range engineAdapters() {
+					a.engineRailTab(c, adapter, i)
+				}
+			})
+		})
 	})
 }
 
 // engineRailTab is one engine's square tab in the rail. The label keeps the
 // control named for tests and assistive technology even though the rail
 // shows only the brand mark.
-func (a *app) engineRailTab(c *ui.Context, engine string) {
+func (a *app) engineRailTab(c *ui.Context, adapter *engineAdapter, index int) {
 	t := c.Theme()
-	s := engineStrategyFor(engine)
+	s := adapter.strategy()
+	engine := adapter.ID
 	active := a.activeEngine == engine
 	hint := s.Name
-	if engine == kindUnity {
-		hint += " · Ctrl+1"
-	} else {
-		hint += " · Ctrl+2"
+	if index < 9 {
+		hint += fmt.Sprintf(" · Ctrl+%d", index+1)
 	}
 	b := ui.Button(c, "").Size(64, 56).Padding(0).
-		Label(channelName(engine)).Tooltip(hint).
+		Label(adapter.DisplayName()).Tooltip(hint).
 		Background(ui.Color{}).Border(0, ui.Color{}).
 		OnClick(func() { a.switchEngine(engine) })
 	var tile, mark ui.Element
@@ -473,9 +498,9 @@ func (a *app) engineRailTab(c *ui.Context, engine string) {
 			bg = t.SurfaceHover
 		}
 		tile = ui.Box(c).Size(44, 40).Radius(9).Background(bg).Center().Children(func() {
-			// Tuanjie keeps its genuine faceted mark in both states, muted
-			// when it is not the active engine; Unity's official silhouette
-			// follows the text color.
+			// A brand that ships its own faceted art keeps it in both states,
+			// muted when another engine is active; monochrome marks follow the
+			// text color.
 			if s.BrandIcon != nil {
 				mark = ui.Image(c, s.BrandIcon).Size(26, 26)
 				return
@@ -563,21 +588,30 @@ func (a *app) switchEngine(engine string) {
 	if engine == a.activeEngine {
 		return
 	}
-	oldProjects, oldInstalls, oldDownloads, oldFavorites := enginePages(a.activeEngine)
-	projects, installs, downloads, favorites := enginePages(engine)
-	switch a.page {
-	case oldInstalls:
-		a.page = installs
-	case oldDownloads:
-		a.page = downloads
-	case oldFavorites:
-		a.page = favorites
-	case oldProjects:
-		a.page = projects
-	case pageStore, pagePublish, pageLicense, pageDocs, pageLearn, pageFeedback, pageSettings, pageActivity:
-		// Shared pages stay open while their engine context changes.
+	old := engineAdapterByID(a.activeEngine)
+	next := engineAdapterByID(engine)
+	if next == nil {
+		return
+	}
+	kind := ""
+	if old != nil {
+		if p, ok := old.PageForRoute(a.page); ok {
+			kind = p.Kind
+		}
+	}
+	switch {
+	case kind != "":
+		if p, ok := next.PageForKind(kind); ok {
+			a.page = p.Route
+		} else {
+			a.page = next.LandingPage()
+		}
+	case a.page == pageSettings:
+		// Settings is shared by every engine.
 	default:
-		a.page = projects
+		if _, ok := next.PageForRoute(a.page); !ok {
+			a.page = next.LandingPage()
+		}
 	}
 	a.activeEngine = engine
 	a.prefs.ActiveEngine = engine
@@ -586,14 +620,44 @@ func (a *app) switchEngine(engine string) {
 	}
 }
 
-func engineForPage(page string) string {
-	if strings.HasPrefix(page, "/tuanjie/") {
-		return kindTuanjie
+// engineForPage names the engine whose page is shown. Routes unique to one
+// adapter identify it even when tests set the page alone; shared service pages
+// follow the active engine.
+func (a *app) engineForPage(page string) string {
+	var owner *engineAdapter
+	for _, adapter := range engineAdapters() {
+		if _, ok := adapter.PageForRoute(page); ok {
+			if owner != nil {
+				return a.activeEngine
+			}
+			owner = adapter
+		}
 	}
-	return kindUnity
+	if owner != nil {
+		return owner.ID
+	}
+	return a.activeEngine
 }
 
-func favoritesPage(page string) bool { return page == pageFavorites || page == pageTuanjieFavorites }
+func (a *app) favoritesPage() bool {
+	if _, p, ok := enginePageForRoute(a.page); ok {
+		return p.Kind == "favorites"
+	}
+	return a.page == pageFavorites || a.page == pageTuanjieFavorites
+}
+
+// hasDownloadsFooter keeps the pinned downloads entry for engines that
+// actually have a downloads workspace; a links-only adapter does not.
+func (a *app) hasDownloadsFooter(s engineStrategy) bool {
+	if s.Adapter == nil || s.Adapter.BuiltIn {
+		return true
+	}
+	if !s.Adapter.Features.Downloads {
+		return false
+	}
+	_, ok := s.Adapter.PageForKind("downloads")
+	return ok
+}
 
 // header is the title of a page, with its count and its actions.
 func (a *app) header(c *ui.Context, title, subtitle string, actions func()) {
@@ -708,6 +772,10 @@ func (a *app) openProjectWithEditorChecked(p projectEntry, expected editorInstal
 		a.alert(locales.EditorMissing(p.Version))
 		return
 	}
+	if isExternalEngine(p.Kind) {
+		a.openExternalProject(p, expected)
+		return
+	}
 	version, _, ok := readProject(p.Path)
 	if !ok {
 		a.alert(locales.NotAProject(p.Path))
@@ -750,6 +818,42 @@ func (a *app) openProjectWithEditorChecked(p projectEntry, expected editorInstal
 	if !strings.EqualFold(expected.Version, p.Version) {
 		a.watchProjectVersion(p.Path, p.Version)
 	}
+}
+
+// openExternalProject hands a project to its engine adapter. An adapter may
+// use any CLI convention; the launcher never guesses Unity flags for it.
+func (a *app) openExternalProject(p projectEntry, expected editorInstall) {
+	adapter := engineAdapterByID(p.Kind)
+	if adapter == nil {
+		a.alert(locales.ProjectEditorChanged())
+		return
+	}
+	current, ok := a.editorInstall(p.Editor)
+	if !ok || !strings.EqualFold(current.Exe, expected.Exe) || !strings.EqualFold(current.Version, expected.Version) || current.Kind != adapter.ID {
+		a.alert(locales.ProjectEditorChanged())
+		a.refresh()
+		return
+	}
+	if adapter.Process == nil {
+		a.alert(locales.EnginesNoLaunch())
+		return
+	}
+	run := func() error {
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+		return launchViaEngineAdapter(ctx, adapter, current.Exe, p.Path, nil)
+	}
+	if a.win == nil {
+		if err := run(); err != nil {
+			a.alert(locales.OpenFailed(err.Error()))
+		}
+		return
+	}
+	go func() {
+		if err := run(); err != nil {
+			a.win.Update(func() { a.alert(locales.OpenFailed(err.Error())) })
+		}
+	}()
 }
 
 func (a *app) addProject() {

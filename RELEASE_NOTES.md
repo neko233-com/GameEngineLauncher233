@@ -1,3 +1,13 @@
+# UnityStarter 1.8.0
+
+- 引擎架构改为可扩展的适配器注册表：Unity 与团结引擎不再共享一套写死的导航，每个适配器拥有自己的图标、名称、页面、链接、功能标记和可选进程；左侧引擎栏与导航都由注册表生成。
+- 引擎页面按适配器独立：Unity 不显示“游戏发行”，团结引擎显示；项目、安装、收藏、下载路由也由适配器声明，切换引擎时只保留同一类页面或回到该引擎的首页。
+- 新增社区适配器规范 [`ENGINE_ADAPTERS.md`](ENGINE_ADAPTERS.md)：`schemaVersion: 1` 的 `adapter.json` 支持页面、链接组、品牌图标、功能标记和 `process`。示例见 `examples/engine-adapter/`。
+- 实现 LSP 风格的 JSON-RPC 进程协议（Content-Length 帧），支持 `initialize`、`detect`、`launch`、`shutdown`；外部引擎可以通过 `detect` 提供编辑器和项目，通过 `launch` 使用自己的命令行约定打开项目。检测合并进现有扫描，失败只影响该适配器。
+- 设置新增“引擎适配”页：从 GitHub 仓库、`owner/repo` 或 `adapter.json` 地址导入；校验 ID、页面、URL、图标大小、进程路径和保留名称；可移除已导入适配器，内置适配器不可移除。导入后立即进入新引擎的首页并出现在引擎栏。
+- 保留 1.7.0 的 Vercel 单色界面、官方 Unity/团结标志、真实应用图标、焦点组方向键、Ctrl+1…9 引擎快捷键、Ctrl+, 设置快捷键和卡片式弹窗。
+- 新增适配器导航差异、外部适配器页面、GitHub 导入/移除、非法清单拒绝、真实 stdio JSON-RPC 检测与项目启动、设置页适配器列表等测试；`go test ./...`、`go vet`、`mygo vet` 全部通过。
+
 # UnityStarter 1.7.0
 
 - 全新 Vercel 风格单色界面：纯黑画布、近黑卡片、1px 细边框、灰阶层级与白色主按钮；标题栏、页面标题、标签页、提示框和弹窗统一为同一套视觉语言。

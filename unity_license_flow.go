@@ -210,10 +210,46 @@ func (a *app) launchInstalledEditorChecked(e editorInstall, licensed bool) {
 		a.alert(locales.InstallUninstallBusy())
 		return
 	}
+	if isExternalEngine(e.Kind) {
+		adapter := engineAdapterByID(e.Kind)
+		if adapter == nil {
+			a.alert(locales.ProjectEditorChanged())
+			return
+		}
+		if adapter.Process == nil {
+			a.launchExternalEditorFallback(e)
+			return
+		}
+		run := func() error {
+			ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+			defer cancel()
+			return launchViaEngineAdapter(ctx, adapter, e.Exe, "", nil)
+		}
+		if a.win == nil {
+			if err := run(); err != nil {
+				a.alert(locales.OpenFailed(err.Error()))
+			}
+			return
+		}
+		go func() {
+			if err := run(); err != nil {
+				a.win.Update(func() { a.alert(locales.OpenFailed(err.Error())) })
+			}
+		}()
+		return
+	}
 	if !licensed && e.Kind == kindUnity {
 		a.withUnityLicense(e, func() { a.launchInstalledEditorChecked(e, true) })
 		return
 	}
+	if err := launchVersionCheckedEditor(e.Exe, e.Version, nil, filepath.Dir(e.Exe), a.launchEditor); err != nil {
+		a.alert(locales.OpenFailed(err.Error()))
+	}
+}
+
+// launchExternalEditorFallback starts an adapter-provided editor executable
+// directly when the adapter has no process protocol.
+func (a *app) launchExternalEditorFallback(e editorInstall) {
 	if err := launchVersionCheckedEditor(e.Exe, e.Version, nil, filepath.Dir(e.Exe), a.launchEditor); err != nil {
 		a.alert(locales.OpenFailed(err.Error()))
 	}

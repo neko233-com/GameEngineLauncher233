@@ -8,7 +8,7 @@
 - **技术栈**: Go + github.com/egoist/mygo（原生 UI，非 Web 前端）
 - **仓库**: https://github.com/neko233-com/UnityStarter（main 分支）
 - **平台**: Windows amd64（per-user 安装）
-- **当前版本**: 1.7.0
+- **当前版本**: 1.8.0
 
 ## 目录结构
 
@@ -16,9 +16,16 @@
 UnityStarter/
 ├── Taskfile.yml            # ⭐ 所有构建/发布的入口
 ├── mygo.json               # mygo 构建配置（版本号在这里）
-├── icons.go                # SVG 品牌图标（iconUnity / iconTuanjie / iconBrand）
-├── engine_strategy.go      # ⭐ Unity/Tuanjie 差异策略收敛点
-├── app.go                  # 主应用 + 侧栏 + 路由
+├── icons.go                # SVG 品牌图标（官方 Unity/团结标志 + 通用图标）
+├── engine_strategy.go      # 视图使用的 engineStrategy 投影
+├── engine_adapter.go       # ⭐ 适配器注册表 + 内置 Unity/团结适配器
+├── engine_adapter_manifest.go # ⭐ adapter.json 解析与校验
+├── engine_adapter_install.go  # GitHub 导入、安装、加载、移除
+├── engine_adapter_process.go  # LSP 风格 stdio JSON-RPC 进程
+├── engine_adapter_ui.go    # 引擎适配设置页 + 外部适配器链接页
+├── ENGINE_ADAPTERS.md      # ⭐ 社区适配器规范
+├── examples/engine-adapter # 可复制的声明式适配器示例
+├── app.go                  # 主应用 + 动态侧栏 + 路由
 ├── auto_update_windows.go  # 在线 MSI 自动更新（msiexec /i ... /qn）
 ├── resources/icon.svg      # 应用图标（任务栏/窗口）
 ├── _tools/
@@ -65,35 +72,50 @@ git push origin main
 **安装位置**: `%LOCALAPPDATA%\Programs\UnityStarterMSI\`
 **卸载**: `msiexec /x {b3373319-8b2b-4b88-a782-725de6fb774a} /qn`（WiX UpgradeCode）
 
-## Engine 差异策略（engine_strategy.go）
+## 引擎适配器（engine_adapter*.go）
 
-Unity 和 Tuanjie 不是同构 tab —— 每个 engine 有独立品牌 + 行为：
+Unity 和团结引擎只是注册表里的前两个适配器。新增引擎或社区 DIY 适配都走同一套
+`engineAdapter`，不要在 view 层写 `if kindUnity`。
 
 ```go
-type engineStrategy struct {
-    engineBranding    // 官方图标（单色 / 原色两种）
-    Pages             // 路由映射
-    NeedsLicenseFlow  // Unity 需要授权流程，Tuanjie 不需要
-    DownloadChannel   // 下载源
-    AssetStoreURL     // 资源商店 URL
-    DocsURL           // 文档 URL
-    // ...
+type engineAdapter struct {
+    ID, Version, Description string
+    Icon, BrandIcon          *ui.SVG
+    Pages                    []enginePage // 每个引擎自己的导航与路由
+    Features                 engineAdapterFeatures
+    URLs                     engineAdapterURLs
+    Process                  *engineAdapterProcess // 可选 JSON-RPC
+    BuiltIn                  bool
 }
 ```
 
-**规则**:
-- 新增 engine 差异时，只改 `engine_strategy.go`，不要在 view 层加 `if kindUnity`
-- UI 层通过 `a.engineStrategy()` 或 `engineStrategyFor(kind)` 获取策略
-- 图标使用官方资源，不再用近似自绘；UI 保持 Vercel 单色，不按引擎染品牌色
+**规则**：
+- 内置适配器在 `engine_adapter.go`；用户适配器从
+  `%APPDATA%\UnityStarter\engine-adapters\<id>\adapter.json` 加载。
+- 视图只读 `a.engineStrategy()`：`Pages`、`Nav`、`BrandIcon`、功能标记都从
+  适配器投影出来；`engineAdapterByID` / `engineAdapters` 是唯一注册表入口。
+- Unity 适配器没有“游戏发行”；团结适配器有。新增页面时改对应适配器的
+  `Pages`，不要改全局导航列表。
+- 外部适配器页面路由为 `/engine/<id>/<page-id>`；`externalPage` 只处理
+  原生 kind 的复用，其余渲染 manifest 的 links groups。
+- `process` 使用 LSP 的 `Content-Length` JSON-RPC 帧，方法为
+  `initialize` / `detect` / `launch` / `shutdown`；`detect` 结果会合并进扫描，
+  `launch` 用于外部引擎自己的项目启动约定。
+- 导入只下载 manifest，不下载/执行二进制；`adapter.json` 校验 ID、页面、
+  URL、图标大小、进程相对路径和保留名称。规范与示例：
+  `ENGINE_ADAPTERS.md`、`examples/engine-adapter/`。
+- 适配器测试在 `engine_adapter_test.go`；改动注册表或页面路由时同时跑
+  `TestEngineNavigationDiffersByAdapter`、`TestExternalAdapterDrivesRailAndPages`、
+  `TestExternalAdapterProcessDetectAndLaunch`。
 
 ## 侧栏布局（垂直引擎栏）
 
 参考 Tuanjie Hub 1.4.8 的三段式布局，视觉采用 Vercel 单色风格：
 
-- 最左 **64px 垂直引擎栏**：Unity 在上、团结引擎在下；当前引擎用浮起底块标记，点击只切换 `activeEngine` 与对应页面。该栏独立于导航滚动。
-- 图标使用团结 Hub 官方资源中的真实标志：`iconUnity` 为官方 Unity 立方体，`iconTuanjieBrand` 为官方团结引擎多面体；不要再用自绘近似图标。
-- 中间 **220px 导航列**：顶部是当前引擎品牌 + 设置齿轮，中部是自绘 Vercel 风格导航（32px 行高、灰阶、选中浮起），底部是许可证单行说明，下载入口固定在最底部。
-- 引擎栏与导航各自是 `ui.FocusGroup`：一个 Tab 站点，方向键遍历；快捷键 `Ctrl+1` / `Ctrl+2` 切引擎，`Ctrl+,` 打开设置。
+- 最左 **64px 垂直引擎栏**：注册表里的每个适配器从上往下排列；当前引擎用浮起底块标记，点击切换 `activeEngine` 与对应页面。该栏独立于导航滚动。
+- 图标使用官方资源：`iconUnity` 为官方 Unity 立方体，`iconTuanjieBrand` 为官方团结引擎多面体；不要再用自绘近似图标。
+- 中间 **220px 导航列**：顶部是当前引擎品牌 + 设置齿轮，中部是适配器自己的页面（32px 行高、灰阶、选中浮起），底部是许可证单行说明；有下载页面的引擎才显示固定下载入口。
+- 引擎栏与导航各自是 `ui.FocusGroup`：一个 Tab 站点，方向键遍历；快捷键 `Ctrl+1…9` 按注册表顺序切引擎，`Ctrl+,` 打开设置。
 - 弹窗统一用 `modal()`（`ui_layout.go`），不要把 `ui.Modal` 直接用到黑色画布上，否则面板边界会消失。
 - 布局回归测试在 `engine_rail_test.go`；改动侧栏时同时检查 1180×760 与 900×560。
 

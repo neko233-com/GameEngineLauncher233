@@ -1,9 +1,9 @@
 // engine_strategy.go —— 每个 engine 独立的品牌 + 行为策略。
 //
 // Unity 和 Tuanjie 不是同构的两个 tab：它们各有自己的官方标志、
-// 自己的下载源、自己的模板来源、自己的授权机制。
-// engineStrategy 把这些差异收敛在一处，view 层只通过
-// a.engineStrategy(kind) 拿到策略，不再散落 if/else。
+// 自己的页面集合、自己的下载源、自己的模板来源、自己的授权机制。
+// 这些差异由 engineAdapter 描述，engineStrategy 是视图层使用的只读
+// 投影；新增引擎应注册 adapter，不要在 view 层加 if kindUnity。
 
 package main
 
@@ -11,12 +11,13 @@ import "github.com/egoist/mygo/ui"
 
 // engineBranding 描述一个 engine 的品牌标识（视觉层）。
 type engineBranding struct {
-	Name      string  // "Unity" / "团结引擎"
+	Name      string  // "Unity" / "团结引擎" / user adapter name
 	Icon      *ui.SVG // monochrome official mark, for tinted contexts
 	BrandIcon *ui.SVG // official mark in its own colours, for the rail
 }
 
-// engineRoutePages 描述一个 engine 的页面路由映射。
+// engineRoutePages 描述一个 engine 的主路由。缺少的页面回退到首个页面，
+// 这样外部适配器只定义 links 页面也能工作。
 type engineRoutePages struct {
 	Projects  string
 	Installs  string
@@ -24,76 +25,47 @@ type engineRoutePages struct {
 	Favorites string
 }
 
-// engineStrategy 描述一个 engine 的完整策略（视觉 + 路由 + 行为）。
+// engineStrategy 描述一个 engine 的视图投影（品牌 + 页面 + 行为）。
 type engineStrategy struct {
 	engineBranding
-	Pages engineRoutePages
+	Pages   engineRoutePages
+	Nav     []enginePage
+	Adapter *engineAdapter
 	// 行为策略 —— 每个 engine 各有一套
-	NeedsLicenseFlow bool // Unity 需要授权流程，Tuanjie 不需要
+	NeedsLicenseFlow bool // Unity 需要授权流程，Tuanjie / 外部引擎可关闭
 	DownloadChannel  string
 	TemplateSource   string
 	AssetStoreURL    string
 	DocsURL          string
 	LicenseURL       string
+	LearnURL         string
+	CommunityURL     string
 }
 
-// engineStrategyFor 返回指定 engine 的策略。
+// engineStrategyFor 返回指定 engine 的策略；未注册的 id 回退到 Unity，
+// 避免旧设置或损坏的适配器把窗口留在空白状态。
 func engineStrategyFor(kind string) engineStrategy {
-	if kind == kindTuanjie {
-		return tuanjieStrategy()
+	if a := engineAdapterByID(kind); a != nil {
+		return a.strategy()
 	}
-	return unityStrategy()
+	if a := engineAdapterByID(kindUnity); a != nil {
+		return a.strategy()
+	}
+	return builtinUnityAdapter().strategy()
 }
 
-// engineValid 判断 kind 是否是已知 engine。
+// engineValid 判断 kind 是否是已注册 engine。
 func engineValid(kind string) bool {
-	return kind == kindUnity || kind == kindTuanjie
-}
-
-func unityStrategy() engineStrategy {
-	return engineStrategy{
-		engineBranding: engineBranding{
-			Name: "Unity",
-			Icon: iconUnity,
-		},
-		Pages: engineRoutePages{
-			Projects:  pageProjects,
-			Installs:  pageInstalls,
-			Downloads: pageDownloads,
-			Favorites: pageFavorites,
-		},
-		NeedsLicenseFlow: true,
-		DownloadChannel:  "unity-releases",
-		TemplateSource:   "unity-hub",
-		AssetStoreURL:    urlAssetStoreUnity,
-		DocsURL:          urlDocsUnity,
-		LicenseURL:       urlLicenseUnity,
-	}
-}
-
-func tuanjieStrategy() engineStrategy {
-	return engineStrategy{
-		engineBranding: engineBranding{
-			Name:      "团结引擎",
-			Icon:      iconTuanjie,
-			BrandIcon: iconTuanjieBrand,
-		},
-		Pages: engineRoutePages{
-			Projects:  pageTuanjieProjects,
-			Installs:  pageTuanjieInstalls,
-			Downloads: pageTuanjieDownloads,
-			Favorites: pageTuanjieFavorites,
-		},
-		NeedsLicenseFlow: false,
-		DownloadChannel:  "tuanjie-cdn",
-		TemplateSource:   "tuanjie-hub",
-		AssetStoreURL:    urlAssetStoreTuanjie,
-		DocsURL:          urlDocsTuanjie,
-		LicenseURL:       urlLicenseTuanjie,
-	}
+	return engineAdapterByID(kind) != nil
 }
 
 // engineStrategy 返回当前 activeEngine 的策略。
 func (a *app) engineStrategy() engineStrategy {
 	return engineStrategyFor(a.activeEngine)
+}
+
+// enginePages 返回一个 engine 的四个主路由，兼容旧的调用点。
+func enginePages(engine string) (string, string, string, string) {
+	s := engineStrategyFor(engine)
+	return s.Pages.Projects, s.Pages.Installs, s.Pages.Downloads, s.Pages.Favorites
 }
