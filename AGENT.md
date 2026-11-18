@@ -8,7 +8,7 @@
 - **技术栈**: Go + github.com/egoist/mygo（原生 UI，非 Web 前端）
 - **仓库**: https://github.com/neko233-com/UnityStarter（main 分支）
 - **平台**: Windows amd64（per-user 安装）
-- **当前版本**: 1.6.24
+- **当前版本**: 1.6.25
 
 ## 目录结构
 
@@ -85,6 +85,14 @@ type engineStrategy struct {
 - 新增 engine 差异时，只改 `engine_strategy.go`，不要在 view 层加 `if kindUnity`
 - UI 层通过 `a.engineStrategy()` 或 `engineStrategyFor(kind)` 获取策略
 - 品牌色: Unity `#E4002B`（红）/ Tuanjie `#2196F3`（蓝）
+
+## 侧栏布局（垂直引擎栏）
+
+参考 Tuanjie Hub 1.4.8 的三段式布局：
+
+- 最左 **64px 垂直引擎栏**：Unity 在上、团结引擎在下；当前引擎用浮起底块标记，点击只切换 `activeEngine` 与对应页面。该栏独立于导航滚动。
+- 中间 **220px 导航列**：顶部是当前引擎品牌 + 设置齿轮，中部是可滚动导航，底部是许可证单行说明，下载入口固定在最底部。
+- 布局回归测试在 `engine_rail_test.go`；改动侧栏时同时检查 1180×760 与 900×560。
 
 ## 品牌图标链路
 

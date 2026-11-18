@@ -37,7 +37,7 @@ const (
 
 	// appVersion is what the CLI prints and what the window shows when MyGo
 	// does not know the packaged version.
-	appVersion = "1.6.24"
+	appVersion = "1.6.25"
 	// appName is the name of the executable and of the app's data folder, as
 	// mygo.json names the app; the window shows a name with a space.
 	appName = "UnityStarter"
@@ -311,10 +311,11 @@ func (a *app) view(c *ui.Context) {
 			ui.Text(c, locales.AppTitle()).FontSize(12).TextColor(t.TextMuted).SingleLine()
 		})
 		ui.Row(c).Grow(1).MinHeight(0).AlignItems(ui.Stretch).Children(func() {
+			a.engineRail(c)
 			ui.Column(c).Fill().Width(220).MinHeight(0).Background(t.Surface).Children(func() {
-				a.engineSwitcherRow(c)
+				a.navigationHeader(c)
+				projects, installs, downloads, favorites := enginePages(a.activeEngine)
 				ui.Sidebar(c, &a.page, func() {
-					projects, installs, downloads, favorites := enginePages(a.activeEngine)
 					countBadge := func(n int) func() {
 						return func() {
 							if n > 0 {
@@ -340,30 +341,31 @@ func (a *app) view(c *ui.Context) {
 						}
 						return count
 					}
-					// Tuanjie Hub flat sidebar (no sections). Order matches the
-					// reference: Projects → Installs → Learn → Store → Publish
-					// → License → Activity → Settings. Favorites is preserved as
-					// our own addition (not in the reference).
+					// Tuanjie Hub flat sidebar (no sections): workspace first,
+					// then learning/services, then help. Downloads stays pinned
+					// at the foot of the column, as in the reference. Favorites
+					// and Activity are preserved as our own additions.
 					sidebarItem(c, projects, iconProjects, locales.SidebarProjects()).Children(countBadge(engineCount()))
 					sidebarItem(c, installs, iconInstalls, locales.SidebarInstalls()).Children(countBadge(installCount()))
 					sidebarItem(c, favorites, iconFavorite, locales.SidebarFavorites())
-					sidebarItem(c, downloads, iconDownload, locales.SidebarDownloads())
+					sidebarItem(c, pageLearn, iconLearn, locales.PageLearn())
+					sidebarItem(c, pageStore, iconStore, locales.PageStore())
+					sidebarItem(c, pagePublish, iconPublish, locales.PagePublish())
 					sidebarItem(c, pageActivity, iconDownload, locales.ActivityTitle()).Children(func() {
 						n := a.workspaceTaskCount()
 						if n > 0 {
 							ui.Badge(c, fmt.Sprint(n))
 						}
 					})
-					sidebarItem(c, pageStore, iconStore, locales.PageStore())
-					sidebarItem(c, pagePublish, iconPublish, locales.PagePublish())
 					sidebarItem(c, pageLicense, iconLicense, locales.PageLicense())
-					sidebarItem(c, pageLearn, iconLearn, locales.PageLearn())
 					sidebarItem(c, pageDocs, iconDocs, locales.PageDocs())
 					sidebarItem(c, pageFeedback, iconFeedback, locales.PageFeedback())
-					sidebarItem(c, pageSettings, iconSettings, locales.SidebarSettings())
 				}).Grow(1).Shrink(1).MinHeight(0)
-				ui.Divider(c)
 				a.licenseStatusStrip(c)
+				ui.Divider(c)
+				ui.Sidebar(c, &a.page, func() {
+					sidebarItem(c, downloads, iconDownload, locales.SidebarDownloads())
+				}).Shrink(0)
 			})
 			ui.Column(c).Grow(1).MinWidth(0).MinHeight(0).Fill().Children(func() {
 				a.unityLicenseBanner(c)
@@ -414,53 +416,85 @@ func enginePages(engine string) (string, string, string, string) {
 	return s.Pages.Projects, s.Pages.Installs, s.Pages.Downloads, s.Pages.Favorites
 }
 
-// engineSwitcherRow is the Tuanjie-Hub-style engine picker at the top of
-// the navigation column: two compact brand icons (current engine big, the
-// other smaller) plus the current engine's name underneath.
-func (a *app) engineSwitcherRow(c *ui.Context) {
+// engineRail is the vertical engine switcher at the far left, as Tuanjie
+// Hub's: both engines stack from the top, the active one wears a raised
+// tile, and the rest of the rail is empty. It never scrolls with the nav.
+func (a *app) engineRail(c *ui.Context) {
 	t := c.Theme()
-	engines := []string{kindUnity, kindTuanjie}
-	// Put the active engine on the left (Tuanjie Hub style).
-	activeIdx := 0
-	for i, e := range engines {
-		if e == a.activeEngine {
-			activeIdx = i
-			break
+	ui.Column(c).Width(64).Shrink(0).Padding(12, 0, 0, 0).Gap(6).Background(t.Background).
+		BorderWidth(0, 1, 0, 0).BorderColor(t.Border).Children(func() {
+		a.engineRailTab(c, kindUnity)
+		a.engineRailTab(c, kindTuanjie)
+		ui.Spacer(c)
+	})
+}
+
+// engineRailTab is one engine's square tab in the rail. The label keeps the
+// control named for tests and assistive technology even though the rail
+// shows only the brand mark.
+func (a *app) engineRailTab(c *ui.Context, engine string) {
+	t := c.Theme()
+	s := engineStrategyFor(engine)
+	active := a.activeEngine == engine
+	b := ui.Button(c, "").Size(64, 56).Padding(0).
+		Label(channelName(engine)).Tooltip(s.Name).
+		Background(ui.Color{}).Border(0, ui.Color{}).
+		OnClick(func() { a.switchEngine(engine) })
+	var tile ui.Element
+	b.Children(func() {
+		bg := ui.Color{}
+		if active {
+			bg = t.SurfaceHover
+		}
+		tile = ui.Box(c).Size(42, 38).Radius(9).Background(bg).Center().Children(func() {
+			color := t.TextMuted
+			if active {
+				color = t.Text
+			}
+			ui.Icon(c, s.Icon).Size(24, 24).TextColor(color)
+		})
+	})
+	// Hover is read after the children are built, as a button's face does.
+	if b.Hovered() {
+		if active {
+			tile.Background(t.SurfacePressed)
+		} else {
+			tile.Background(t.Surface)
 		}
 	}
-	ordered := append([]string(nil), engines[activeIdx:]...)
-	ordered = append(ordered, engines[:activeIdx]...)
+}
 
-	ui.Column(c).Padding(16, 14, 14, 14).Gap(10).Children(func() {
-		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
-			for i, engine := range ordered {
-				engine := engine
-				s := engineStrategyFor(engine)
-				active := i == 0 // first slot is always active
-				label := channelName(engine)
-				if active {
-					ui.Button(c, "").Size(42, 42).Padding(0).Label(label).Tooltip(s.Name).Children(func() {
-						ui.Box(c).Size(42, 42).Radius(10).Background(s.Accent).Center().Children(func() {
-							ui.Icon(c, s.Icon).Size(22, 22).TextColor(ui.Hex("#ffffff"))
-						})
-					}).OnClick(func() { a.switchEngine(engine) })
-				} else {
-					ui.Button(c, "").Size(28, 28).Padding(0).Label(label).Tooltip(s.Name).Children(func() {
-						ui.Box(c).Size(28, 28).Radius(7).Background(t.SurfaceHover).Center().Children(func() {
-							ui.Icon(c, s.Icon).Size(16, 16).TextColor(t.TextMuted)
-						})
-					}).OnClick(func() { a.switchEngine(engine) })
-				}
+// navigationHeader mirrors the account row at the top of Tuanjie Hub's nav
+// column: brand mark, the current engine, and settings at the right. The
+// mark names the engine the rail chose, so the column never loses context.
+func (a *app) navigationHeader(c *ui.Context) {
+	t := c.Theme()
+	s := a.engineStrategy()
+	ui.Row(c).Height(58).Shrink(0).Padding(14, 12, 12, 14).Gap(10).AlignItems(ui.Center).Children(func() {
+		ui.Box(c).Size(30, 30).Radius(15).Background(s.BgHover).Center().Children(func() {
+			ui.Icon(c, s.Icon).Size(17, 17).TextColor(s.Accent)
+		})
+		ui.Column(c).Grow(1).MinWidth(0).Children(func() {
+			ui.Text(c, channelName(a.activeEngine)).FontSize(13).Bold().SingleLine().Clip().Tooltip(s.Name)
+			ui.Text(c, locales.AppTitle()).FontSize(10).TextColor(t.TextMuted).SingleLine().Clip()
+		})
+		gear := ui.Button(c, "").Size(28, 28).Padding(0).Radius(6).
+			Label(locales.SidebarSettings()).Tooltip(locales.SidebarSettings()).
+			Background(ui.Color{}).Border(0, ui.Color{}).
+			OnClick(func() { a.page = pageSettings })
+		gear.Children(func() {
+			color := t.TextMuted
+			if a.page == pageSettings {
+				color = t.Text
 			}
-			ui.Spacer(c)
+			ui.Icon(c, iconGear).Size(16, 16).TextColor(color)
 		})
-		// Current engine brand title (mirrors Tuanjie Hub's bold name below
-		// the switcher row).
-		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			s := a.engineStrategy()
-			ui.Icon(c, s.Icon).Size(18, 18).TextColor(s.Accent)
-			ui.Text(c, channelName(a.activeEngine)).FontSize(14).Bold()
-		})
+		if a.page == pageSettings {
+			gear.Background(t.SurfaceHover)
+		}
+		if gear.Hovered() {
+			gear.Background(t.SurfaceHover)
+		}
 	})
 	ui.Divider(c)
 }

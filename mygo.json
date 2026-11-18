@@ -2,7 +2,7 @@
   "name": "UnityStarter",
   "slug": "unitystarter",
   "identifier": "com.neko233.unitystarter",
-  "version": "1.6.24",
+  "version": "1.6.25",
   "out": "build",
   "resources": [
     "_tools/register-cli.ps1"
