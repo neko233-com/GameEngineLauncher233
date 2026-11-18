@@ -62,6 +62,18 @@ func TestEngineAndSystemSettingsAreSeparate(t *testing.T) {
 	}
 }
 
+func TestGodotVersionMatches(t *testing.T) {
+	if !godotVersionMatches("4.3", "4.3.1") || !godotVersionMatches("4.3.1", "4.3") {
+		t.Fatal("Godot 4.3 should match 4.3.1")
+	}
+	if godotVersionMatches("4.2", "4.3") {
+		t.Fatal("Godot 4.2 must not match 4.3")
+	}
+	if !godotVersionMatches("", "4.3") || !godotVersionMatches("4.3", "") {
+		t.Fatal("an unknown Godot side should still allow the other")
+	}
+}
+
 func TestGodotWorkspacePagesRouteToTheirOwnScreens(t *testing.T) {
 	for _, tc := range []struct {
 		name string

@@ -158,7 +158,7 @@ func scanGodotProjects(p prefs, editors []editorInstall) []projectEntry {
 				Favorite: favorites[key],
 			}
 			for _, e := range editors {
-				if e.Kind == kindGodot && (version == "" || strings.HasPrefix(version, e.Version) || strings.HasPrefix(e.Version, version)) {
+				if e.Kind == kindGodot && godotVersionMatches(version, e.Version) {
 					entry.Editor = e.Exe
 					break
 				}
@@ -168,6 +168,16 @@ func scanGodotProjects(p prefs, editors []editorInstall) []projectEntry {
 		})
 	}
 	return out
+}
+
+// godotVersionMatches compares a project's feature version with an editor
+// version: 4.3 and 4.3.1 belong to the same line.
+func godotVersionMatches(project, editor string) bool {
+	project, editor = strings.TrimSpace(project), strings.TrimSpace(editor)
+	if project == "" || editor == "" {
+		return project == "" || editor == ""
+	}
+	return strings.HasPrefix(project, editor) || strings.HasPrefix(editor, project)
 }
 
 func readGodotProject(dir string) (string, time.Time) {

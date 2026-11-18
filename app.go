@@ -929,7 +929,8 @@ func (a *app) openProjectWithEditorChecked(p projectEntry, expected editorInstal
 // project.godot rather than Unity's ProjectVersion.txt.
 func (a *app) openGodotProject(p projectEntry, expected editorInstall) {
 	current, ok := a.editorInstall(p.Editor)
-	if !ok || !strings.EqualFold(current.Exe, expected.Exe) || current.Kind != kindGodot {
+	if !ok || !strings.EqualFold(current.Exe, expected.Exe) || current.Kind != kindGodot ||
+		(expected.Version != "" && current.Version != "" && !godotVersionMatches(expected.Version, current.Version)) {
 		a.alert(locales.ProjectEditorChanged())
 		a.refresh()
 		return
@@ -944,7 +945,8 @@ func (a *app) openGodotProject(p projectEntry, expected editorInstall) {
 // silently opening a migrated project.
 func (a *app) openUnrealProject(p projectEntry, expected editorInstall) {
 	current, ok := a.editorInstall(p.Editor)
-	if !ok || !strings.EqualFold(current.Exe, expected.Exe) || current.Kind != kindUnreal {
+	if !ok || !strings.EqualFold(current.Exe, expected.Exe) || current.Kind != kindUnreal ||
+		(expected.Version != "" && current.Version != "" && !unrealVersionMatches(expected.Version, current.Version)) {
 		a.alert(locales.ProjectEditorChanged())
 		a.refresh()
 		return

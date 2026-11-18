@@ -304,10 +304,7 @@ func cliProjectVersionMatches(kind, project, editor string) bool {
 	case kindUnreal:
 		return unrealVersionMatches(project, editor)
 	case kindGodot:
-		if project == "" || editor == "" {
-			return project == "" || editor == ""
-		}
-		return strings.HasPrefix(editor, project) || strings.HasPrefix(project, editor)
+		return godotVersionMatches(project, editor)
 	default:
 		return strings.EqualFold(project, editor)
 	}
