@@ -57,15 +57,6 @@ func (a *app) statusMessage(c *ui.Context, message string) {
 	})
 }
 
-func sidebarSection(c *ui.Context, title string, open *bool, children func()) ui.Element {
-	_, height := c.Size()
-	if height < 700 {
-		children()
-		return ui.Element{}
-	}
-	return ui.SidebarSection(c, title, open, children)
-}
-
 func sidebarItem(c *ui.Context, id string, icon *ui.SVG, label string) ui.Element {
 	item := ui.SidebarItem(c, id, icon, label)
 	_, height := c.Size()

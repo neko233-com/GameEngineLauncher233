@@ -446,12 +446,12 @@ func (a *app) engineRailTab(c *ui.Context, engine string) {
 		if active {
 			bg = t.SurfaceHover
 		}
-		tile = ui.Box(c).Size(42, 38).Radius(9).Background(bg).Center().Children(func() {
+		tile = ui.Box(c).Size(44, 40).Radius(9).Background(bg).Center().Children(func() {
 			color := t.TextMuted
 			if active {
 				color = t.Text
 			}
-			ui.Icon(c, s.Icon).Size(24, 24).TextColor(color)
+			ui.Icon(c, s.Icon).Size(25, 25).TextColor(color)
 		})
 	})
 	// Hover is read after the children are built, as a button's face does.
@@ -470,7 +470,7 @@ func (a *app) engineRailTab(c *ui.Context, engine string) {
 func (a *app) navigationHeader(c *ui.Context) {
 	t := c.Theme()
 	s := a.engineStrategy()
-	ui.Row(c).Height(58).Shrink(0).Padding(14, 12, 12, 14).Gap(10).AlignItems(ui.Center).Children(func() {
+	ui.Row(c).Height(60).Shrink(0).Padding(14, 12, 12, 14).Gap(10).AlignItems(ui.Center).Children(func() {
 		ui.Box(c).Size(30, 30).Radius(15).Background(s.BgHover).Center().Children(func() {
 			ui.Icon(c, s.Icon).Size(17, 17).TextColor(s.Accent)
 		})
@@ -487,7 +487,7 @@ func (a *app) navigationHeader(c *ui.Context) {
 			if a.page == pageSettings {
 				color = t.Text
 			}
-			ui.Icon(c, iconGear).Size(16, 16).TextColor(color)
+			ui.Icon(c, iconGear).Size(17, 17).TextColor(color)
 		})
 		if a.page == pageSettings {
 			gear.Background(t.SurfaceHover)
@@ -537,31 +537,6 @@ func engineForPage(page string) string {
 }
 
 func favoritesPage(page string) bool { return page == pageFavorites || page == pageTuanjieFavorites }
-
-func (a *app) engineNavigation(c *ui.Context, engine, projects, installs, downloads, favorites string) {
-	sidebarSection(c, locales.SidebarWorkspace(), nil, func() {
-		sidebarItem(c, projects, iconProjects, locales.SidebarProjects()).Children(func() {
-			count := 0
-			for _, p := range a.projects {
-				if p.Kind == engine && !a.projectHidden(p.Path) {
-					count++
-				}
-			}
-			ui.Badge(c, fmt.Sprint(count))
-		})
-		sidebarItem(c, installs, iconInstalls, locales.SidebarInstalls()).Children(func() {
-			count := 0
-			for _, e := range a.editors {
-				if e.Kind == engine {
-					count++
-				}
-			}
-			ui.Badge(c, fmt.Sprint(count))
-		})
-		sidebarItem(c, downloads, iconDownload, locales.SidebarDownloads())
-		sidebarItem(c, favorites, iconFavorite, locales.SidebarFavorites())
-	})
-}
 
 // header is the title of a page, with its count and its actions.
 func (a *app) header(c *ui.Context, title, subtitle string, actions func()) {
