@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -15,7 +16,7 @@ func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 	a := fixture()
 	tt := ui.NewTester(a.view, 1180, 760)
 
-	if !tt.HasText("Unity") || !tt.HasText("Tuanjie") || !tt.HasText("Godot") {
+	if !tt.HasText("Unity") || !tt.HasText("Tuanjie") || !tt.HasText("Godot") || !tt.HasText("Unreal") {
 		t.Fatalf("rail is missing engine names: %q", tt.Texts())
 	}
 	unity, ok := tt.Find("Unity")
@@ -26,6 +27,10 @@ func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 	if !ok {
 		t.Fatal("the Tuanjie tab is missing from the rail")
 	}
+	unreal, ok := tt.Find("Unreal")
+	if !ok {
+		t.Fatal("the Unreal tab is missing from the rail")
+	}
 	railWidth := float32(engineRailWidth)
 	if unity.X < 0 || unity.X+unity.W > railWidth || unity.W < 120 || unity.H < 40 {
 		t.Fatalf("Unity tab is not a wide rail tab: %+v", unity)
@@ -33,8 +38,14 @@ func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 	if tuanjie.X < 0 || tuanjie.X+tuanjie.W > railWidth {
 		t.Fatalf("Tuanjie tab escapes the rail: %+v", tuanjie)
 	}
+	if unreal.X < 0 || unreal.X+unreal.W > railWidth {
+		t.Fatalf("Unreal tab escapes the rail: %+v", unreal)
+	}
 	if tuanjie.Y < unity.Y+unity.H {
 		t.Fatalf("engine tabs are not stacked vertically: unity=%+v tuanjie=%+v", unity, tuanjie)
+	}
+	if unreal.Y < tuanjie.Y+tuanjie.H {
+		t.Fatalf("Unreal is not stacked below Tuanjie: tuanjie=%+v unreal=%+v", tuanjie, unreal)
 	}
 
 	projects, ok := tt.Find(locales.SidebarProjects())
@@ -82,10 +93,19 @@ func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 	if !tt.HasText(locales.ChannelTuanjie()) {
 		t.Fatalf("navigation header did not follow the rail: %q", tt.Texts())
 	}
+	if err := tt.Click("Unreal"); err != nil {
+		t.Fatal(err)
+	}
+	if a.activeEngine != kindUnreal || a.page != pageUnrealProjects {
+		t.Fatalf("Unreal rail click left engine=%q page=%q", a.activeEngine, a.page)
+	}
+	if !tt.HasText(locales.ChannelUnreal()) {
+		t.Fatalf("navigation header did not follow the Unreal rail tab: %q", tt.Texts())
+	}
 }
 
 // railTestEngineNames overflow a 900×560 window, so the rail has to scroll.
-var railTestEngineNames = []string{"Unreal", "Cocos", "Defold", "Bevy", "GameMaker", "LÖVE", "RPG Maker", "CryEngine", "Flax", "Stride", "Armory", "Wave"}
+var railTestEngineNames = []string{"O3DE", "Cocos", "Defold", "Bevy", "GameMaker", "LÖVE", "RPG Maker", "CryEngine", "Flax", "Stride", "Armory", "Wave"}
 
 func addRailTestEngines(t *testing.T) {
 	t.Helper()
@@ -151,6 +171,35 @@ func TestEngineRailKeyboardFocusScrollsIntoView(t *testing.T) {
 	}
 }
 
+// A restored or shortcut-selected engine is revealed even when it starts
+// below the rail viewport.
+func TestEngineRailRevealsActiveEngineOnStartup(t *testing.T) {
+	addRailTestEngines(t)
+	a := fixture()
+	lastID := fmt.Sprintf("extra%d", len(railTestEngineNames)-1)
+	a.activeEngine, a.page = lastID, "/"+lastID
+	tt := ui.NewTester(a.view, 900, 560)
+	last, ok := tt.Find("Wave")
+	if !ok || last.H < 40 || last.Y < 0 || last.Y+last.H > 560 {
+		t.Fatalf("the chosen engine was not revealed: %+v, found=%v", last, ok)
+	}
+}
+
+// Configuring the title bar after the first frame gives the rail a new
+// viewport; the active engine must still be revealed.
+func TestEngineRailRevealsActiveEngineAfterTitleBarChange(t *testing.T) {
+	addRailTestEngines(t)
+	a := fixture()
+	lastID := fmt.Sprintf("extra%d", len(railTestEngineNames)-1)
+	a.activeEngine, a.page = lastID, "/"+lastID
+	tt := ui.NewTester(a.view, 900, 560)
+	tt.SetTitleBar(ui.TitleBar{Height: 36, Right: 138})
+	last, ok := tt.Find("Wave")
+	if !ok || last.H < 40 || last.Y < 0 || last.Y+last.H > 560 {
+		t.Fatalf("title bar layout hid the chosen engine: %+v, found=%v", last, ok)
+	}
+}
+
 // A long community adapter name clips inside the rail instead of widening it
 // or pushing the navigation column aside.
 func TestEngineRailClipsLongAdapterNames(t *testing.T) {
@@ -184,6 +233,42 @@ func TestEngineRailClipsLongAdapterNames(t *testing.T) {
 	}
 }
 
+// Rail tabs answer the pointer with a raised face, including the active tab.
+func TestEngineRailHoverFace(t *testing.T) {
+	a := fixture()
+	tt := ui.NewTester(a.view, 1180, 760)
+	unity, ok := tt.Find("Unity")
+	if !ok {
+		t.Fatal("the Unity tab is missing from the rail")
+	}
+	tuanjie, ok := tt.Find("Tuanjie")
+	if !ok {
+		t.Fatal("the Tuanjie tab is missing from the rail")
+	}
+	sample := func(r ui.Rect) image.Point {
+		return image.Pt(int(r.X+r.W-16), int(r.Y+r.H/2))
+	}
+	unityAt, tuanjieAt := sample(unity), sample(tuanjie)
+	img := tt.Image()
+	activeBefore, idleBefore := img.RGBAAt(unityAt.X, unityAt.Y), img.RGBAAt(tuanjieAt.X, tuanjieAt.Y)
+
+	tt.Move(unity.X+unity.W/2, unity.Y+unity.H/2)
+	tt.Frame()
+	tt.Frame()
+	activeAfter := tt.Image().RGBAAt(unityAt.X, unityAt.Y)
+	if activeAfter.R < activeBefore.R+4 || activeAfter.G < activeBefore.G+4 || activeAfter.B < activeBefore.B+4 {
+		t.Fatalf("active rail tab did not light on hover: before=%+v after=%+v", activeBefore, activeAfter)
+	}
+
+	tt.Move(tuanjie.X+tuanjie.W/2, tuanjie.Y+tuanjie.H/2)
+	tt.Frame()
+	tt.Frame()
+	idleAfter := tt.Image().RGBAAt(tuanjieAt.X, tuanjieAt.Y)
+	if idleAfter.R < idleBefore.R+4 || idleAfter.G < idleBefore.G+4 || idleAfter.B < idleBefore.B+4 {
+		t.Fatalf("rail tab did not light on hover: before=%+v after=%+v", idleBefore, idleAfter)
+	}
+}
+
 // Downloads keeps its Tuanjie Hub position at the foot of the column while
 // the navigable destinations above it scroll independently.
 func TestEngineRailPinsDownloadsWhileNavigationScrolls(t *testing.T) {
@@ -214,6 +299,10 @@ func TestEngineRailKeyboardShortcuts(t *testing.T) {
 	tt.Key(ui.Ctrl, ui.Key2)
 	if a.activeEngine != kindTuanjie || a.page != pageTuanjieProjects {
 		t.Fatalf("Ctrl+2 left engine=%q page=%q", a.activeEngine, a.page)
+	}
+	tt.Key(ui.Ctrl, ui.Key4)
+	if a.activeEngine != kindUnreal || a.page != pageUnrealProjects {
+		t.Fatalf("Ctrl+4 left engine=%q page=%q", a.activeEngine, a.page)
 	}
 	tt.Key(ui.Ctrl, ui.Key1)
 	if a.activeEngine != kindUnity || a.page != pageProjects {

@@ -139,6 +139,8 @@ func TestAdapterManifestRejectsUnsafeValues(t *testing.T) {
 		body string
 	}{
 		{"reserved id", strings.Replace(testAdapterManifest, `"myengine"`, `"unity"`, 1)},
+		{"reserved godot id", strings.Replace(testAdapterManifest, `"myengine"`, `"godot"`, 1)},
+		{"reserved unreal id", strings.Replace(testAdapterManifest, `"myengine"`, `"unreal"`, 1)},
 		{"traversal id", strings.Replace(testAdapterManifest, `"myengine"`, `"../escape"`, 1)},
 		{"bad url", strings.Replace(testAdapterManifest, `https://example.com/docs`, `file:///etc/passwd`, 1)},
 		{"unknown kind", strings.Replace(testAdapterManifest, `"kind": "links"`, `"kind": "shell"`, 1)},

@@ -159,7 +159,7 @@ func TestWorkspaceGallery(t *testing.T) {
 	i18n.SetLocaleFunc(func() string { return locale })
 	t.Cleanup(func() { i18n.SetLocaleFunc(func() string { return old }) })
 	for _, size := range []struct{ w, h int }{{1400, 820}, {900, 560}} {
-		for _, page := range []string{pageProjects, pageFavorites, pageTuanjieProjects, pageTuanjieFavorites, pageGodotProjects, pageGodotInstalls, pageInstalls, pageTuanjieInstalls, pageDownloads, pageTuanjieDownloads, pageActivity, pageStore, pagePublish, pageLicense, pageDocs, pageLearn, pageFeedback, pageSettings} {
+		for _, page := range []string{pageProjects, pageFavorites, pageUnityGet, pageTuanjieProjects, pageTuanjieFavorites, pageTuanjieGet, pageGodotProjects, pageGodotInstalls, pageGodotGet, pageUnrealProjects, pageUnrealInstalls, pageUnrealGet, pageInstalls, pageTuanjieInstalls, pageDownloads, pageTuanjieDownloads, pageActivity, pageStore, pagePublish, pageLicense, pageDocs, pageLearn, pageFeedback, pageSettings} {
 			for _, tab := range []string{"", "projects", "installs", "engines", "about"} {
 				if page != pageSettings && tab != "" {
 					continue
@@ -172,6 +172,9 @@ func TestWorkspaceGallery(t *testing.T) {
 				if strings.HasPrefix(page, "/godot/") {
 					a.activeEngine = kindGodot
 				}
+				if strings.HasPrefix(page, "/unreal/") {
+					a.activeEngine = kindUnreal
+				}
 				tt := ui.NewTester(a.view, size.w, size.h)
 				tt.SetTitleBar(ui.TitleBar{Height: 36, Right: 138})
 				name := fmt.Sprintf("%s%s-%d.png", strings.ReplaceAll(strings.TrimPrefix(page, "/"), "/", "-"), tab, size.w)
@@ -179,6 +182,21 @@ func TestWorkspaceGallery(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
+		}
+	}
+
+	// The rail at both sizes with more adapters than fit, showing the
+	// scrollable range and the restored active engine.
+	addRailTestEngines(t)
+	a := galleryFixture()
+	a.activeEngine = fmt.Sprintf("extra%d", len(railTestEngineNames)-1)
+	a.page = "/" + a.activeEngine
+	for _, size := range []struct{ w, h int }{{1400, 820}, {900, 560}} {
+		tt := ui.NewTester(a.view, size.w, size.h)
+		tt.SetTitleBar(ui.TitleBar{Height: 36, Right: 138})
+		name := fmt.Sprintf("rail-overflow-%d.png", size.w)
+		if err := writePNG(filepath.Join(dir, name), tt.Image()); err != nil {
+			t.Fatal(err)
 		}
 	}
 }

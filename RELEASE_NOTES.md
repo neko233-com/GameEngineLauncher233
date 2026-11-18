@@ -2,15 +2,17 @@
 
 - 产品正式更名为 **GameEngineLauncher233**（游戏引擎启动器）：窗口标题、CLI、开始菜单、App Paths、安装目录、数据目录、应用图标说明和文档全部切换；旧 `UnityStarter` 设置目录与 `unitystarter` CLI 别名保留迁移兼容。
 - 新增内置 **Godot** 适配器与官方 Godot 标志：自动发现 Godot 可执行文件、扫描 `project.godot` 项目并读取引擎版本，使用 `--path` 打开项目；提供 Projects、Installs、Favorites、Get Godot、Documentation、Community 页面，不继承 Unity/团结的安装器、模块或许可证入口。
+- 新增内置 **Unreal Engine** 编辑器入口：读取 Epic Games Launcher 的 `LauncherInstalled.dat`、常见 Epic Games 目录和自定义编辑器目录，发现 UE4/UE5 的 `UnrealEditor.exe` 并读取 `Engine/Build/Build.version`；扫描 `.uproject`，按 `EngineAssociation` 匹配已安装引擎，支持版本选择、直接打开项目、缺少版本提示，以及 Get Unreal、Documentation、Community 页面。Unreal 仅作为编辑器/项目入口，不提供安装器、模块或许可证流程。
+- Unity 与团结引擎新增 **获取** 入口：Unity 页面提供 Unity Hub 国际版下载、Unity 编辑器历史版本和 Hub 文档；团结页面提供 Tuanjie Hub 下载、团结引擎手册和 Unity Hub 国际版入口；Godot/Unreal 也使用同一套链接页路由。
 - 系统设置移到左下角固定入口，覆盖整个启动器（语言、Hub 接管、演示模式、适配器导入、项目根目录、关于）。导航列顶部齿轮改为当前引擎的 **引擎设置**：独立安装目录、并行下载连接数、适配器身份和文档/社区入口。
 - 下载并发可配置：每个引擎独立保存 1–6 个 HTTP Range 连接数，下载任务仍可多引擎同时进行；新增并发上限回归测试。安装目录也按引擎独立保存，旧单一 `InstallRoot` 继续作为回退。
 - 许可页按当前引擎过滤：Unity 页面只显示 Unity 许可文件和激活流程，团结页面只显示团结许可入口；不再把团结许可文件混进 Unity 页面。
-- 左侧引擎栏加宽到 148px，并在品牌图标旁显示引擎名（Unity / Tuanjie / Godot）；社区适配器使用自身名称，过长时截断并保留工具提示。引擎栏独立滚动，适配器再多也不会挤压导航或越出窗口。
+- 左侧引擎栏加宽到 148px，并在品牌图标旁显示引擎名（Unity / Tuanjie / Godot / Unreal）；社区适配器使用自身名称，过长时截断并保留工具提示。引擎栏独立滚动，适配器再多也不会挤压导航或越出窗口。
 - 内容区域改为自适应宽高：链接页、系统设置、引擎设置和适配器页不再固定 1000px 宽，宽窗口会铺满，许可证弹窗正文高度随窗口调整。
 - 下载列表按大版线（如 7000.0、6000.3、2022.3）折叠，只显示该大版最新小版本；点击“查看全部 N 个小版本”展开同一大版的历史补丁，搜索/筛选时自动展开。
 - 打开项目时如果所需编辑器版本未安装，会弹出安装对话框：可从当前官方清单直接下载对应版本，或打开下载页按版本查询；安装完成后自动继续打开项目（下载中断可重试）。
 - 保留并强化适配器架构：新增引擎可声明页面、链接、功能与 JSON-RPC 进程，GitHub 导入、检测编辑器/项目、项目启动与移除流程均可继续使用。Vercel 单色界面、真实品牌图标、焦点组方向键和卡片弹窗保持。
-- 新增 Godot 导航/扫描、引擎独立设置、下载并发上限、引擎/系统设置分离等测试；`go test ./...`、`go vet`、`mygo vet` 全部通过。
+- 新增 Godot/Unreal 导航与扫描、Unity/团结 Hub 入口、引擎独立设置、下载并发上限、引擎/系统设置分离、宽引擎栏与滚动等测试；`go test ./...`、`go vet`、`mygo vet` 全部通过。
 
 # UnityStarter 1.8.0
 

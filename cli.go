@@ -243,20 +243,42 @@ func cliOpen(args []string, scanFn func(prefs) scanResult, out io.Writer) int {
 			break
 		}
 	}
-	version, _, ok := readProject(p.Path)
-	if !ok {
-		fmt.Fprintln(out, locales.CliNotAProject(p.Path))
-		return 1
+	var launchArgs []string
+	switch p.Kind {
+	case kindUnreal:
+		info, ok := readUnrealProject(p.Path)
+		if !ok {
+			fmt.Fprintln(out, locales.CliNotAProject(p.Path))
+			return 1
+		}
+		if p.Version != "" && info.Association != "" && !unrealVersionMatches(p.Version, info.Association) {
+			fmt.Fprintln(out, locales.ProjectVersionChanged())
+			return 1
+		}
+		launchArgs = []string{info.File}
+	case kindGodot:
+		if !isGodotProjectDir(p.Path) {
+			fmt.Fprintln(out, locales.CliNotAProject(p.Path))
+			return 1
+		}
+		launchArgs = []string{"--path", p.Path}
+	default:
+		version, _, ok := readProject(p.Path)
+		if !ok {
+			fmt.Fprintln(out, locales.CliNotAProject(p.Path))
+			return 1
+		}
+		if !strings.EqualFold(version, p.Version) {
+			fmt.Fprintln(out, locales.ProjectVersionChanged())
+			return 1
+		}
+		launchArgs = []string{"-projectPath", p.Path}
 	}
-	if !strings.EqualFold(version, p.Version) {
-		fmt.Fprintln(out, locales.ProjectVersionChanged())
-		return 1
-	}
-	if !matchedFound || matched.Kind != p.Kind || !strings.EqualFold(matched.Version, p.Version) {
+	if !matchedFound || matched.Kind != p.Kind || !cliProjectVersionMatches(p.Kind, p.Version, matched.Version) {
 		fmt.Fprintln(out, locales.ProjectEditorChanged())
 		return 1
 	}
-	if err := launchVersionCheckedEditor(p.Editor, matched.Version, []string{"-projectPath", p.Path}, filepath.Dir(p.Editor), startDetached); err != nil {
+	if err := launchVersionCheckedEditor(p.Editor, matched.Version, launchArgs, filepath.Dir(p.Editor), startDetached); err != nil {
 		if errors.Is(err, errEditorVersionChanged) {
 			fmt.Fprintln(out, locales.ProjectEditorChanged())
 			return 1
@@ -266,6 +288,23 @@ func cliOpen(args []string, scanFn func(prefs) scanResult, out io.Writer) int {
 	}
 	fmt.Fprintln(out, locales.CliOpened(p.Path))
 	return 0
+}
+
+// cliProjectVersionMatches applies each engine's project/editor version rule:
+// Unity and Tuanjie need the exact editor version, Godot accepts its 4.3/4.3.1
+// line, and Unreal's EngineAssociation 5.4 matches 5.4.4.
+func cliProjectVersionMatches(kind, project, editor string) bool {
+	switch kind {
+	case kindUnreal:
+		return unrealVersionMatches(project, editor)
+	case kindGodot:
+		if project == "" || editor == "" {
+			return project == "" || editor == ""
+		}
+		return strings.HasPrefix(editor, project) || strings.HasPrefix(project, editor)
+	default:
+		return strings.EqualFold(project, editor)
+	}
 }
 
 func cliNew(opts cliOptions, args []string, scanFn func(prefs) scanResult, out io.Writer) int {

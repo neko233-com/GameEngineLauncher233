@@ -108,6 +108,12 @@ func scanGodotProjects(p prefs, editors []editorInstall) []projectEntry {
 			roots = append(roots, filepath.Join(home, "Godot"))
 		}
 	}
+	for _, dir := range p.PinnedProjects {
+		if isGodotProjectDir(dir) {
+			roots = append(roots, dir)
+		}
+	}
+	roots = dedupe(roots)
 	hidden := map[string]bool{}
 	for key, path := range p.HiddenProjects {
 		hidden[projectIdentityKey(key)] = true
@@ -119,6 +125,7 @@ func scanGodotProjects(p prefs, editors []editorInstall) []projectEntry {
 			favorites[projectIdentityKey(path)] = true
 		}
 	}
+	seen := map[string]bool{}
 	var out []projectEntry
 	for _, root := range roots {
 		if root == "" {
@@ -140,9 +147,10 @@ func scanGodotProjects(p prefs, editors []editorInstall) []projectEntry {
 				return nil
 			}
 			key := projectIdentityKey(path)
-			if hidden[key] {
+			if hidden[key] || seen[key] {
 				return filepath.SkipDir
 			}
+			seen[key] = true
 			version, modified := readGodotProject(path)
 			entry := projectEntry{
 				Path: path, Name: filepath.Base(path), Version: version,

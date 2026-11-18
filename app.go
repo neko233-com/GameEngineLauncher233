@@ -32,6 +32,14 @@ const (
 	pageGodotGet         = "/godot/get"
 	pageGodotDocs        = "/godot/docs"
 	pageGodotCommunity   = "/godot/community"
+	pageUnityGet         = "/get"
+	pageTuanjieGet       = "/tuanjie/get"
+	pageUnrealProjects   = "/unreal/projects"
+	pageUnrealInstalls   = "/unreal/installs"
+	pageUnrealFavorites  = "/unreal/favorites"
+	pageUnrealGet        = "/unreal/get"
+	pageUnrealDocs       = "/unreal/docs"
+	pageUnrealCommunity  = "/unreal/community"
 	pageStore            = "/store"
 	pagePublish          = "/publish"
 	pageLicense          = "/license"
@@ -58,6 +66,8 @@ type app struct {
 	query                   string
 	queryEngine             string
 	activeEngine            string
+	railShownEngine         string
+	railShownHeight         float32
 	projectSort             string
 	projectSortReverse      bool
 	installQuery            string
@@ -433,14 +443,14 @@ func (a *app) view(c *ui.Context) {
 				a.uninstallGuardBanner(c)
 				a.workspaceActivityBanner(c)
 				a.updateBanner(c)
-				if adapter, page, ok := enginePageForRoute(a.page); ok && !adapter.BuiltIn {
+				if adapter, page, ok := enginePageForRoute(a.page); ok && (!adapter.BuiltIn || page.Kind == "links") {
 					a.externalPage(c, adapter, page)
 					return
 				}
 				switch a.page {
-				case pageProjects, pageFavorites, pageTuanjieProjects, pageTuanjieFavorites:
+				case pageProjects, pageFavorites, pageTuanjieProjects, pageTuanjieFavorites, pageUnrealProjects, pageUnrealFavorites, pageGodotProjects, pageGodotFavorites:
 					a.projectsPage(c)
-				case pageInstalls, pageTuanjieInstalls:
+				case pageInstalls, pageTuanjieInstalls, pageUnrealInstalls, pageGodotInstalls:
 					a.installsPage(c)
 				case pageDownloads, pageTuanjieDownloads:
 					a.downloadsPage(c)
@@ -500,6 +510,8 @@ func engineRailLabel(adapter *engineAdapter) string {
 		return "Tuanjie"
 	case kindGodot:
 		return "Godot"
+	case kindUnreal:
+		return "Unreal"
 	}
 	return adapter.DisplayName()
 }
@@ -510,12 +522,19 @@ func engineRailLabel(adapter *engineAdapter) string {
 // outgrow the window. The navigation column keeps its own scroll.
 func (a *app) engineRail(c *ui.Context) {
 	t := c.Theme()
+	// Reveal the chosen engine when it changes or when a layout change (the
+	// title bar, a window resize) gives the rail a new viewport. Scrolling away
+	// afterwards stays put because neither the engine nor the height changes.
+	_, viewportHeight := c.Size()
+	reveal := a.railShownEngine != a.activeEngine || a.railShownHeight != viewportHeight
+	a.railShownEngine = a.activeEngine
+	a.railShownHeight = viewportHeight
 	ui.Column(c).Width(engineRailWidth).Shrink(0).Padding(10, 10, 0, 10).Background(t.Background).
 		BorderWidth(0, 1, 0, 0).BorderColor(t.Border).Children(func() {
 		ui.Scroll(c).Grow(1).Shrink(1).MinHeight(0).Children(func() {
 			ui.Column(c).Padding(0, 0, 10, 0).Gap(4).FocusGroup(ui.Vertical).Children(func() {
 				for i, adapter := range engineAdapters() {
-					a.engineRailTab(c, adapter, i)
+					a.engineRailTab(c, adapter, i, reveal)
 				}
 			})
 		})
@@ -526,7 +545,7 @@ func (a *app) engineRail(c *ui.Context) {
 // the engine name on the right, with the raised Vercel face when active. A
 // long community adapter name clips instead of pushing the rail open, and the
 // tooltip still holds the full name and its shortcut.
-func (a *app) engineRailTab(c *ui.Context, adapter *engineAdapter, index int) {
+func (a *app) engineRailTab(c *ui.Context, adapter *engineAdapter, index int, reveal bool) {
 	t := c.Theme()
 	s := adapter.strategy()
 	engine := adapter.ID
@@ -542,6 +561,9 @@ func (a *app) engineRailTab(c *ui.Context, adapter *engineAdapter, index int) {
 		OnClick(func() { a.switchEngine(engine) })
 	if active {
 		b.Background(t.SurfaceHover).Border(1, t.Border)
+		if b.Hovered() {
+			b.Background(t.SurfacePressed)
+		}
 	} else if b.Hovered() || b.Focused() {
 		b.Background(t.Surface)
 	}
@@ -570,6 +592,9 @@ func (a *app) engineRailTab(c *ui.Context, adapter *engineAdapter, index int) {
 		})
 		ui.Text(c, name).FontSize(12).Grow(1).MinWidth(0).SingleLine().Clip().TextColor(foreground)
 	})
+	if active && reveal {
+		b.ScrollIntoView()
+	}
 }
 
 // navigationHeader mirrors the account row at the top of Tuanjie Hub's nav
@@ -675,6 +700,27 @@ func (a *app) engineForPage(page string) string {
 		return owner.ID
 	}
 	return a.activeEngine
+}
+
+// openEngineGetPage opens the official download/get entry for an engine:
+// Unity and Tuanjie use their editor download page, Godot and Unreal have a
+// links page, and imported adapters fall back to their landing page.
+func (a *app) openEngineGetPage(kind string) {
+	if engineValid(kind) && kind != a.activeEngine {
+		a.switchEngine(kind)
+	}
+	switch kind {
+	case kindUnreal:
+		a.page = pageUnrealGet
+	case kindGodot:
+		a.page = pageGodotGet
+	default:
+		if isExternalEngine(kind) {
+			a.page = engineStrategyFor(kind).Pages.Projects
+			return
+		}
+		a.page = engineStrategyFor(kind).Pages.Downloads
+	}
 }
 
 func (a *app) favoritesPage() bool {
@@ -823,6 +869,10 @@ func (a *app) openProjectWithEditorChecked(p projectEntry, expected editorInstal
 		a.openGodotProject(p, expected)
 		return
 	}
+	if p.Kind == kindUnreal {
+		a.openUnrealProject(p, expected)
+		return
+	}
 	if isExternalEngine(p.Kind) {
 		a.openExternalProject(p, expected)
 		return
@@ -889,6 +939,32 @@ func (a *app) openGodotProject(p projectEntry, expected editorInstall) {
 	}
 }
 
+// openUnrealProject passes the .uproject file to the editor. The project's
+// EngineAssociation is re-read so a changed engine line is rejected instead of
+// silently opening a migrated project.
+func (a *app) openUnrealProject(p projectEntry, expected editorInstall) {
+	current, ok := a.editorInstall(p.Editor)
+	if !ok || !strings.EqualFold(current.Exe, expected.Exe) || current.Kind != kindUnreal {
+		a.alert(locales.ProjectEditorChanged())
+		a.refresh()
+		return
+	}
+	info, ok := readUnrealProject(p.Path)
+	if !ok {
+		a.alert(locales.NotAProject(p.Path))
+		a.refresh()
+		return
+	}
+	if p.Version != "" && info.Association != "" && !unrealVersionMatches(p.Version, info.Association) {
+		a.alert(locales.ProjectVersionChanged())
+		a.refresh()
+		return
+	}
+	if err := startDetached(current.Exe, []string{info.File}, filepath.Dir(current.Exe)); err != nil {
+		a.alert(locales.OpenFailed(err.Error()))
+	}
+}
+
 // openExternalProject hands a project to its engine adapter. An adapter may
 // use any CLI convention; the launcher never guesses Unity flags for it.
 func (a *app) openExternalProject(p projectEntry, expected editorInstall) {
@@ -931,18 +1007,33 @@ func (a *app) addProject() {
 
 func (a *app) addProjectForEngine(engine string) {
 	a.pickFolder(locales.DialogAddProject(), func(dir string) {
-		if !isProject(dir) {
-			a.alert(locales.NotAProject(dir))
-			return
-		}
-		if version, _, ok := readProject(dir); engine != "" && ok && kindOfVersion(version) != engine {
-			a.alert(locales.ProjectWrongEngine())
-			return
+		switch engine {
+		case kindUnreal:
+			if !isUnrealProjectDir(dir) {
+				a.alert(locales.NotAProject(dir))
+				return
+			}
+		case kindGodot:
+			if !isGodotProjectDir(dir) {
+				a.alert(locales.NotAProject(dir))
+				return
+			}
+		default:
+			if !isProject(dir) {
+				a.alert(locales.NotAProject(dir))
+				return
+			}
+			if version, _, ok := readProject(dir); engine != "" && ok && kindOfVersion(version) != engine {
+				a.alert(locales.ProjectWrongEngine())
+				return
+			}
 		}
 		a.prefs.PinnedProjects = dedupe(append(a.prefs.PinnedProjects, dir))
 		forgetProjectAliases(a.prefs.HiddenProjects, dir)
 		a.save()
-		a.pushToHub(dir)
+		if engine == "" || engine == kindUnity || engine == kindTuanjie {
+			a.pushToHub(dir)
+		}
 		a.refresh()
 	})
 }

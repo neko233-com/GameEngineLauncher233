@@ -219,11 +219,18 @@ func resetEngineRegistry() {
 	defer engineRegistryMu.Unlock()
 	engineRegistryByID = map[string]*engineAdapter{}
 	engineRegistryOrder = nil
-	for _, a := range []*engineAdapter{builtinUnityAdapter(), builtinTuanjieAdapter(), builtinGodotAdapter()} {
+	for _, a := range builtinEngineAdapters() {
 		engineRegistryByID[a.ID] = a
 		engineRegistryOrder = append(engineRegistryOrder, a.ID)
 	}
 	engineRegistryLoaded = time.Now()
+}
+
+// builtinEngineAdapters is the single list of the adapters shipped in the
+// binary. The startup reload and tests both use it, so a new built-in engine
+// can never appear in one registry path but disappear from the other.
+func builtinEngineAdapters() []*engineAdapter {
+	return []*engineAdapter{builtinUnityAdapter(), builtinTuanjieAdapter(), builtinGodotAdapter(), builtinUnrealAdapter()}
 }
 
 func addEngineAdapterLocked(a *engineAdapter) {
@@ -290,6 +297,18 @@ func builtinUnityAdapter() *engineAdapter {
 			pageDef(pageProjects, "projects", iconProjects, locales.SidebarProjects),
 			pageDef(pageInstalls, "installs", iconInstalls, locales.SidebarInstalls),
 			pageDef(pageFavorites, "favorites", iconFavorite, locales.SidebarFavorites),
+			{
+				Key: "get", Route: pageUnityGet, Kind: "links", Icon: iconDownload,
+				title: locales.UnityGet,
+				Groups: []engineLinkGroup{{
+					Title: locales.UnityGet(),
+					Links: []engineLink{
+						{Title: locales.UnityHubDownload(), Detail: locales.UnityHubDownloadHint(), URL: "https://unity.com/download"},
+						{Title: locales.UnityArchive(), Detail: locales.UnityArchiveHint(), URL: urlUnityArchive},
+						{Title: locales.UnityHubDocs(), Detail: locales.UnityHubDocsHint(), URL: "https://docs.unity.com/en-us/hub/install-hub-win-mac"},
+					},
+				}},
+			},
 			pageDef(pageLearn, "learn", iconLearn, locales.PageLearn),
 			pageDef(pageStore, "store", iconStore, locales.PageStore),
 			pageDef(pageLicense, "license", iconLicense, locales.PageLicense),
@@ -358,6 +377,62 @@ func builtinGodotAdapter() *engineAdapter {
 	}
 }
 
+func builtinUnrealAdapter() *engineAdapter {
+	return &engineAdapter{
+		ID:          kindUnreal,
+		Version:     appVersion,
+		Description: locales.EnginesUnrealDescription(),
+		Homepage:    "https://www.unrealengine.com/",
+		BuiltIn:     true,
+		Icon:        iconUnreal,
+		name:        locales.ChannelUnreal,
+		Features:    engineAdapterFeatures{},
+		URLs: engineAdapterURLs{
+			Docs:      "https://dev.epicgames.com/documentation/en-us/unreal-engine",
+			Community: "https://forums.unrealengine.com/",
+			Learn:     "https://dev.epicgames.com/community/unreal-engine/learning",
+		},
+		Pages: []enginePage{
+			pageDef(pageUnrealProjects, "projects", iconProjects, locales.SidebarProjects),
+			pageDef(pageUnrealInstalls, "installs", iconInstalls, locales.SidebarInstalls),
+			pageDef(pageUnrealFavorites, "favorites", iconFavorite, locales.SidebarFavorites),
+			{
+				Key: "get", Route: pageUnrealGet, Kind: "links", Icon: iconDownload,
+				title: locales.UnrealGet,
+				Groups: []engineLinkGroup{{
+					Title: locales.UnrealGet(),
+					Links: []engineLink{
+						{Title: locales.UnrealLauncherDownload(), Detail: locales.UnrealLauncherDownloadHint(), URL: "https://store.epicgames.com/en-US/download"},
+						{Title: locales.UnrealEngineDownload(), Detail: locales.UnrealEngineDownloadHint(), URL: "https://www.unrealengine.com/en-US/download"},
+					},
+				}},
+			},
+			{
+				Key: "docs", Route: pageUnrealDocs, Kind: "links", Icon: iconDocs,
+				title: locales.PageDocs,
+				Groups: []engineLinkGroup{{
+					Title: locales.UnrealDocs(),
+					Links: []engineLink{
+						{Title: locales.UnrealDocs(), Detail: locales.UnrealDocsHint(), URL: "https://dev.epicgames.com/documentation/en-us/unreal-engine"},
+						{Title: "API reference", Detail: locales.UnrealDocsHint(), URL: "https://dev.epicgames.com/documentation/en-us/unreal-engine/API"},
+					},
+				}},
+			},
+			{
+				Key: "community", Route: pageUnrealCommunity, Kind: "links", Icon: iconFeedback,
+				title: locales.LinkCommunity,
+				Groups: []engineLinkGroup{{
+					Title: locales.UnrealCommunity(),
+					Links: []engineLink{
+						{Title: locales.UnrealCommunity(), Detail: locales.UnrealCommunityHint(), URL: "https://forums.unrealengine.com/"},
+						{Title: locales.PageLearn(), Detail: locales.UnrealCommunityHint(), URL: "https://dev.epicgames.com/community/unreal-engine/learning"},
+					},
+				}},
+			},
+		},
+	}
+}
+
 func builtinTuanjieAdapter() *engineAdapter {
 	return &engineAdapter{
 		ID:          kindTuanjie,
@@ -380,6 +455,18 @@ func builtinTuanjieAdapter() *engineAdapter {
 			pageDef(pageTuanjieProjects, "projects", iconProjects, locales.SidebarProjects),
 			pageDef(pageTuanjieInstalls, "installs", iconInstalls, locales.SidebarInstalls),
 			pageDef(pageTuanjieFavorites, "favorites", iconFavorite, locales.SidebarFavorites),
+			{
+				Key: "get", Route: pageTuanjieGet, Kind: "links", Icon: iconDownload,
+				title: locales.TuanjieGet,
+				Groups: []engineLinkGroup{{
+					Title: locales.TuanjieGet(),
+					Links: []engineLink{
+						{Title: locales.TuanjieHubDownload(), Detail: locales.TuanjieHubDownloadHint(), URL: "https://unity.cn/tuanjie/releases"},
+						{Title: locales.TuanjieManual(), Detail: locales.TuanjieManualHint(), URL: "https://docs.unity.cn/cn/tuanjiemanual/Manual/"},
+						{Title: locales.UnityHubDownload(), Detail: locales.UnityHubDownloadHint(), URL: "https://unity.com/download"},
+					},
+				}},
+			},
 			pageDef(pageLearn, "learn", iconLearn, locales.PageLearn),
 			pageDef(pageStore, "store", iconStore, locales.PageStore),
 			pageDef(pagePublish, "publish", iconPublish, locales.PagePublish),

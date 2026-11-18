@@ -85,6 +85,8 @@ func defaultInstallRootFor(kind string) string {
 		return filepath.Join(base, "Tuanjie")
 	case "godot":
 		return filepath.Join(base, "Godot")
+	case kindUnreal:
+		return filepath.Join(base, "Unreal")
 	default:
 		if kind == "" {
 			return base

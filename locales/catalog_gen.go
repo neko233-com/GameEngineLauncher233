@@ -694,6 +694,16 @@ func (msgs Messages) EnginesGodotDescription() string {
 	return Catalog.Format(msgs.locale, "enginesGodotDescription", nil)
 }
 
+// EnginesUnrealDescription says "Unreal Engine editor and project integration"
+// in the language the app shows.
+func EnginesUnrealDescription() string { return In(i18n.Locale()).EnginesUnrealDescription() }
+
+// EnginesUnrealDescription says "Unreal Engine editor and project integration"
+// in the language of msgs.
+func (msgs Messages) EnginesUnrealDescription() string {
+	return Catalog.Format(msgs.locale, "enginesUnrealDescription", nil)
+}
+
 // GodotGet says "Get Godot"
 // in the language the app shows.
 func GodotGet() string { return In(i18n.Locale()).GodotGet() }
@@ -802,6 +812,236 @@ func GodotChatHint() string { return In(i18n.Locale()).GodotChatHint() }
 // in the language of msgs.
 func (msgs Messages) GodotChatHint() string {
 	return Catalog.Format(msgs.locale, "godotChatHint", nil)
+}
+
+// UnityGet says "Get Unity"
+// in the language the app shows.
+func UnityGet() string { return In(i18n.Locale()).UnityGet() }
+
+// UnityGet says "Get Unity"
+// in the language of msgs.
+func (msgs Messages) UnityGet() string {
+	return Catalog.Format(msgs.locale, "unityGet", nil)
+}
+
+// UnityHubDownload says "Download Unity Hub"
+// in the language the app shows.
+func UnityHubDownload() string { return In(i18n.Locale()).UnityHubDownload() }
+
+// UnityHubDownload says "Download Unity Hub"
+// in the language of msgs.
+func (msgs Messages) UnityHubDownload() string {
+	return Catalog.Format(msgs.locale, "unityHubDownload", nil)
+}
+
+// UnityHubDownloadHint says "Unity Hub international edition for Windows, macOS and Linux."
+// in the language the app shows.
+func UnityHubDownloadHint() string { return In(i18n.Locale()).UnityHubDownloadHint() }
+
+// UnityHubDownloadHint says "Unity Hub international edition for Windows, macOS and Linux."
+// in the language of msgs.
+func (msgs Messages) UnityHubDownloadHint() string {
+	return Catalog.Format(msgs.locale, "unityHubDownloadHint", nil)
+}
+
+// UnityHubDocs says "Unity Hub documentation"
+// in the language the app shows.
+func UnityHubDocs() string { return In(i18n.Locale()).UnityHubDocs() }
+
+// UnityHubDocs says "Unity Hub documentation"
+// in the language of msgs.
+func (msgs Messages) UnityHubDocs() string {
+	return Catalog.Format(msgs.locale, "unityHubDocs", nil)
+}
+
+// UnityHubDocsHint says "Install, update and manage Unity Hub."
+// in the language the app shows.
+func UnityHubDocsHint() string { return In(i18n.Locale()).UnityHubDocsHint() }
+
+// UnityHubDocsHint says "Install, update and manage Unity Hub."
+// in the language of msgs.
+func (msgs Messages) UnityHubDocsHint() string {
+	return Catalog.Format(msgs.locale, "unityHubDocsHint", nil)
+}
+
+// UnityArchive says "Unity Editor archive"
+// in the language the app shows.
+func UnityArchive() string { return In(i18n.Locale()).UnityArchive() }
+
+// UnityArchive says "Unity Editor archive"
+// in the language of msgs.
+func (msgs Messages) UnityArchive() string {
+	return Catalog.Format(msgs.locale, "unityArchive", nil)
+}
+
+// UnityArchiveHint says "Every Unity Editor version, including LTS and patches."
+// in the language the app shows.
+func UnityArchiveHint() string { return In(i18n.Locale()).UnityArchiveHint() }
+
+// UnityArchiveHint says "Every Unity Editor version, including LTS and patches."
+// in the language of msgs.
+func (msgs Messages) UnityArchiveHint() string {
+	return Catalog.Format(msgs.locale, "unityArchiveHint", nil)
+}
+
+// TuanjieGet says "Get Tuanjie"
+// in the language the app shows.
+func TuanjieGet() string { return In(i18n.Locale()).TuanjieGet() }
+
+// TuanjieGet says "Get Tuanjie"
+// in the language of msgs.
+func (msgs Messages) TuanjieGet() string {
+	return Catalog.Format(msgs.locale, "tuanjieGet", nil)
+}
+
+// TuanjieHubDownload says "Download Tuanjie Hub"
+// in the language the app shows.
+func TuanjieHubDownload() string { return In(i18n.Locale()).TuanjieHubDownload() }
+
+// TuanjieHubDownload says "Download Tuanjie Hub"
+// in the language of msgs.
+func (msgs Messages) TuanjieHubDownload() string {
+	return Catalog.Format(msgs.locale, "tuanjieHubDownload", nil)
+}
+
+// TuanjieHubDownloadHint says "Official Tuanjie Hub for Windows, macOS and Linux."
+// in the language the app shows.
+func TuanjieHubDownloadHint() string { return In(i18n.Locale()).TuanjieHubDownloadHint() }
+
+// TuanjieHubDownloadHint says "Official Tuanjie Hub for Windows, macOS and Linux."
+// in the language of msgs.
+func (msgs Messages) TuanjieHubDownloadHint() string {
+	return Catalog.Format(msgs.locale, "tuanjieHubDownloadHint", nil)
+}
+
+// TuanjieManual says "Tuanjie manual"
+// in the language the app shows.
+func TuanjieManual() string { return In(i18n.Locale()).TuanjieManual() }
+
+// TuanjieManual says "Tuanjie manual"
+// in the language of msgs.
+func (msgs Messages) TuanjieManual() string {
+	return Catalog.Format(msgs.locale, "tuanjieManual", nil)
+}
+
+// TuanjieManualHint says "Official Tuanjie Engine documentation."
+// in the language the app shows.
+func TuanjieManualHint() string { return In(i18n.Locale()).TuanjieManualHint() }
+
+// TuanjieManualHint says "Official Tuanjie Engine documentation."
+// in the language of msgs.
+func (msgs Messages) TuanjieManualHint() string {
+	return Catalog.Format(msgs.locale, "tuanjieManualHint", nil)
+}
+
+// TuanjieArchive says "Tuanjie Editor releases"
+// in the language the app shows.
+func TuanjieArchive() string { return In(i18n.Locale()).TuanjieArchive() }
+
+// TuanjieArchive says "Tuanjie Editor releases"
+// in the language of msgs.
+func (msgs Messages) TuanjieArchive() string {
+	return Catalog.Format(msgs.locale, "tuanjieArchive", nil)
+}
+
+// TuanjieArchiveHint says "Official Tuanjie Engine versions and release notes."
+// in the language the app shows.
+func TuanjieArchiveHint() string { return In(i18n.Locale()).TuanjieArchiveHint() }
+
+// TuanjieArchiveHint says "Official Tuanjie Engine versions and release notes."
+// in the language of msgs.
+func (msgs Messages) TuanjieArchiveHint() string {
+	return Catalog.Format(msgs.locale, "tuanjieArchiveHint", nil)
+}
+
+// UnrealGet says "Get Unreal"
+// in the language the app shows.
+func UnrealGet() string { return In(i18n.Locale()).UnrealGet() }
+
+// UnrealGet says "Get Unreal"
+// in the language of msgs.
+func (msgs Messages) UnrealGet() string {
+	return Catalog.Format(msgs.locale, "unrealGet", nil)
+}
+
+// UnrealLauncherDownload says "Download Epic Games Launcher"
+// in the language the app shows.
+func UnrealLauncherDownload() string { return In(i18n.Locale()).UnrealLauncherDownload() }
+
+// UnrealLauncherDownload says "Download Epic Games Launcher"
+// in the language of msgs.
+func (msgs Messages) UnrealLauncherDownload() string {
+	return Catalog.Format(msgs.locale, "unrealLauncherDownload", nil)
+}
+
+// UnrealLauncherDownloadHint says "Install Unreal Engine through the Epic Games Launcher."
+// in the language the app shows.
+func UnrealLauncherDownloadHint() string { return In(i18n.Locale()).UnrealLauncherDownloadHint() }
+
+// UnrealLauncherDownloadHint says "Install Unreal Engine through the Epic Games Launcher."
+// in the language of msgs.
+func (msgs Messages) UnrealLauncherDownloadHint() string {
+	return Catalog.Format(msgs.locale, "unrealLauncherDownloadHint", nil)
+}
+
+// UnrealEngineDownload says "Unreal Engine downloads"
+// in the language the app shows.
+func UnrealEngineDownload() string { return In(i18n.Locale()).UnrealEngineDownload() }
+
+// UnrealEngineDownload says "Unreal Engine downloads"
+// in the language of msgs.
+func (msgs Messages) UnrealEngineDownload() string {
+	return Catalog.Format(msgs.locale, "unrealEngineDownload", nil)
+}
+
+// UnrealEngineDownloadHint says "Official Unreal Engine versions and release notes."
+// in the language the app shows.
+func UnrealEngineDownloadHint() string { return In(i18n.Locale()).UnrealEngineDownloadHint() }
+
+// UnrealEngineDownloadHint says "Official Unreal Engine versions and release notes."
+// in the language of msgs.
+func (msgs Messages) UnrealEngineDownloadHint() string {
+	return Catalog.Format(msgs.locale, "unrealEngineDownloadHint", nil)
+}
+
+// UnrealDocs says "Unreal Engine documentation"
+// in the language the app shows.
+func UnrealDocs() string { return In(i18n.Locale()).UnrealDocs() }
+
+// UnrealDocs says "Unreal Engine documentation"
+// in the language of msgs.
+func (msgs Messages) UnrealDocs() string {
+	return Catalog.Format(msgs.locale, "unrealDocs", nil)
+}
+
+// UnrealDocsHint says "Official editor and programming documentation."
+// in the language the app shows.
+func UnrealDocsHint() string { return In(i18n.Locale()).UnrealDocsHint() }
+
+// UnrealDocsHint says "Official editor and programming documentation."
+// in the language of msgs.
+func (msgs Messages) UnrealDocsHint() string {
+	return Catalog.Format(msgs.locale, "unrealDocsHint", nil)
+}
+
+// UnrealCommunity says "Unreal Engine forums"
+// in the language the app shows.
+func UnrealCommunity() string { return In(i18n.Locale()).UnrealCommunity() }
+
+// UnrealCommunity says "Unreal Engine forums"
+// in the language of msgs.
+func (msgs Messages) UnrealCommunity() string {
+	return Catalog.Format(msgs.locale, "unrealCommunity", nil)
+}
+
+// UnrealCommunityHint says "Community support and discussions."
+// in the language the app shows.
+func UnrealCommunityHint() string { return In(i18n.Locale()).UnrealCommunityHint() }
+
+// UnrealCommunityHint says "Community support and discussions."
+// in the language of msgs.
+func (msgs Messages) UnrealCommunityHint() string {
+	return Catalog.Format(msgs.locale, "unrealCommunityHint", nil)
 }
 
 // ActivityBackgroundHint says "Downloads and installations continue while you use other pages. Keep GameEngineLauncher233 open."
@@ -3886,6 +4126,26 @@ func (msgs Messages) InstallsEmptyHint() string {
 	return Catalog.Format(msgs.locale, "installsEmptyHint", nil)
 }
 
+// InstallsEmptyHintUnreal says "The Epic Games Launcher manifest and common Epic Games folders are scanned. Add a folder if Unreal Engine is installe…"
+// in the language the app shows.
+func InstallsEmptyHintUnreal() string { return In(i18n.Locale()).InstallsEmptyHintUnreal() }
+
+// InstallsEmptyHintUnreal says "The Epic Games Launcher manifest and common Epic Games folders are scanned. Add a folder if Unreal Engine is installe…"
+// in the language of msgs.
+func (msgs Messages) InstallsEmptyHintUnreal() string {
+	return Catalog.Format(msgs.locale, "installsEmptyHintUnreal", nil)
+}
+
+// InstallsEmptyHintGodot says "Common Godot folders are scanned. Add a folder if Godot is installed elsewhere."
+// in the language the app shows.
+func InstallsEmptyHintGodot() string { return In(i18n.Locale()).InstallsEmptyHintGodot() }
+
+// InstallsEmptyHintGodot says "Common Godot folders are scanned. Add a folder if Godot is installed elsewhere."
+// in the language of msgs.
+func (msgs Messages) InstallsEmptyHintGodot() string {
+	return Catalog.Format(msgs.locale, "installsEmptyHintGodot", nil)
+}
+
 // InstallsLaunch says "Launch"
 // in the language the app shows.
 func InstallsLaunch() string { return In(i18n.Locale()).InstallsLaunch() }
@@ -4034,6 +4294,16 @@ func ChannelTuanjie() string { return In(i18n.Locale()).ChannelTuanjie() }
 // in the language of msgs.
 func (msgs Messages) ChannelTuanjie() string {
 	return Catalog.Format(msgs.locale, "channelTuanjie", nil)
+}
+
+// ChannelUnreal says "Unreal"
+// in the language the app shows.
+func ChannelUnreal() string { return In(i18n.Locale()).ChannelUnreal() }
+
+// ChannelUnreal says "Unreal"
+// in the language of msgs.
+func (msgs Messages) ChannelUnreal() string {
+	return Catalog.Format(msgs.locale, "channelUnreal", nil)
 }
 
 // SettingsTitle says "System settings"

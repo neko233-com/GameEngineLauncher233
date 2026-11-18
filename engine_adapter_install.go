@@ -182,7 +182,7 @@ func reloadEngineAdapters(dir string) []error {
 	engineRegistryMu.Lock()
 	engineRegistryByID = map[string]*engineAdapter{}
 	engineRegistryOrder = nil
-	for _, a := range []*engineAdapter{builtinUnityAdapter(), builtinTuanjieAdapter(), builtinGodotAdapter()} {
+	for _, a := range builtinEngineAdapters() {
 		engineRegistryByID[a.ID] = a
 		engineRegistryOrder = append(engineRegistryOrder, a.ID)
 	}

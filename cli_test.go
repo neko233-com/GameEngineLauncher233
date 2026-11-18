@@ -137,6 +137,41 @@ func TestCLIOpenRejectsStaleProjectVersion(t *testing.T) {
 	}
 }
 
+func TestCLIProjectVersionMatchesByEngine(t *testing.T) {
+	if !cliProjectVersionMatches(kindUnreal, "5.4", "5.4.4") || !cliProjectVersionMatches(kindUnreal, "5.4.4", "5.4") {
+		t.Fatal("Unreal 5.4 should match 5.4.4")
+	}
+	if cliProjectVersionMatches(kindUnreal, "5.5", "5.4.4") {
+		t.Fatal("Unreal 5.5 must not match 5.4.4")
+	}
+	if !cliProjectVersionMatches(kindGodot, "4.3", "4.3.1") || cliProjectVersionMatches(kindGodot, "4.2", "4.3") {
+		t.Fatal("Godot version lines were not compared")
+	}
+	if !cliProjectVersionMatches(kindUnity, "2022.3.51f1", "2022.3.51f1") ||
+		cliProjectVersionMatches(kindUnity, "2022.3.51f1", "2022.3.52f1") {
+		t.Fatal("Unity versions must match exactly")
+	}
+}
+
+func TestCLIOpenRejectsStaleUnrealProject(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "UnrealGame")
+	if err := os.MkdirAll(path, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(path, "UnrealGame.uproject"), []byte(`{"EngineAssociation":"5.5"}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	res := scanResult{
+		editors:  []editorInstall{{Version: "5.4.4", Kind: kindUnreal, Exe: "editor"}},
+		projects: []projectEntry{{Name: "UnrealGame", Path: path, Version: "5.4", Kind: kindUnreal, Editor: "editor"}},
+	}
+	var out bytes.Buffer
+	code := runCLI([]string{"open", path}, &out, func(prefs) scanResult { return res })
+	if code != 1 || !strings.Contains(out.String(), locales.ProjectVersionChanged()) {
+		t.Fatalf("stale Unreal project launch was not rejected: exit=%d output=%q", code, out.String())
+	}
+}
+
 func TestCLIOpenRejectsChangedRealEditor(t *testing.T) {
 	exe := os.Getenv("UNITYSTARTER_LIVE_UNITY_EDITOR")
 	if exe == "" {

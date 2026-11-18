@@ -43,7 +43,7 @@ type enginePageManifest struct {
 var (
 	engineAdapterIDPattern   = regexp.MustCompile(`^[a-z][a-z0-9._-]{1,63}$`)
 	engineAdapterPagePattern = regexp.MustCompile(`^[a-z][a-z0-9-]{0,31}$`)
-	engineAdapterReserved    = map[string]bool{"unity": true, "tuanjie": true, "system": true, "settings": true}
+	engineAdapterReserved    = map[string]bool{"unity": true, "tuanjie": true, "godot": true, "unreal": true, "system": true, "settings": true}
 )
 
 const (

@@ -4,7 +4,7 @@
 
 ## 项目概要
 
-- **产品**: GameEngineLauncher233 — 面向 Unity、团结引擎、Godot 与社区适配器的游戏引擎启动器
+- **产品**: GameEngineLauncher233 — 面向 Unity、团结引擎、Godot、Unreal Engine 与社区适配器的游戏引擎启动器
 - **技术栈**: Go + github.com/egoist/mygo（原生 UI，非 Web 前端）
 - **仓库**: https://github.com/neko233-com/UnityStarter（main 分支）
 - **平台**: Windows amd64（per-user 安装）
@@ -16,9 +16,10 @@
 GameEngineLauncher233/
 ├── Taskfile.yml            # ⭐ 所有构建/发布的入口
 ├── mygo.json               # mygo 构建配置（版本号在这里）
-├── icons.go                # SVG 品牌图标（官方 Unity/团结标志 + 通用图标）
+├── icons.go                # SVG 品牌图标（官方 Unity/团结/Godot/Unreal 标志 + 通用图标）
 ├── engine_strategy.go      # 视图使用的 engineStrategy 投影
-├── engine_adapter.go       # ⭐ 适配器注册表 + 内置 Unity/团结适配器
+├── engine_adapter.go       # ⭐ 适配器注册表 + 内置 Unity/团结/Godot/Unreal 适配器
+├── engine_unreal.go        # Epic Games Launcher 清单、.uproject 扫描与启动
 ├── engine_adapter_manifest.go # ⭐ adapter.json 解析与校验
 ├── engine_adapter_install.go  # GitHub 导入、安装、加载、移除
 ├── engine_adapter_process.go  # LSP 风格 stdio JSON-RPC 进程
@@ -74,8 +75,9 @@ git push origin main
 
 ## 引擎适配器（engine_adapter*.go）
 
-Unity 和团结引擎只是注册表里的前两个适配器。新增引擎或社区 DIY 适配都走同一套
-`engineAdapter`，不要在 view 层写 `if kindUnity`。
+Unity、团结引擎、Godot 和 Unreal Engine 是注册表里的内置适配器。新增引擎或社区 DIY 适配都走同一套
+`engineAdapter`，不要在 view 层写 `if kindUnity`。内置的 GitHub 导入适配器与内置引擎共用链接页；
+Unity/团结/Godot/Unreal 的“获取”页只放官方下载与文档入口，不安装任何东西。
 
 ```go
 type engineAdapter struct {
@@ -106,14 +108,15 @@ type engineAdapter struct {
   `ENGINE_ADAPTERS.md`、`examples/engine-adapter/`。
 - 适配器测试在 `engine_adapter_test.go`；改动注册表或页面路由时同时跑
   `TestEngineNavigationDiffersByAdapter`、`TestExternalAdapterDrivesRailAndPages`、
-  `TestExternalAdapterProcessDetectAndLaunch`。
+  `TestExternalAdapterProcessDetectAndLaunch`。Unreal 清单/项目扫描、缺失编辑器路由和
+  Unity/团结/Godot/Unreal 获取页测试在 `engine_unreal_test.go`。
 
 ## 侧栏布局（垂直引擎栏）
 
 参考 Tuanjie Hub 1.4.8 的三段式布局，视觉采用 Vercel 单色风格：
 
-- 最左 **148px 垂直引擎栏**：注册表里的每个适配器从上往下排列，每项显示品牌图标 + 引擎名（内置引擎固定显示 Unity / Tuanjie / Godot，社区适配器用自身名称，过长时截断并保留工具提示）；当前引擎用浮起底块标记，点击切换 `activeEngine` 与对应页面。适配器数量超过窗口高度时引擎栏独立滚动。
-- 图标使用官方资源：`iconUnity` 为官方 Unity 立方体，`iconTuanjieBrand` 为官方团结引擎多面体，`iconGodotBrand` 为官方 Godot 标志；不要用自绘近似图标。
+- 最左 **148px 垂直引擎栏**：注册表里的每个适配器从上往下排列，每项显示品牌图标 + 引擎名（内置引擎固定显示 Unity / Tuanjie / Godot / Unreal，社区适配器用自身名称，过长时截断并保留工具提示）；当前引擎用浮起底块标记，点击切换 `activeEngine` 与对应页面。适配器数量超过窗口高度时引擎栏独立滚动，并在启动、切换引擎或窗口尺寸变化时自动露出当前引擎。
+- 图标使用官方资源：`iconUnity` 为官方 Unity 立方体，`iconTuanjieBrand` 为官方团结引擎多面体，`iconGodotBrand` 为官方 Godot 标志，`iconUnreal` 为 Simple Icons 的 Unreal Engine 单色标志（CC0）；不要用自绘近似图标。
 - 中间 **220px 导航列**：顶部是当前引擎品牌 + 引擎设置齿轮，中部是适配器自己的页面（32px 行高、灰阶、选中浮起），底部是许可证单行说明、下载入口和固定的 **系统设置** 入口。Godot / 链接型适配器不显示许可证或下载。
 - 引擎栏与导航各自是 `ui.FocusGroup`：一个 Tab 站点，方向键遍历；快捷键 `Ctrl+1…9` 按注册表顺序切引擎，`Ctrl+,` 打开系统设置。
 - 弹窗统一用 `modal()`（`ui_layout.go`），不要把 `ui.Modal` 直接用到黑色画布上，否则面板边界会消失。
@@ -122,7 +125,7 @@ type engineAdapter struct {
 ## 品牌图标链路
 
 ```
-icons.go ── iconUnity / iconTuanjie / iconTuanjieBrand / iconGodot / iconGodotBrand / iconBrand
+icons.go ── iconUnity / iconTuanjie / iconTuanjieBrand / iconGodot / iconGodotBrand / iconUnreal / iconBrand
    │                              │
    ├── 引擎栏 / 安装卡片 ── engineStrategy.BrandIcon（官方原色标志）
    ├── 侧栏品牌区 / 标题栏 ── engineStrategy.Icon / BrandIcon ── 跟随 activeEngine
@@ -134,7 +137,8 @@ resources/icon.svg ── 应用图标（任务栏/窗口）── 通用引擎�
 图标来源：`D:\IDE\Tuanjie Hub\resources\app.asar` 内
 `node_modules/@unity-hub-components/icon/dist/icon/assets.js` 的
 `unity_logo` / `tuanjie_hub_logo` 路径；Godot 图标来自
-`https://godotengine.org/press`。完整署名见 `resources/ATTRIBUTION.md`。
+`https://godotengine.org/press`；Unreal Engine 单色标志来自 Simple Icons
+（CC0 1.0）的 `unrealengine.svg`。完整署名见 `resources/ATTRIBUTION.md`。
 
 ## MSI 自动更新链路
 

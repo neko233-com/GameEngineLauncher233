@@ -25,6 +25,12 @@ func (a *app) installsPage(c *ui.Context) {
 			ui.Button(c, locales.InstallChooseLocation()).OnClick(a.chooseInstallRoot)
 			ui.PrimaryButton(c, locales.InstallEditor()).OnClick(func() { _, _, page, _ := enginePages(engine); a.page = page })
 		}
+	} else if engine == kindUnreal || engine == kindGodot {
+		// Unreal and Godot have no built-in installer, but a custom engine
+		// folder is still worth adding when automatic discovery misses it.
+		actions = func() {
+			ui.Button(c, locales.ActionAddFolder()).OnClick(a.addEditorRoot)
+		}
 	}
 	a.header(c, locales.InstallsTitle(), locales.InstallsCount(len(editors)), actions)
 	if installable {
@@ -86,7 +92,14 @@ func (a *app) installsPage(c *ui.Context) {
 			if a.installQuery != "" || a.installFilter != "" {
 				a.searchEmpty(c, func() { a.installQuery, a.installFilter = "", "" })
 			} else {
-				a.emptyState(c, locales.InstallsEmptyTitle(), locales.InstallsEmptyHint())
+				hint := locales.InstallsEmptyHint()
+				switch engine {
+				case kindUnreal:
+					hint = locales.InstallsEmptyHintUnreal()
+				case kindGodot:
+					hint = locales.InstallsEmptyHintGodot()
+				}
+				a.emptyState(c, locales.InstallsEmptyTitle(), hint)
 			}
 		}
 	})

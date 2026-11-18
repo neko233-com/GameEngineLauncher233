@@ -29,7 +29,7 @@ func (a *app) projectsPage(c *ui.Context) {
 	external := isExternalEngine(engine)
 	a.header(c, title, locales.ProjectsCount(len(items)), func() {
 		ui.Button(c, locales.ActionRefresh()).OnClick(a.refresh).Disabled(a.scanning)
-		if !external && (engine == kindUnity || engine == kindTuanjie) {
+		if !external {
 			ui.Button(c, locales.ActionAddProject()).OnClick(func() { a.addProjectForEngine(engine) })
 		}
 		if supportsProjectCreation(engine) && !external {
@@ -343,10 +343,8 @@ func (a *app) projectVersionDialog(c *ui.Context) {
 			})
 			ui.Row(c).Gap(8).Justify(ui.End).Children(func() {
 				ui.Button(c, locales.ProjectVersionInstall()).OnClick(func() {
-					_, _, downloads, _ := enginePages(a.versionProject.Kind)
-					a.page = downloads
-					a.activeEngine = a.versionProject.Kind
 					a.versionOpen = false
+					a.openEngineGetPage(a.versionProject.Kind)
 				})
 				ui.Button(c, locales.ActionCancel()).OnClick(func() { a.versionOpen = false })
 				ui.PrimaryButton(c, locales.ProjectVersionOpen()).Disabled(a.versionEditor == "").OnClick(func() {
@@ -354,7 +352,8 @@ func (a *app) projectVersionDialog(c *ui.Context) {
 					if !ok || e.Kind != a.versionProject.Kind || e.Simulated {
 						return
 					}
-					if strings.EqualFold(e.Version, a.versionProject.Version) {
+					if strings.EqualFold(e.Version, a.versionProject.Version) ||
+						a.versionProject.Kind == kindUnreal && unrealVersionMatches(a.versionProject.Version, e.Version) {
 						a.openSelectedProjectVersion()
 					} else {
 						a.versionConfirmedEditor = e

@@ -38,7 +38,10 @@ func (a *app) adapterLinksPage(c *ui.Context, adapter *engineAdapter, page engin
 		hint = adapter.DisplayName()
 	}
 	a.header(c, page.TitleText(), hint, func() {
-		if adapter.Homepage != "" {
+		// Imported adapters take their homepage from adapter.json. Built-in
+		// adapter homes are storefronts or documentation, not GitHub repos, so
+		// the GitHub action would mislabel them.
+		if adapter.Homepage != "" && !adapter.BuiltIn {
 			ui.Button(c, "GitHub ↗").Label(locales.OpenExternal(adapter.DisplayName())).OnClick(func() {
 				_ = mygo.Shell.OpenExternal(adapter.Homepage)
 			})
@@ -67,7 +70,7 @@ func (a *app) adapterLinksPage(c *ui.Context, adapter *engineAdapter, page engin
 						if i > 0 {
 							ui.Divider(c)
 						}
-						c.Key(l.URL)
+						c.Key(fmt.Sprintf("%s#%d", l.URL, i))
 						ui.Row(c).Gap(14).AlignItems(ui.Center).Padding(6, 0).Children(func() {
 							ui.Box(c).Size(36, 36).Shrink(0).Radius(8).Background(c.Theme().SurfaceHover).Border(1, c.Theme().Border).Center().Children(func() {
 								ui.Icon(c, page.Icon).Size(20, 20).TextColor(c.Theme().TextMuted)

@@ -20,6 +20,7 @@ const (
 	kindUnity   = "unity"
 	kindTuanjie = "tuanjie"
 	kindGodot   = "godot"
+	kindUnreal  = "unreal"
 )
 
 // editorInstall is an editor installed on this machine.
@@ -170,14 +171,22 @@ func scanWithVCS(p prefs, withVCS bool) ([]editorInstall, []projectEntry, []hub)
 			roots = append(roots, settings.InstallRoot)
 		}
 	}
-	for _, kind := range []string{kindUnity, kindTuanjie, "godot"} {
+	for _, kind := range []string{kindUnity, kindTuanjie, kindGodot, kindUnreal} {
 		roots = append(roots, defaultInstallRootFor(kind))
 	}
 	roots = dedupe(roots)
 	editors := scanEditors(roots)
 	editors = append(editors, scanGodotEditors(roots)...)
+	editors = append(editors, scanUnrealEditors(roots)...)
 	projects := scanProjectsMode(p, editors, hubs, withVCS)
 	projects = append(projects, scanGodotProjects(p, editors)...)
+	projects = append(projects, scanUnrealProjects(p, editors, withVCS)...)
+	sort.SliceStable(projects, func(i, j int) bool {
+		if !projects[i].Modified.Equal(projects[j].Modified) {
+			return projects[i].Modified.After(projects[j].Modified)
+		}
+		return strings.ToLower(projects[i].Name) < strings.ToLower(projects[j].Name)
+	})
 	versions := readTuanjieVersionMap(hubConfigDirs())
 	for i := range editors {
 		if editors[i].Kind == kindTuanjie {
@@ -647,7 +656,8 @@ func skipProjectDir(name string) bool {
 		return true
 	}
 	switch strings.ToLower(name) {
-	case "library", "temp", "obj", "logs", "build", "builds", "node_modules", "packages", "assets", "userdata", "recordings":
+	case "library", "temp", "obj", "logs", "build", "builds", "node_modules", "packages", "assets", "userdata", "recordings",
+		"binaries", "intermediate", "saved", "deriveddatacache", "content":
 		return true
 	}
 	return false
