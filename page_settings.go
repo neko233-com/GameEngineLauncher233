@@ -219,31 +219,64 @@ func (a *app) demoSection(c *ui.Context) {
 }
 
 // hubSection takes over the hubs' projects and favorites, and says which of
-// them this app can write to.
+// them this app can write to. Unity and Tuanjie are always listed so a missing
+// Hub still has its official download entry.
 func (a *app) hubSection(c *ui.Context) {
 	t := c.Theme()
 	sync := !a.prefs.NoHubSync
 	panel(c, func() {
 		a.sectionTitle(c, locales.SettingsHubs(), locales.SettingsHubsHint())
-		if len(a.hubs) == 0 {
-			ui.Text(c, locales.SettingsHubsNone()).FontSize(12).TextColor(t.TextMuted)
-		}
-		for _, h := range a.hubs {
-			h := h
-			c.Key(h.Kind)
+		for _, kind := range []string{kindUnity, kindTuanjie} {
+			kind := kind
+			h, ok := a.hubForEngine(kind)
+			c.Key("hub-" + kind)
 			ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
 				ui.Column(c).Grow(1).MinWidth(0).Gap(4).Children(func() {
 					ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-						ui.Text(c, hubName(h.Kind)).FontSize(13).Bold()
-						ui.Badge(c, hubMode(h))
-						ui.Text(c, h.Version).FontSize(11).TextColor(t.TextMuted)
+						ui.Text(c, hubName(kind)).FontSize(13).Bold()
+						if ok {
+							ui.Badge(c, hubMode(h))
+							if h.Version != "" {
+								ui.Text(c, h.Version).FontSize(11).TextColor(t.TextMuted)
+							} else {
+								ui.Badge(c, locales.HubDetected())
+							}
+						} else {
+							ui.Badge(c, locales.HubNotDetected())
+						}
 					})
-					ui.Text(c, h.Dir).FontSize(11).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(h.Dir)
+					if ok {
+						ui.Text(c, h.Dir).FontSize(11).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(h.Dir)
+					} else {
+						ui.Text(c, locales.HubNotDetectedSettingsHint()).FontSize(11).TextColor(t.TextMuted)
+					}
 				})
-				if ui.Button(c, locales.ActionOpenConfig()).Clicked() {
-					_ = mygo.Shell.OpenPath(h.Dir)
+				if ok {
+					if exe := strings.TrimSpace(h.Exe); exe != "" {
+						ui.Button(c, locales.ActionOpenHub()).OnClick(func() {
+							_ = mygo.Shell.OpenPath(exe)
+						})
+					}
+					if dir := strings.TrimSpace(h.Dir); dir != "" {
+						ui.Button(c, locales.ActionOpenConfig()).OnClick(func() {
+							_ = mygo.Shell.OpenPath(dir)
+						})
+					}
+				} else {
+					url := "https://unity.com/download"
+					label := locales.UnityHubDownload()
+					if kind == kindTuanjie {
+						url = "https://unity.cn/tuanjie/releases"
+						label = locales.TuanjieHubDownload()
+					}
+					ui.Button(c, label).OnClick(func() {
+						_ = mygo.Shell.OpenExternal(url)
+					})
 				}
 			})
+			if kind == kindUnity {
+				ui.Divider(c)
+			}
 		}
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 			ui.Switch(c, &sync)

@@ -3,7 +3,7 @@
 - 产品正式更名为 **GameEngineLauncher233**（游戏引擎启动器）：窗口标题、CLI、开始菜单、App Paths、安装目录、数据目录、应用图标说明和文档全部切换；旧 `UnityStarter` 设置目录与 `unitystarter` CLI 别名保留迁移兼容。
 - 新增内置 **Godot** 适配器与官方 Godot 标志：自动发现 Godot 可执行文件、扫描 `project.godot` 项目并读取引擎版本，使用 `--path` 打开项目；提供 Projects、Installs、Favorites、Get Godot、Documentation、Community 页面，不继承 Unity/团结的安装器、模块或许可证入口。
 - 新增内置 **Unreal Engine** 编辑器入口：读取 Epic Games Launcher 的 `LauncherInstalled.dat`、常见 Epic Games 目录和自定义编辑器目录，发现 UE4/UE5 的 `UnrealEditor.exe` 并读取 `Engine/Build/Build.version`；扫描 `.uproject`，按 `EngineAssociation` 匹配已安装引擎，支持版本选择、直接打开项目、缺少版本提示，以及 Get Unreal、Documentation、Community 页面。Unreal 仅作为编辑器/项目入口，不提供安装器、模块或许可证流程。
-- Unity 与团结引擎新增 **获取** 入口：Unity 页面提供 Unity Hub 国际版下载、Unity 编辑器历史版本和 Hub 文档；团结页面提供 Tuanjie Hub 下载、团结引擎手册和 Unity Hub 国际版入口；Godot/Unreal 也使用同一套链接页路由。获取页会显示本机检测到的 Hub 版本，可直接打开 Hub 或其配置目录，未检测到时提示从官方入口下载。
+- Unity 与团结引擎新增 **获取** 入口：Unity 页面提供 Unity Hub 国际版下载、Unity 编辑器历史版本和 Hub 文档；团结页面提供 Tuanjie Hub 下载、团结引擎手册和 Unity Hub 国际版入口；Godot/Unreal 也使用同一套链接页路由。获取页会显示本机检测到的 Hub 版本，可直接打开 Hub 或其配置目录，未检测到时提示从官方入口下载；系统设置的 Hub 区域同样提供打开或官方下载入口。
 - 系统设置移到左下角固定入口，覆盖整个启动器（语言、Hub 接管、演示模式、适配器导入、项目根目录、关于）。导航列顶部齿轮改为当前引擎的 **引擎设置**：独立安装目录、并行下载连接数、适配器身份和文档/社区入口。
 - 下载并发可配置：Unity 与团结引擎分别独立保存 1–6 个 HTTP Range 连接数，下载任务仍可多引擎同时进行；新增并发上限回归测试。安装目录也按引擎独立保存，旧单一 `InstallRoot` 继续作为回退。
 - 许可页按当前引擎过滤：Unity 页面只显示 Unity 许可文件和激活流程，团结页面只显示团结许可入口；不再把团结许可文件混进 Unity 页面。

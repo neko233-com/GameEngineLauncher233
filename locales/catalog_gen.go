@@ -4536,6 +4536,16 @@ func (msgs Messages) HubNotDetectedHint() string {
 	return Catalog.Format(msgs.locale, "hubNotDetectedHint", nil)
 }
 
+// HubNotDetectedSettingsHint says "Not installed. Use the official download button."
+// in the language the app shows.
+func HubNotDetectedSettingsHint() string { return In(i18n.Locale()).HubNotDetectedSettingsHint() }
+
+// HubNotDetectedSettingsHint says "Not installed. Use the official download button."
+// in the language of msgs.
+func (msgs Messages) HubNotDetectedSettingsHint() string {
+	return Catalog.Format(msgs.locale, "hubNotDetectedSettingsHint", nil)
+}
+
 // ActionOpenHub says "Open Hub"
 // in the language the app shows.
 func ActionOpenHub() string { return In(i18n.Locale()).ActionOpenHub() }

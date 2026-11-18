@@ -458,6 +458,7 @@
   "hubDetected": "已检测",
   "hubNotDetected": "未检测到 Hub",
   "hubNotDetectedHint": "未找到 Hub 安装记录。可从下方下载官方 Hub。",
+  "hubNotDetectedSettingsHint": "未安装。可点击官方下载入口。",
   "actionOpenHub": "打开 Hub",
   "actionOpenConfig": "配置目录",
   "favoriteAdd": "加入收藏",

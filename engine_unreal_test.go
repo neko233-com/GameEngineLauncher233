@@ -337,6 +337,32 @@ func TestEngineHubDownloadPages(t *testing.T) {
 	}
 }
 
+func TestSettingsHubSectionOffersHubDownloads(t *testing.T) {
+	a := fixture()
+	a.page, a.settingsTab = pageSettings, ""
+	a.hubs = nil
+	tt := ui.NewTester(a.view, 1180, 760)
+	if !tt.HasText(locales.HubNotDetected()) ||
+		!tt.HasText(locales.UnityHubDownload()) ||
+		!tt.HasText(locales.TuanjieHubDownload()) ||
+		!tt.HasText(locales.HubNotDetectedSettingsHint()) {
+		t.Fatalf("settings Hub download entries: %q", tt.Texts())
+	}
+}
+
+func TestSettingsHubSectionCanOpenInstalledHub(t *testing.T) {
+	a := fixture()
+	a.page, a.settingsTab = pageSettings, ""
+	a.hubs = []hub{{
+		Kind: kindUnity, Dir: `C:\UnityHub`, Version: "3.12.0",
+		Exe: `C:\UnityHub\Unity Hub.exe`,
+	}}
+	tt := ui.NewTester(a.view, 1180, 760)
+	if !tt.HasText(locales.ActionOpenHub()) || !tt.HasText("3.12.0") {
+		t.Fatalf("settings Hub open entry: %q", tt.Texts())
+	}
+}
+
 func TestGetPagesShowHubStatus(t *testing.T) {
 	a := fixture()
 	a.hubs = []hub{{Kind: kindUnity, Dir: `C:\UnityHub`, Version: "3.12.0", Exe: `C:\UnityHub\Unity Hub.exe`}}
