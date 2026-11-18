@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -8,26 +9,29 @@ import (
 )
 
 // The engine switcher is a vertical rail at the far left, as Tuanjie Hub's:
-// both engines stack, the active one is raised, and the navigation column
-// begins to its right.
+// every engine stacks with its brand mark and name, the active one is raised,
+// and the navigation column begins to its right.
 func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 	a := fixture()
 	tt := ui.NewTester(a.view, 1180, 760)
 
-	unity, ok := tt.Find(channelName(kindUnity))
+	if !tt.HasText("Unity") || !tt.HasText("Tuanjie") || !tt.HasText("Godot") {
+		t.Fatalf("rail is missing engine names: %q", tt.Texts())
+	}
+	unity, ok := tt.Find("Unity")
 	if !ok {
 		t.Fatal("the Unity tab is missing from the rail")
 	}
-	tuanjie, ok := tt.Find(channelName(kindTuanjie))
+	tuanjie, ok := tt.Find("Tuanjie")
 	if !ok {
 		t.Fatal("the Tuanjie tab is missing from the rail")
 	}
-	const railWidth = 64
-	if unity.X != 0 || unity.W < railWidth-1 || unity.H < 40 {
-		t.Fatalf("Unity tab is not a rail tab: %+v", unity)
+	railWidth := float32(engineRailWidth)
+	if unity.X < 0 || unity.X+unity.W > railWidth || unity.W < 120 || unity.H < 40 {
+		t.Fatalf("Unity tab is not a wide rail tab: %+v", unity)
 	}
-	if tuanjie.X != 0 || tuanjie.W < railWidth-1 {
-		t.Fatalf("Tuanjie tab is not a rail tab: %+v", tuanjie)
+	if tuanjie.X < 0 || tuanjie.X+tuanjie.W > railWidth {
+		t.Fatalf("Tuanjie tab escapes the rail: %+v", tuanjie)
 	}
 	if tuanjie.Y < unity.Y+unity.H {
 		t.Fatalf("engine tabs are not stacked vertically: unity=%+v tuanjie=%+v", unity, tuanjie)
@@ -61,15 +65,15 @@ func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 	}
 
 	// The active tab has a raised tile; the other sits on the rail's own
-	// background. Sampling inside the tile's left edge avoids the icon.
+	// background. Sampling the lower-left corner avoids the icon and label.
 	img := tt.Image()
-	active := img.RGBAAt(int(unity.X)+14, int(unity.Y)+28)
-	idle := img.RGBAAt(int(tuanjie.X)+14, int(tuanjie.Y)+28)
+	active := img.RGBAAt(int(unity.X)+4, int(unity.Y+unity.H)-6)
+	idle := img.RGBAAt(int(tuanjie.X)+4, int(tuanjie.Y+tuanjie.H)-6)
 	if active.R <= idle.R+0x10 {
 		t.Fatalf("active engine tab has no raised tile: active=%+v idle=%+v", active, idle)
 	}
 
-	if err := tt.Click(channelName(kindTuanjie)); err != nil {
+	if err := tt.Click("Tuanjie"); err != nil {
 		t.Fatal(err)
 	}
 	if a.activeEngine != kindTuanjie || a.page != pageTuanjieProjects {
@@ -77,6 +81,73 @@ func TestEngineRailIsVerticalAndSwitches(t *testing.T) {
 	}
 	if !tt.HasText(locales.ChannelTuanjie()) {
 		t.Fatalf("navigation header did not follow the rail: %q", tt.Texts())
+	}
+}
+
+// railTestEngineNames overflow a 900×560 window, so the rail has to scroll.
+var railTestEngineNames = []string{"Unreal", "Cocos", "Defold", "Bevy", "GameMaker", "LÖVE", "RPG Maker", "CryEngine", "Flax", "Stride", "Armory", "Wave"}
+
+func addRailTestEngines(t *testing.T) {
+	t.Helper()
+	withCleanAdapterRegistry(t)
+	for i, name := range railTestEngineNames {
+		name := name
+		engineRegistryMu.Lock()
+		addEngineAdapterLocked(&engineAdapter{
+			ID:   fmt.Sprintf("extra%d", i),
+			Icon: iconUnity,
+			Pages: []enginePage{{
+				Key:   fmt.Sprintf("extra%d", i),
+				Route: fmt.Sprintf("/extra%d", i),
+				Kind:  "links",
+			}},
+			name: func() string { return name },
+		})
+		engineRegistryMu.Unlock()
+	}
+}
+
+// The rail keeps its names as adapters accumulate and scrolls instead of
+// squeezing or hiding the engine list.
+func TestEngineRailScrollsThroughManyEngines(t *testing.T) {
+	addRailTestEngines(t)
+	a := fixture()
+	tt := ui.NewTester(a.view, 900, 560)
+
+	last, ok := tt.Find("Wave")
+	if !ok {
+		t.Fatalf("the last engine is missing from the rail: %q", tt.Texts())
+	}
+	if last.H != 0 {
+		t.Fatalf("the fixture did not overflow the rail: %+v", last)
+	}
+	tt.Scroll(engineRailWidth/2, 300, 0, 2000)
+	tt.Frame()
+	last, ok = tt.Find("Wave")
+	if !ok || last.H < 40 || last.Y < 0 || last.Y+last.H > 560 {
+		t.Fatalf("the rail did not scroll to the last engine: %+v, found=%v", last, ok)
+	}
+	if last.X < 0 || last.X+last.W > engineRailWidth {
+		t.Fatalf("the last engine escaped the rail: %+v", last)
+	}
+}
+
+// End reaches the last engine even when it starts below the viewport, and the
+// rail scrolls it into view before Enter switches engines.
+func TestEngineRailKeyboardFocusScrollsIntoView(t *testing.T) {
+	addRailTestEngines(t)
+	a := fixture()
+	tt := ui.NewTester(a.view, 900, 560)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnd)
+	tt.Frame()
+	last, ok := tt.Find("Wave")
+	if !ok || last.H < 40 || last.Y < 0 || last.Y+last.H > 560 {
+		t.Fatalf("End did not scroll the last engine into view: %+v, found=%v", last, ok)
+	}
+	tt.Key(0, ui.KeyEnter)
+	if a.activeEngine != fmt.Sprintf("extra%d", len(railTestEngineNames)-1) {
+		t.Fatalf("Enter did not switch to the last engine: %q", a.activeEngine)
 	}
 }
 

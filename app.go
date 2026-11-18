@@ -479,16 +479,41 @@ func (a *app) view(c *ui.Context) {
 	a.alertDialog(c)
 }
 
+// The engine rail is wide enough for the brand mark and the engine's own
+// name: at 26px the Unity, Tuanjie and Godot logos alone are hard to read.
+const (
+	engineRailWidth    = 148
+	engineRailTabWidth = engineRailWidth - 20
+)
+
+// engineRailLabel keeps the rail's names short and in brand form, so they read
+// the same in every locale and fit beside the mark. Imported adapters fall
+// back to their own display name.
+func engineRailLabel(adapter *engineAdapter) string {
+	if adapter == nil {
+		return ""
+	}
+	switch adapter.ID {
+	case kindUnity:
+		return "Unity"
+	case kindTuanjie:
+		return "Tuanjie"
+	case kindGodot:
+		return "Godot"
+	}
+	return adapter.DisplayName()
+}
+
 // engineRail is the vertical engine switcher at the far left, as Tuanjie
-// Hub's: every registered adapter stacks from the top, the active one wears a
-// raised tile, and the rest of the rail is empty. It never scrolls with the
-// nav.
+// Hub's: every registered adapter stacks from the top with its mark and name,
+// the active one wears a raised tile, and the list scrolls once adapters
+// outgrow the window. The navigation column keeps its own scroll.
 func (a *app) engineRail(c *ui.Context) {
 	t := c.Theme()
-	ui.Column(c).Width(64).Shrink(0).Padding(12, 0, 0, 0).Background(t.Background).
+	ui.Column(c).Width(engineRailWidth).Shrink(0).Padding(10, 10, 0, 10).Background(t.Background).
 		BorderWidth(0, 1, 0, 0).BorderColor(t.Border).Children(func() {
 		ui.Scroll(c).Grow(1).Shrink(1).MinHeight(0).Children(func() {
-			ui.Column(c).Gap(6).FocusGroup(ui.Vertical).Children(func() {
+			ui.Column(c).Padding(0, 0, 10, 0).Gap(4).FocusGroup(ui.Vertical).Children(func() {
 				for i, adapter := range engineAdapters() {
 					a.engineRailTab(c, adapter, i)
 				}
@@ -497,64 +522,54 @@ func (a *app) engineRail(c *ui.Context) {
 	})
 }
 
-// engineRailTab is one engine's square tab in the rail. The label keeps the
-// control named for tests and assistive technology even though the rail
-// shows only the brand mark.
+// engineRailTab is one engine's tile in the rail: brand mark on the left and
+// the engine name on the right, with the raised Vercel face when active. A
+// long community adapter name clips instead of pushing the rail open, and the
+// tooltip still holds the full name and its shortcut.
 func (a *app) engineRailTab(c *ui.Context, adapter *engineAdapter, index int) {
 	t := c.Theme()
 	s := adapter.strategy()
 	engine := adapter.ID
+	name := engineRailLabel(adapter)
 	active := a.activeEngine == engine
 	hint := s.Name
 	if index < 9 {
 		hint += fmt.Sprintf(" · Ctrl+%d", index+1)
 	}
-	b := ui.Button(c, "").Size(64, 56).Padding(0).
-		Label(adapter.DisplayName()).Tooltip(hint).
+	b := ui.Button(c, "").Size(engineRailTabWidth, 46).Padding(0, 10).Radius(8).Gap(8).
+		Justify(ui.Start).Label(adapter.DisplayName()).Tooltip(hint).
 		Background(ui.Color{}).Border(0, ui.Color{}).
 		OnClick(func() { a.switchEngine(engine) })
-	var tile, mark ui.Element
+	if active {
+		b.Background(t.SurfaceHover).Border(1, t.Border)
+	} else if b.Hovered() || b.Focused() {
+		b.Background(t.Surface)
+	}
+	foreground := t.TextMuted
+	if active || b.Hovered() || b.Focused() {
+		foreground = t.Text
+	}
 	b.Children(func() {
-		bg := ui.Color{}
-		if active {
-			bg = t.SurfaceHover
-		}
-		tile = ui.Box(c).Size(44, 40).Radius(9).Background(bg).Center().Children(func() {
-			// A brand that ships its own faceted art keeps it in both states,
-			// muted when another engine is active; monochrome marks follow the
-			// text color.
+		// A brand that ships its own faceted art keeps it in both states,
+		// muted when another engine is active; monochrome marks follow the
+		// text color. The 24px frame keeps every mark on the same optical
+		// center as the names beside it.
+		ui.Box(c).Size(24, 24).Shrink(0).Center().Children(func() {
 			if s.BrandIcon != nil {
-				mark = ui.Image(c, s.BrandIcon).Size(26, 26)
+				opacity := float32(1)
+				if !active {
+					opacity = 0.72
+					if b.Hovered() || b.Focused() {
+						opacity = 0.95
+					}
+				}
+				ui.Image(c, s.BrandIcon).Size(22, 22).Opacity(opacity)
 				return
 			}
-			color := t.TextMuted
-			if active || b.Focused() {
-				color = t.Text
-			}
-			mark = ui.Icon(c, s.Icon).Size(25, 25).TextColor(color)
+			ui.Icon(c, s.Icon).Size(21, 21).TextColor(foreground)
 		})
-		if active {
-			tile.Border(1, t.Border)
-		}
+		ui.Text(c, name).FontSize(12).Grow(1).MinWidth(0).SingleLine().Clip().TextColor(foreground)
 	})
-	// Hover is read after the children are built, as a button's face does.
-	if b.Hovered() {
-		if active {
-			tile.Background(t.SurfacePressed)
-		} else {
-			tile.Background(t.Surface)
-		}
-	}
-	if s.BrandIcon != nil {
-		opacity := float32(1)
-		if !active {
-			opacity = 0.72
-			if b.Hovered() || b.Focused() {
-				opacity = 0.95
-			}
-		}
-		mark.Opacity(opacity)
-	}
 }
 
 // navigationHeader mirrors the account row at the top of Tuanjie Hub's nav
