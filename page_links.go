@@ -74,7 +74,7 @@ func (a *app) linkGroup(c *ui.Context, title string, links []link) {
 			}
 			c.Key(l.URL)
 			ui.Row(c).Gap(14).AlignItems(ui.Center).Padding(6, 0).Children(func() {
-				ui.Box(c).Size(36, 36).Shrink(0).Radius(6).Background(t.Background).Center().Children(func() {
+				ui.Box(c).Size(36, 36).Shrink(0).Radius(8).Background(t.Background).Center().Children(func() {
 					ui.Icon(c, serviceIcon(a.page)).Size(20, 20).TextColor(t.TextMuted)
 				})
 				ui.Column(c).Grow(1).MinWidth(0).Gap(4).Children(func() {

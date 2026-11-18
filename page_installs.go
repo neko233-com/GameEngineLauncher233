@@ -40,7 +40,7 @@ func (a *app) installsPage(c *ui.Context) {
 	ui.List(c, &a.installs, len(editors), func(i int) {
 		e := editors[i]
 		ui.Column(c).Padding(8, 24).Children(func() {
-			ui.Row(c).Padding(16).Gap(14).AlignItems(ui.Center).Background(t.Surface).Border(1, t.Border).Radius(6).Children(func() {
+			ui.Row(c).Padding(16).Gap(14).AlignItems(ui.Center).Background(t.Surface).Border(1, t.Border).Radius(8).Children(func() {
 				a.editorBrandLogo(c, e.Kind)
 				ui.Column(c).Grow(1).MinWidth(0).Gap(6).Children(func() {
 					ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
@@ -85,15 +85,7 @@ func (a *app) installsPage(c *ui.Context) {
 // editorBrandLogo renders the engine's genuine mark on a neutral tile,
 // mirroring the Tuanjie Hub install card logo without recoloring the brand.
 func (a *app) editorBrandLogo(c *ui.Context, kind string) {
-	t := c.Theme()
-	s := engineStrategyFor(kind)
-	ui.Box(c).Size(44, 44).Shrink(0).Radius(8).Background(t.SurfaceHover).Border(1, t.Border).Center().Children(func() {
-		if s.BrandIcon != nil {
-			ui.Image(c, s.BrandIcon).Size(26, 26)
-			return
-		}
-		ui.Icon(c, s.Icon).Size(26, 26).TextColor(t.Text)
-	})
+	engineMark(c, kind, 44, 26)
 }
 
 // editorCardGear is the single cog button on an install card. Its popover

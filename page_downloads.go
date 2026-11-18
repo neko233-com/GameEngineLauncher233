@@ -303,11 +303,9 @@ func (a *app) downloadGroup(c *ui.Context, title, engine string, entries []downl
 			e := e
 			job := a.jobs[jobKey(e)]
 			c.Key(jobKey(e))
-			ui.Column(c).Padding(16).Gap(12).Background(t.Surface).Border(1, t.Border).Radius(6).Children(func() {
+			ui.Column(c).Padding(16).Gap(12).Background(t.Surface).Border(1, t.Border).Radius(8).Children(func() {
 				ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-					ui.Box(c).Size(36, 36).Shrink(0).Radius(5).Background(t.Background).Center().Children(func() {
-						ui.Icon(c, iconBrand).Size(24, 24).TextColor(t.TextMuted)
-					})
+					engineMark(c, engine, 36, 24)
 					ui.Column(c).Grow(1).MinWidth(0).Gap(6).Children(func() {
 						ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 							ui.Text(c, e.Version).FontSize(14).Bold().SingleLine().Clip()

@@ -156,7 +156,7 @@ func (a *app) activityPage(c *ui.Context) {
 				c.Key(jobKey(job.Entry))
 				panel(c, func() {
 					ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-						ui.Icon(c, iconBrand).Size(26, 26).TextColor(c.Theme().TextMuted)
+						engineMark(c, job.Entry.Engine, 36, 22)
 						ui.Column(c).Grow(1).MinWidth(0).Gap(5).Children(func() {
 							ui.Text(c, channelName(job.Entry.Engine)+" · "+job.Entry.Version).FontSize(14).Bold().SingleLine().Clip()
 							if job.Total > 0 {

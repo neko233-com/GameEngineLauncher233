@@ -26,6 +26,20 @@ func panel(c *ui.Context, children func()) {
 	ui.Column(c).Padding(18).Gap(12).Background(t.Surface).Border(1, t.Border).Radius(8).Children(children)
 }
 
+// engineMark is the engine's genuine logo on a bordered tile, shared by
+// install, download and activity cards.
+func engineMark(c *ui.Context, kind string, size, iconSize float32) ui.Element {
+	t := c.Theme()
+	s := engineStrategyFor(kind)
+	return ui.Box(c).Size(size, size).Shrink(0).Radius(8).Background(t.SurfaceHover).Border(1, t.Border).Center().Children(func() {
+		if s.BrandIcon != nil {
+			ui.Image(c, s.BrandIcon).Size(iconSize, iconSize)
+			return
+		}
+		ui.Icon(c, s.Icon).Size(iconSize, iconSize).TextColor(t.Text)
+	})
+}
+
 // modal is the app's Vercel-style dialog shell: a deep backdrop over the
 // black canvas and a bordered surface card, since a black panel would
 // otherwise disappear into the page. It returns the dialog for Dismissed.
