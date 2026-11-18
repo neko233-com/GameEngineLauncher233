@@ -88,6 +88,14 @@ func (a *app) missingEditorDialog(c *ui.Context) {
 func (a *app) openDownloadsForMissingEditor() {
 	p := a.missingProject
 	a.missingEditorOpen = false
+	if p.Kind == kindGodot {
+		a.page = pageGodotGet
+		return
+	}
+	if isExternalEngine(p.Kind) {
+		a.page = engineStrategyFor(p.Kind).Pages.Projects
+		return
+	}
 	a.page = pageDownloads
 	if p.Kind == kindTuanjie {
 		a.downloadQueryTuanjie = p.Version
