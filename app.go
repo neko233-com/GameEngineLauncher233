@@ -1038,6 +1038,16 @@ func (a *app) addProjectForEngine(engine string) {
 	})
 }
 
+// hubForEngine returns the detected Hub for an engine kind.
+func (a *app) hubForEngine(kind string) (hub, bool) {
+	for _, h := range a.hubs {
+		if h.Kind == kind {
+			return h, true
+		}
+	}
+	return hub{}, false
+}
+
 // hubFor is the hub a project's star and additions go to: the one that
 // lists it, else the Unity Hub, which holds a project list this app writes.
 func (a *app) hubFor(p projectEntry) (hub, bool) {

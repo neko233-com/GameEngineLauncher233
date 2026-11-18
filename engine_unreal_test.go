@@ -271,6 +271,24 @@ func TestEngineHubDownloadPages(t *testing.T) {
 	}
 }
 
+func TestGetPagesShowHubStatus(t *testing.T) {
+	a := fixture()
+	a.hubs = []hub{{Kind: kindUnity, Dir: `C:\UnityHub`, Version: "3.12.0", Exe: `C:\UnityHub\Unity Hub.exe`}}
+	a.activeEngine, a.page = kindUnity, pageUnityGet
+	tt := ui.NewTester(a.view, 1180, 760)
+	if !tt.HasText("3.12.0") || !tt.HasText(locales.ActionOpenHub()) {
+		t.Fatalf("installed Hub status: %q", tt.Texts())
+	}
+
+	missing := fixture()
+	missing.hubs = nil
+	missing.activeEngine, missing.page = kindTuanjie, pageTuanjieGet
+	tt = ui.NewTester(missing.view, 1180, 760)
+	if !tt.HasText(locales.HubNotDetected()) || !tt.HasText(locales.HubNotDetectedHint()) {
+		t.Fatalf("missing Hub status: %q", tt.Texts())
+	}
+}
+
 func TestHubDownloadEntriesAreInNavigation(t *testing.T) {
 	a := fixture()
 	tt := ui.NewTester(a.view, 1180, 760)

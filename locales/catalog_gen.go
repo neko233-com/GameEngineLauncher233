@@ -4506,6 +4506,46 @@ func (msgs Messages) HubTuanjie() string {
 	return Catalog.Format(msgs.locale, "hubTuanjie", nil)
 }
 
+// HubDetected says "Detected"
+// in the language the app shows.
+func HubDetected() string { return In(i18n.Locale()).HubDetected() }
+
+// HubDetected says "Detected"
+// in the language of msgs.
+func (msgs Messages) HubDetected() string {
+	return Catalog.Format(msgs.locale, "hubDetected", nil)
+}
+
+// HubNotDetected says "Hub not detected"
+// in the language the app shows.
+func HubNotDetected() string { return In(i18n.Locale()).HubNotDetected() }
+
+// HubNotDetected says "Hub not detected"
+// in the language of msgs.
+func (msgs Messages) HubNotDetected() string {
+	return Catalog.Format(msgs.locale, "hubNotDetected", nil)
+}
+
+// HubNotDetectedHint says "The Hub's installation record was not found. Download the official Hub below."
+// in the language the app shows.
+func HubNotDetectedHint() string { return In(i18n.Locale()).HubNotDetectedHint() }
+
+// HubNotDetectedHint says "The Hub's installation record was not found. Download the official Hub below."
+// in the language of msgs.
+func (msgs Messages) HubNotDetectedHint() string {
+	return Catalog.Format(msgs.locale, "hubNotDetectedHint", nil)
+}
+
+// ActionOpenHub says "Open Hub"
+// in the language the app shows.
+func ActionOpenHub() string { return In(i18n.Locale()).ActionOpenHub() }
+
+// ActionOpenHub says "Open Hub"
+// in the language of msgs.
+func (msgs Messages) ActionOpenHub() string {
+	return Catalog.Format(msgs.locale, "actionOpenHub", nil)
+}
+
 // ActionOpenConfig says "Config folder"
 // in the language the app shows.
 func ActionOpenConfig() string { return In(i18n.Locale()).ActionOpenConfig() }

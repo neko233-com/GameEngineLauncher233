@@ -57,6 +57,9 @@ func (a *app) adapterLinksPage(c *ui.Context, adapter *engineAdapter, page engin
 	}
 	ui.Scroll(c).Grow(1).MinHeight(0).Children(func() {
 		ui.Column(c).Padding(24).Gap(16).FillWidth().Children(func() {
+			if adapter.BuiltIn && (adapter.ID == kindUnity || adapter.ID == kindTuanjie) {
+				a.hubStatusCard(c, adapter.ID)
+			}
 			if len(groups) == 0 {
 				a.emptyState(c, page.TitleText(), locales.EnginesNoLinks())
 				return
@@ -89,6 +92,43 @@ func (a *app) adapterLinksPage(c *ui.Context, adapter *engineAdapter, page engin
 				})
 			}
 		})
+	})
+}
+
+func (a *app) hubStatusCard(c *ui.Context, kind string) {
+	t := c.Theme()
+	h, ok := a.hubForEngine(kind)
+	panel(c, func() {
+		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
+			ui.Text(c, hubName(kind)).FontSize(14).Bold()
+			if ok {
+				status := strings.TrimSpace(h.Version)
+				if status == "" {
+					status = locales.HubDetected()
+				}
+				ui.Badge(c, status)
+			} else {
+				ui.Badge(c, locales.HubNotDetected())
+			}
+			ui.Spacer(c)
+			if ok {
+				if exe := strings.TrimSpace(h.Exe); exe != "" {
+					ui.Button(c, locales.ActionOpenHub()).OnClick(func() {
+						_ = mygo.Shell.OpenPath(exe)
+					})
+				}
+				if dir := strings.TrimSpace(h.Dir); dir != "" {
+					ui.Button(c, locales.ActionOpenConfig()).OnClick(func() {
+						_ = mygo.Shell.OpenPath(dir)
+					})
+				}
+			}
+		})
+		if ok {
+			ui.Text(c, h.Dir).FontSize(11).TextColor(t.TextMuted).SingleLine().Clip().Tooltip(h.Dir)
+			return
+		}
+		ui.Text(c, locales.HubNotDetectedHint()).FontSize(11).TextColor(t.TextMuted)
 	})
 }
 
