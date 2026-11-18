@@ -501,9 +501,9 @@ func (a *app) engineRailTab(c *ui.Context, engine string) {
 	if s.BrandIcon != nil {
 		opacity := float32(1)
 		if !active {
-			opacity = 0.6
+			opacity = 0.72
 			if b.Hovered() || b.Focused() {
-				opacity = 0.85
+				opacity = 0.95
 			}
 		}
 		mark.Opacity(opacity)
