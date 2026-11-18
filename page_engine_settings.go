@@ -22,7 +22,7 @@ func (a *app) engineSettingsPage(c *ui.Context) {
 	a.header(c, locales.EngineSettings(), locales.EngineSettingsHint(name), nil)
 	ui.Divider(c)
 	ui.Scroll(c).Grow(1).MinHeight(0).Children(func() {
-		ui.Column(c).Padding(24).Gap(16).MaxWidth(1000).Children(func() {
+		ui.Column(c).Padding(24).Gap(16).FillWidth().Children(func() {
 			if adapter == nil {
 				a.emptyState(c, locales.EngineSettings(), locales.EngineNoExtraSettings())
 				return

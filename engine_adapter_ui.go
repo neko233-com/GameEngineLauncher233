@@ -53,7 +53,7 @@ func (a *app) adapterLinksPage(c *ui.Context, adapter *engineAdapter, page engin
 		})
 	}
 	ui.Scroll(c).Grow(1).MinHeight(0).Children(func() {
-		ui.Column(c).Padding(24).Gap(16).MaxWidth(1000).Children(func() {
+		ui.Column(c).Padding(24).Gap(16).FillWidth().Children(func() {
 			if len(groups) == 0 {
 				a.emptyState(c, page.TitleText(), locales.EnginesNoLinks())
 				return

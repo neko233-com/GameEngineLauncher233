@@ -216,7 +216,9 @@ func (a *app) projectRow(c *ui.Context, p projectEntry, compact bool) {
 		}
 		ui.Row(c).Gap(6).Width(actionsWidth).Justify(ui.End).Children(func() {
 			ui.Button(c, locales.ActionOpen()).OnClick(func() {
-				if p.Editor == "" || a.editorIsSimulated(p.Editor) {
+				if p.Editor == "" {
+					a.askMissingEditor(p)
+				} else if a.editorIsSimulated(p.Editor) {
 					a.chooseProjectVersion(p)
 				} else {
 					a.openProject(p)
@@ -233,7 +235,9 @@ func (a *app) projectRow(c *ui.Context, p projectEntry, compact bool) {
 	row.PopoverMenu(menu)
 	// A double click on the row opens the project too, as the hubs do.
 	if row.RowDoubleClicked() {
-		if p.Editor == "" || a.editorIsSimulated(p.Editor) {
+		if p.Editor == "" {
+			a.askMissingEditor(p)
+		} else if a.editorIsSimulated(p.Editor) {
 			a.chooseProjectVersion(p)
 		} else {
 			a.openProject(p)

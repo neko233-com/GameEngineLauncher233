@@ -2494,6 +2494,36 @@ func (msgs Messages) DownloadsError(error string) string {
 	return Catalog.Format(msgs.locale, "downloadsError", map[string]any{"error": error})
 }
 
+// DownloadsShowAll says "Show all {count} patches"
+// in the language the app shows.
+func DownloadsShowAll(count string) string { return In(i18n.Locale()).DownloadsShowAll(count) }
+
+// DownloadsShowAll says "Show all {count} patches"
+// in the language of msgs.
+func (msgs Messages) DownloadsShowAll(count string) string {
+	return Catalog.Format(msgs.locale, "downloadsShowAll", map[string]any{"count": count})
+}
+
+// DownloadsShowLatest says "Show latest patch"
+// in the language the app shows.
+func DownloadsShowLatest() string { return In(i18n.Locale()).DownloadsShowLatest() }
+
+// DownloadsShowLatest says "Show latest patch"
+// in the language of msgs.
+func (msgs Messages) DownloadsShowLatest() string {
+	return Catalog.Format(msgs.locale, "downloadsShowLatest", nil)
+}
+
+// DownloadsPatchCount says "{count} patches"
+// in the language the app shows.
+func DownloadsPatchCount(count string) string { return In(i18n.Locale()).DownloadsPatchCount(count) }
+
+// DownloadsPatchCount says "{count} patches"
+// in the language of msgs.
+func (msgs Messages) DownloadsPatchCount(count string) string {
+	return Catalog.Format(msgs.locale, "downloadsPatchCount", map[string]any{"count": count})
+}
+
 // DownloadsArchive says "All versions"
 // in the language the app shows.
 func DownloadsArchive() string { return In(i18n.Locale()).DownloadsArchive() }
@@ -4504,6 +4534,68 @@ func EditorMissing(version string) string { return In(i18n.Locale()).EditorMissi
 // in the language of msgs.
 func (msgs Messages) EditorMissing(version string) string {
 	return Catalog.Format(msgs.locale, "editorMissing", map[string]any{"version": version})
+}
+
+// MissingEditorTitle says "Editor version not installed"
+// in the language the app shows.
+func MissingEditorTitle() string { return In(i18n.Locale()).MissingEditorTitle() }
+
+// MissingEditorTitle says "Editor version not installed"
+// in the language of msgs.
+func (msgs Messages) MissingEditorTitle() string {
+	return Catalog.Format(msgs.locale, "missingEditorTitle", nil)
+}
+
+// MissingEditorHint says "{version} · {engine} is required by this project."
+// in the language the app shows.
+func MissingEditorHint(version string, engine string) string {
+	return In(i18n.Locale()).MissingEditorHint(version, engine)
+}
+
+// MissingEditorHint says "{version} · {engine} is required by this project."
+// in the language of msgs.
+func (msgs Messages) MissingEditorHint(version string, engine string) string {
+	return Catalog.Format(msgs.locale, "missingEditorHint", map[string]any{"version": version, "engine": engine})
+}
+
+// MissingEditorDownload says "Download and install"
+// in the language the app shows.
+func MissingEditorDownload() string { return In(i18n.Locale()).MissingEditorDownload() }
+
+// MissingEditorDownload says "Download and install"
+// in the language of msgs.
+func (msgs Messages) MissingEditorDownload() string {
+	return Catalog.Format(msgs.locale, "missingEditorDownload", nil)
+}
+
+// MissingEditorChooseVersion says "Choose installed version"
+// in the language the app shows.
+func MissingEditorChooseVersion() string { return In(i18n.Locale()).MissingEditorChooseVersion() }
+
+// MissingEditorChooseVersion says "Choose installed version"
+// in the language of msgs.
+func (msgs Messages) MissingEditorChooseVersion() string {
+	return Catalog.Format(msgs.locale, "missingEditorChooseVersion", nil)
+}
+
+// MissingEditorOpenDownloads says "Open downloads"
+// in the language the app shows.
+func MissingEditorOpenDownloads() string { return In(i18n.Locale()).MissingEditorOpenDownloads() }
+
+// MissingEditorOpenDownloads says "Open downloads"
+// in the language of msgs.
+func (msgs Messages) MissingEditorOpenDownloads() string {
+	return Catalog.Format(msgs.locale, "missingEditorOpenDownloads", nil)
+}
+
+// MissingEditorNoDownload says "This version is not in the current catalog. The download page will search the official releases."
+// in the language the app shows.
+func MissingEditorNoDownload() string { return In(i18n.Locale()).MissingEditorNoDownload() }
+
+// MissingEditorNoDownload says "This version is not in the current catalog. The download page will search the official releases."
+// in the language of msgs.
+func (msgs Messages) MissingEditorNoDownload() string {
+	return Catalog.Format(msgs.locale, "missingEditorNoDownload", nil)
 }
 
 // NoEditorInstalled says "Install an editor first, then add its folder in Settings."

@@ -850,6 +850,12 @@ func TestProjectDirectOpenRejectsReplacedOrRemovedEditor(t *testing.T) {
 			launched := false
 			a.launchEditor = func(string, []string, string) error { launched = true; return nil }
 			a.openProject(project)
+			if tc.name == "removed" {
+				if launched || !a.missingEditorOpen {
+					t.Fatalf("removed editor did not offer an install: launched=%v missing=%v", launched, a.missingEditorOpen)
+				}
+				return
+			}
 			if launched || !a.alertOpen || a.alertMessage != locales.ProjectEditorChanged() {
 				t.Fatalf("stale editor was not rejected: launched=%v alert=%q", launched, a.alertMessage)
 			}

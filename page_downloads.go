@@ -187,7 +187,7 @@ func (a *app) downloadsPage(c *ui.Context) {
 				ui.Text(c, locales.DownloadsError(a.unitySearchErr)).FontSize(11).TextColor(t.Danger)
 			}
 			if len(active) > 0 {
-				a.downloadGroup(c, locales.DownloadsActive(), engine, active, installed)
+				a.downloadGroup(c, locales.DownloadsActive(), engine, active, installed, true)
 			}
 			if matchCount == 0 && (strings.TrimSpace(a.downloadQueryForEngine(engine)) != "" || a.downloadFilterForEngine(engine) != "") {
 				ui.Text(c, locales.DownloadsSearchEmpty()).FontSize(12).TextColor(t.TextMuted)
@@ -196,7 +196,7 @@ func (a *app) downloadsPage(c *ui.Context) {
 			if engine == kindTuanjie {
 				title = locales.DownloadsTuanjie()
 			}
-			a.downloadGroup(c, title, engine, entries, installed)
+			a.downloadGroup(c, title, engine, entries, installed, strings.TrimSpace(a.downloadQueryForEngine(engine)) != "" || a.downloadFilterForEngine(engine) != "")
 		})
 	})
 }
@@ -289,52 +289,111 @@ func downloadsForEngine(entries []downloadEntry, engine string) []downloadEntry 
 	return result
 }
 
-func (a *app) downloadGroup(c *ui.Context, title, engine string, entries []downloadEntry, installed map[string]bool) {
+// downloadMajorKey groups 7000.0.0a16, 7000.0.0a12 and 7000.0.0a11 under
+// 7000.0, so the list can show one latest patch per engine line.
+func downloadMajorKey(version string) string {
+	parts := strings.Split(strings.TrimSpace(version), ".")
+	if len(parts) >= 2 {
+		return parts[0] + "." + parts[1]
+	}
+	return strings.TrimSpace(version)
+}
+
+func (a *app) downloadGroup(c *ui.Context, title, engine string, entries []downloadEntry, installed map[string]bool, expandAll bool) {
 	if len(entries) == 0 {
 		return
 	}
 	t := c.Theme()
+	var groups []downloadMajorGroup
+	index := map[string]int{}
+	for _, e := range entries {
+		major := downloadMajorKey(e.Version)
+		at, ok := index[major]
+		if !ok {
+			at = len(groups)
+			index[major] = at
+			groups = append(groups, downloadMajorGroup{Major: major})
+		}
+		groups[at].Entries = append(groups[at].Entries, e)
+	}
 	ui.Column(c).Gap(10).Children(func() {
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, title).FontSize(15).Bold()
 			ui.Badge(c, fmt.Sprint(len(entries)))
 		})
-		for _, e := range entries {
-			e := e
-			job := a.jobs[jobKey(e)]
-			c.Key(jobKey(e))
-			ui.Column(c).Padding(16).Gap(12).Background(t.Surface).Border(1, t.Border).Radius(8).Children(func() {
-				ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-					engineMark(c, engine, 36, 24)
-					ui.Column(c).Grow(1).MinWidth(0).Gap(6).Children(func() {
-						ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-							ui.Text(c, e.Version).FontSize(14).Bold().SingleLine().Clip()
-							if e.LTS {
-								ui.Badge(c, "LTS")
-							} else if e.Stream == "ALPHA" || e.Stream == "BETA" {
-								ui.Badge(c, e.Stream)
+		for _, group := range groups {
+			group := group
+			expandedKey := engine + " " + group.Major
+			expanded := expandAll || a.downloadExpanded[expandedKey]
+			shown := group.Entries
+			if len(shown) > 1 && !expanded {
+				shown = shown[:1]
+			}
+			ui.Column(c).Gap(8).Children(func() {
+				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+					ui.Text(c, group.Major).FontSize(13).Bold()
+					ui.Text(c, locales.DownloadsPatchCount(fmt.Sprint(len(group.Entries)))).FontSize(10).TextColor(t.TextMuted)
+					ui.Spacer(c)
+					if len(group.Entries) > 1 && !expandAll {
+						label := locales.DownloadsShowAll(fmt.Sprint(len(group.Entries)))
+						if expanded {
+							label = locales.DownloadsShowLatest()
+						}
+						ui.Button(c, label).Height(28).Padding(0, 10).FontSize(11).OnClick(func() {
+							if a.downloadExpanded == nil {
+								a.downloadExpanded = map[string]bool{}
 							}
-							if installed[engine+" "+e.Version] && a.prefs.DemoMode {
-								ui.Badge(c, locales.DownloadsInstalled())
-							}
+							a.downloadExpanded[expandedKey] = !expanded
 						})
-						ui.Row(c).Gap(16).Children(func() {
-							if !e.Date.IsZero() {
-								ui.Text(c, a.formatTime(e.Date)).FontSize(11).TextColor(t.TextMuted)
-							}
-							ui.Text(c, humanSize(e.Size)).FontSize(11).TextColor(t.TextMuted)
-						})
-					})
-					if job == nil || job.Status == "installed" {
-						ui.Row(c).Gap(8).Shrink(0).Children(func() { a.downloadAction(c, e) })
-					} else {
-						ui.Badge(c, downloadJobLabel(job))
 					}
 				})
-				if job != nil && job.Status != "installed" {
-					ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() { a.downloadAction(c, e) })
+				for _, e := range shown {
+					a.downloadCard(c, engine, e, installed)
 				}
 			})
+		}
+	})
+}
+
+type downloadMajorGroup struct {
+	Major   string
+	Entries []downloadEntry
+}
+
+func (a *app) downloadCard(c *ui.Context, engine string, e downloadEntry, installed map[string]bool) {
+	t := c.Theme()
+	job := a.jobs[jobKey(e)]
+	c.Key(jobKey(e))
+	ui.Column(c).Padding(16).Gap(12).Background(t.Surface).Border(1, t.Border).Radius(8).Children(func() {
+		ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
+			engineMark(c, engine, 36, 24)
+			ui.Column(c).Grow(1).MinWidth(0).Gap(6).Children(func() {
+				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+					ui.Text(c, e.Version).FontSize(14).Bold().SingleLine().Clip()
+					if e.LTS {
+						ui.Badge(c, "LTS")
+					} else if e.Stream == "ALPHA" || e.Stream == "BETA" {
+						ui.Badge(c, e.Stream)
+					}
+					if installed[engine+" "+e.Version] && a.prefs.DemoMode {
+						ui.Badge(c, locales.DownloadsInstalled())
+					}
+				})
+				ui.Row(c).Gap(16).Children(func() {
+					if !e.Date.IsZero() {
+						ui.Text(c, a.formatTime(e.Date)).FontSize(11).TextColor(t.TextMuted)
+					}
+					ui.Text(c, humanSize(e.Size)).FontSize(11).TextColor(t.TextMuted)
+				})
+			})
+			if job == nil || job.Status == "installed" {
+				ui.Row(c).Gap(8).Shrink(0).Children(func() { a.downloadAction(c, e) })
+			} else {
+				ui.Badge(c, downloadJobLabel(job))
+			}
+		})
+		if job != nil && job.Status != "installed" {
+			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() { a.downloadAction(c, e) })
 		}
 	})
 }

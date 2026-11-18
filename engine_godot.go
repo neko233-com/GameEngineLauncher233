@@ -103,6 +103,11 @@ func godotEditorVersion(exe, filename string) string {
 // a Unity ProjectVersion.txt.
 func scanGodotProjects(p prefs, editors []editorInstall) []projectEntry {
 	roots := dedupe(append(defaultProjectRoots(), p.ProjectRoots...))
+	if home, err := os.UserHomeDir(); err == nil {
+		if info, err := os.Stat(filepath.Join(home, "Godot")); err == nil && info.IsDir() {
+			roots = append(roots, filepath.Join(home, "Godot"))
+		}
+	}
 	hidden := map[string]bool{}
 	for key, path := range p.HiddenProjects {
 		hidden[projectIdentityKey(key)] = true

@@ -289,6 +289,9 @@
   "@downloadsError": {
     "placeholders": { "error": { "type": "String", "example": "timeout" } }
   },
+  "downloadsShowAll": "Show all {count} patches",
+  "downloadsShowLatest": "Show latest patch",
+  "downloadsPatchCount": "{count} patches",
   "downloadsArchive": "All versions",
   "actionDownload": "Download",
   "actionRetryDownload": "Retry / resume",
@@ -553,6 +556,12 @@
     "placeholders": { "path": { "type": "String", "example": "D:\\Games\\My Game" } }
   },
   "editorMissing": "Editor {version} is not installed.",
+  "missingEditorTitle": "Editor version not installed",
+  "missingEditorHint": "{version} · {engine} is required by this project.",
+  "missingEditorDownload": "Download and install",
+  "missingEditorChooseVersion": "Choose installed version",
+  "missingEditorOpenDownloads": "Open downloads",
+  "missingEditorNoDownload": "This version is not in the current catalog. The download page will search the official releases.",
   "@editorMissing": {
     "placeholders": { "version": { "type": "String", "example": "2022.3.51f1" } }
   },

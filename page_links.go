@@ -54,7 +54,7 @@ func (a *app) linksPage(c *ui.Context, title, hint string, groups func(), extra 
 	a.header(c, title, hint, nil)
 	ui.Divider(c)
 	ui.Scroll(c).Grow(1).Children(func() {
-		ui.Column(c).Padding(24).Gap(20).MaxWidth(1000).Children(func() {
+		ui.Column(c).Padding(24).Gap(20).FillWidth().Children(func() {
 			if extra != nil {
 				extra()
 			}
@@ -74,7 +74,7 @@ func (a *app) linkGroup(c *ui.Context, title string, links []link) {
 			}
 			c.Key(l.URL)
 			ui.Row(c).Gap(14).AlignItems(ui.Center).Padding(6, 0).Children(func() {
-				ui.Box(c).Size(36, 36).Shrink(0).Radius(8).Background(t.Background).Center().Children(func() {
+				ui.Box(c).Size(36, 36).Shrink(0).Radius(8).Background(t.SurfaceHover).Border(1, t.Border).Center().Children(func() {
 					ui.Icon(c, serviceIcon(a.page)).Size(20, 20).TextColor(t.TextMuted)
 				})
 				ui.Column(c).Grow(1).MinWidth(0).Gap(4).Children(func() {

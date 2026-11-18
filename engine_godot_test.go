@@ -110,3 +110,24 @@ func TestEngineSpecificInstallRootsAndWorkers(t *testing.T) {
 			a.downloadWorkers(kindUnity), a.downloadWorkers(kindTuanjie))
 	}
 }
+
+func TestMissingProjectEditorOffersDownload(t *testing.T) {
+	a := fixture()
+	p := projectEntry{Path: `D:\Games\future`, Name: "future", Version: "2022.3.99f1", Kind: kindUnity}
+	a.downloads = []downloadEntry{{Engine: kindUnity, Version: "2022.3.99f1", Size: 3 << 30, URL: "https://download.unity3d.com/UnitySetup64-2022.3.99f1.exe"}}
+	a.downloadsReady = true
+	a.openProject(p)
+	if !a.missingEditorOpen || !a.missingDownloadFound {
+		t.Fatalf("missing editor prompt: open=%v found=%v", a.missingEditorOpen, a.missingDownloadFound)
+	}
+	tt := ui.NewTester(a.view, 1180, 760)
+	if !tt.HasText(locales.MissingEditorTitle()) || !tt.HasText(locales.MissingEditorDownload()) {
+		t.Fatalf("missing editor dialog: %q", tt.Texts())
+	}
+	if err := tt.Click(locales.ActionCancel()); err != nil {
+		t.Fatal(err)
+	}
+	if a.missingEditorOpen {
+		t.Fatal("missing editor dialog did not close")
+	}
+}

@@ -94,7 +94,7 @@ func (a *app) unityLicenseDialog(c *ui.Context) {
 			if a.licensePendingLabel != "" {
 				ui.Text(c, a.licensePendingLabel).FontSize(12).SingleLine().Clip().Shrink(0)
 			}
-			ui.Scroll(c).Height(390).Shrink(1).MinHeight(80).Children(func() { a.unityLicenseControls(c) })
+			ui.Scroll(c).Height(min(390, max(160, h-180))).Shrink(1).MinHeight(80).Children(func() { a.unityLicenseControls(c) })
 			ui.Row(c).Gap(8).Wrap().Justify(ui.End).Shrink(0).Children(func() {
 				ui.Button(c, locales.ActionCancel()).OnClick(a.cancelUnityLicenseFlow)
 				if a.licensePending != nil && !a.licenseCheckBusy && (a.licenseCheckState == "unavailable" || a.licenseCheckState == "failed") {

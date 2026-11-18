@@ -26,7 +26,7 @@ func (a *app) settingsPage(c *ui.Context) {
 	ui.Divider(c)
 	c.Key(a.settingsTab)
 	ui.Scroll(c).Grow(1).MinHeight(0).Children(func() {
-		ui.Column(c).Padding(24).Gap(16).MaxWidth(1000).Children(func() {
+		ui.Column(c).Padding(24).Gap(16).FillWidth().Children(func() {
 			switch a.settingsTab {
 			case "projects":
 				a.hiddenProjectsSection(c)

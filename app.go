@@ -116,6 +116,13 @@ type app struct {
 	androidPlan             *androidInstallPlan
 	alertOpen               bool
 	alertMessage            string
+	missingEditorOpen       bool
+	missingProject          projectEntry
+	missingDownload         downloadEntry
+	missingDownloadFound    bool
+	pendingProjectPath      string
+	pendingProjectVersion   string
+	pendingProjectKind      string
 	availableOpen           bool
 	availableVersion        string
 	availableURL            string
@@ -151,6 +158,7 @@ type app struct {
 	downloadsPending     map[string]bool
 	downloadQueryUnity   string
 	downloadQueryTuanjie string
+	downloadExpanded     map[string]bool
 	unitySearchQuery     string
 	unitySearchEntries   []downloadEntry
 	unitySearchBusy      bool
@@ -256,6 +264,7 @@ func (a *app) refresh() {
 			a.editors, a.projects, a.hubs = editors, projects, hubs
 			a.clearConfirmedDownloadJobs()
 			a.scanning = false
+			a.openPendingProject()
 			if a.scanAgain {
 				a.scanAgain = false
 				a.refresh()
@@ -466,6 +475,7 @@ func (a *app) view(c *ui.Context) {
 	a.uninstallGuardDialog(c)
 	a.availableUpdateDialog(c)
 	a.unityLicenseDialog(c)
+	a.missingEditorDialog(c)
 	a.alertDialog(c)
 }
 
@@ -590,7 +600,7 @@ func (a *app) navigationHeader(c *ui.Context) {
 // shortcuts leave its context alone.
 func (a *app) modalOpen() bool {
 	return a.alertOpen || a.availableOpen || a.manageOpen || a.installedModulesOpen ||
-		a.versionOpen || a.newOpen || a.uninstallGuardOpen || a.licenseFlowOpen
+		a.versionOpen || a.newOpen || a.uninstallGuardOpen || a.licenseFlowOpen || a.missingEditorOpen
 }
 
 func (a *app) switchEngine(engine string) {
@@ -791,7 +801,7 @@ func (a *app) openProjectWithEditorChecked(p projectEntry, expected editorInstal
 		return
 	}
 	if p.Editor == "" {
-		a.alert(locales.EditorMissing(p.Version))
+		a.askMissingEditor(p)
 		return
 	}
 	if p.Kind == kindGodot {
@@ -814,7 +824,11 @@ func (a *app) openProjectWithEditorChecked(p projectEntry, expected editorInstal
 		return
 	}
 	current, ok := a.editorInstall(p.Editor)
-	if !ok || !strings.EqualFold(expected.Exe, p.Editor) || !strings.EqualFold(current.Version, expected.Version) || current.Kind != expected.Kind || current.Kind != p.Kind {
+	if !ok {
+		a.askMissingEditor(p)
+		return
+	}
+	if !strings.EqualFold(expected.Exe, p.Editor) || !strings.EqualFold(current.Version, expected.Version) || current.Kind != expected.Kind || current.Kind != p.Kind {
 		a.alert(locales.ProjectEditorChanged())
 		a.refresh()
 		return
