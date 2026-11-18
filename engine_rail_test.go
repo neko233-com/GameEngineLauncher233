@@ -151,6 +151,39 @@ func TestEngineRailKeyboardFocusScrollsIntoView(t *testing.T) {
 	}
 }
 
+// A long community adapter name clips inside the rail instead of widening it
+// or pushing the navigation column aside.
+func TestEngineRailClipsLongAdapterNames(t *testing.T) {
+	withCleanAdapterRegistry(t)
+	const longName = "Extremely Long Community Engine Name That Must Not Widen The Rail"
+	engineRegistryMu.Lock()
+	addEngineAdapterLocked(&engineAdapter{
+		ID:   "longname",
+		Icon: iconUnity,
+		Pages: []enginePage{{
+			Key:   "hub",
+			Route: "/longname/hub",
+			Kind:  "links",
+		}},
+		name: func() string { return longName },
+	})
+	engineRegistryMu.Unlock()
+
+	a := fixture()
+	tt := ui.NewTester(a.view, 1180, 760)
+	tab, ok := tt.Find(longName)
+	if !ok {
+		t.Fatalf("the long-named adapter is missing from the rail: %q", tt.Texts())
+	}
+	if tab.X < 0 || tab.X+tab.W > engineRailWidth || tab.W > engineRailTabWidth+1 {
+		t.Fatalf("the long name widened or escaped the rail: %+v", tab)
+	}
+	projects, ok := tt.Find(locales.SidebarProjects())
+	if !ok || projects.X < engineRailWidth {
+		t.Fatalf("the navigation column moved under the rail: %+v, found=%v", projects, ok)
+	}
+}
+
 // Downloads keeps its Tuanjie Hub position at the foot of the column while
 // the navigable destinations above it scroll independently.
 func TestEngineRailPinsDownloadsWhileNavigationScrolls(t *testing.T) {
