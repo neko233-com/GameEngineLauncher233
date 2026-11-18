@@ -27,7 +27,8 @@ An adapter owns:
 - future optional capabilities, negotiated at `initialize`.
 
 Built-in adapters use the same registry, so the launcher has no special path
-for “third-party engines”. Unity and Tuanjie are the first two entries.
+for “third-party engines”. Unity, Tuanjie, Godot and Unreal Engine are the
+built-in entries.
 
 ## 2. Installing
 

@@ -170,6 +170,72 @@ func TestScanUnrealEditorsReadsEpicManifestFromProgramData(t *testing.T) {
 	t.Fatalf("manifest editor is missing: %+v", editors)
 }
 
+func TestBuiltinEnginesExposeCoreWorkspaces(t *testing.T) {
+	for _, id := range []string{kindUnity, kindTuanjie, kindGodot, kindUnreal} {
+		adapter := engineAdapterByID(id)
+		if adapter == nil {
+			t.Fatalf("built-in engine %q is missing", id)
+		}
+		for _, kind := range []string{"projects", "installs", "favorites", "links"} {
+			if _, ok := adapter.PageForKind(kind); !ok {
+				t.Fatalf("built-in engine %q has no %s page", id, kind)
+			}
+		}
+	}
+}
+
+func TestBuiltinDocumentationPagesRender(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		engine string
+		page   string
+		text   string
+	}{
+		{"godot docs", kindGodot, pageGodotDocs, locales.GodotManual()},
+		{"godot community", kindGodot, pageGodotCommunity, "Forum"},
+		{"unreal docs", kindUnreal, pageUnrealDocs, locales.UnrealDocs()},
+		{"unreal community", kindUnreal, pageUnrealCommunity, locales.UnrealCommunity()},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			a := fixture()
+			a.activeEngine, a.page = tc.engine, tc.page
+			tt := ui.NewTester(a.view, 1180, 760)
+			if !tt.HasText(tc.text) {
+				t.Fatalf("%s page: %q", tc.name, tt.Texts())
+			}
+		})
+	}
+}
+
+func TestUnrealInstallsPageShowsDetectedEditor(t *testing.T) {
+	a := fixture()
+	a.activeEngine, a.page = kindUnreal, pageUnrealInstalls
+	exe := filepath.Join(t.TempDir(), "UnrealEditor.exe")
+	a.editors = append(a.editors, editorInstall{
+		Kind: kindUnreal, Version: "5.4.4", Exe: exe, Root: filepath.Dir(exe),
+	})
+	tt := ui.NewTester(a.view, 1180, 760)
+	if !tt.HasText("5.4.4") || !tt.HasText(exe) {
+		t.Fatalf("Unreal install card: %q", tt.Texts())
+	}
+}
+
+func TestUnrealProjectsAndFavoritesPagesShowUnrealProjects(t *testing.T) {
+	for _, page := range []string{pageUnrealProjects, pageUnrealFavorites} {
+		a := fixture()
+		a.activeEngine = kindUnreal
+		a.page = page
+		a.projects = append(a.projects, projectEntry{
+			Path: `D:\Games\UnrealGame`, Name: "UE Game", Version: "5.4",
+			Kind: kindUnreal, Editor: "editor", Favorite: true,
+		})
+		tt := ui.NewTester(a.view, 1180, 760)
+		if !tt.HasText("UE Game") {
+			t.Fatalf("%s page: %q", page, tt.Texts())
+		}
+	}
+}
+
 func TestNonInstallableInstallsPageExplainsItsScanRoots(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
