@@ -328,6 +328,56 @@ func (msgs Messages) EngineSettingsHint(engine string) string {
 	return Catalog.Format(msgs.locale, "engineSettingsHint", map[string]any{"engine": engine})
 }
 
+// GlobalSettingsHint says "Manage every engine's install location and download concurrency, plus shared launcher folders."
+// in the language the app shows.
+func GlobalSettingsHint() string { return In(i18n.Locale()).GlobalSettingsHint() }
+
+// GlobalSettingsHint says "Manage every engine's install location and download concurrency, plus shared launcher folders."
+// in the language of msgs.
+func (msgs Messages) GlobalSettingsHint() string {
+	return Catalog.Format(msgs.locale, "globalSettingsHint", nil)
+}
+
+// GlobalSettingsShared says "Shared launcher folders"
+// in the language the app shows.
+func GlobalSettingsShared() string { return In(i18n.Locale()).GlobalSettingsShared() }
+
+// GlobalSettingsShared says "Shared launcher folders"
+// in the language of msgs.
+func (msgs Messages) GlobalSettingsShared() string {
+	return Catalog.Format(msgs.locale, "globalSettingsShared", nil)
+}
+
+// GlobalSettingsSharedHint says "Project roots, editor roots and adapters apply to every engine."
+// in the language the app shows.
+func GlobalSettingsSharedHint() string { return In(i18n.Locale()).GlobalSettingsSharedHint() }
+
+// GlobalSettingsSharedHint says "Project roots, editor roots and adapters apply to every engine."
+// in the language of msgs.
+func (msgs Messages) GlobalSettingsSharedHint() string {
+	return Catalog.Format(msgs.locale, "globalSettingsSharedHint", nil)
+}
+
+// GlobalSettingsAllEngines says "Engine settings"
+// in the language the app shows.
+func GlobalSettingsAllEngines() string { return In(i18n.Locale()).GlobalSettingsAllEngines() }
+
+// GlobalSettingsAllEngines says "Engine settings"
+// in the language of msgs.
+func (msgs Messages) GlobalSettingsAllEngines() string {
+	return Catalog.Format(msgs.locale, "globalSettingsAllEngines", nil)
+}
+
+// GlobalSettingsEnginesHint says "Install locations and download workers for each engine."
+// in the language the app shows.
+func GlobalSettingsEnginesHint() string { return In(i18n.Locale()).GlobalSettingsEnginesHint() }
+
+// GlobalSettingsEnginesHint says "Install locations and download workers for each engine."
+// in the language of msgs.
+func (msgs Messages) GlobalSettingsEnginesHint() string {
+	return Catalog.Format(msgs.locale, "globalSettingsEnginesHint", nil)
+}
+
 // EngineInstallRoot says "Editor install folder"
 // in the language the app shows.
 func EngineInstallRoot() string { return In(i18n.Locale()).EngineInstallRoot() }
@@ -2256,6 +2306,16 @@ func SidebarSettings() string { return In(i18n.Locale()).SidebarSettings() }
 // in the language of msgs.
 func (msgs Messages) SidebarSettings() string {
 	return Catalog.Format(msgs.locale, "sidebarSettings", nil)
+}
+
+// SidebarGlobalSettings says "Global settings"
+// in the language the app shows.
+func SidebarGlobalSettings() string { return In(i18n.Locale()).SidebarGlobalSettings() }
+
+// SidebarGlobalSettings says "Global settings"
+// in the language of msgs.
+func (msgs Messages) SidebarGlobalSettings() string {
+	return Catalog.Format(msgs.locale, "sidebarGlobalSettings", nil)
 }
 
 // SidebarDownloads says "Downloads"

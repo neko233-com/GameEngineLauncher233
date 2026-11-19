@@ -159,7 +159,7 @@ func TestWorkspaceGallery(t *testing.T) {
 	i18n.SetLocaleFunc(func() string { return locale })
 	t.Cleanup(func() { i18n.SetLocaleFunc(func() string { return old }) })
 	for _, size := range []struct{ w, h int }{{1400, 820}, {900, 560}} {
-		for _, page := range []string{pageProjects, pageFavorites, pageUnityGet, pageTuanjieProjects, pageTuanjieFavorites, pageTuanjieGet, pageGodotProjects, pageGodotInstalls, pageGodotGet, pageUnrealProjects, pageUnrealInstalls, pageUnrealGet, pageInstalls, pageTuanjieInstalls, pageDownloads, pageTuanjieDownloads, pageActivity, pageStore, pagePublish, pageLicense, pageDocs, pageLearn, pageFeedback, pageSettings} {
+		for _, page := range []string{pageProjects, pageFavorites, pageUnityGet, pageTuanjieProjects, pageTuanjieFavorites, pageTuanjieGet, pageGodotProjects, pageGodotInstalls, pageGodotGet, pageUnrealProjects, pageUnrealInstalls, pageUnrealGet, pageInstalls, pageTuanjieInstalls, pageDownloads, pageTuanjieDownloads, pageActivity, pageStore, pagePublish, pageLicense, pageDocs, pageLearn, pageFeedback, pageGlobalSettings, pageSettings} {
 			for _, tab := range []string{"", "projects", "installs", "engines", "about"} {
 				if page != pageSettings && tab != "" {
 					continue

@@ -48,6 +48,7 @@ const (
 	pageFeedback         = "/feedback"
 	pageSettings         = "/settings"
 	pageEngineSettings   = "/settings/engine"
+	pageGlobalSettings   = "/settings/global"
 	pageActivity         = "/activity"
 
 	// appVersion is what the CLI prints and what the window shows when MyGo
@@ -470,6 +471,8 @@ func (a *app) view(c *ui.Context) {
 					a.settingsPage(c)
 				case pageEngineSettings:
 					a.engineSettingsPage(c)
+				case pageGlobalSettings:
+					a.globalSettingsPage(c)
 				case pageActivity:
 					a.activityPage(c)
 				default:
@@ -538,6 +541,40 @@ func (a *app) engineRail(c *ui.Context) {
 				}
 			})
 		})
+		ui.Divider(c)
+		ui.Column(c).Shrink(0).Padding(0, 0, 10, 0).Children(func() {
+			a.engineRailGlobalSettings(c)
+		})
+	})
+}
+
+// engineRailGlobalSettings is the launcher-wide settings tile pinned below the
+// scrolling engine list. It opens the all-engine settings page.
+func (a *app) engineRailGlobalSettings(c *ui.Context) {
+	t := c.Theme()
+	label := locales.SidebarGlobalSettings()
+	active := a.page == pageGlobalSettings
+	b := ui.Button(c, "").Size(engineRailTabWidth, 46).Padding(0, 10).Radius(8).Gap(8).
+		Justify(ui.Start).Label(label).Tooltip(label).
+		Background(ui.Color{}).Border(0, ui.Color{}).
+		OnClick(func() { a.page = pageGlobalSettings })
+	if active {
+		b.Background(t.SurfaceHover).Border(1, t.Border)
+		if b.Hovered() {
+			b.Background(t.SurfacePressed)
+		}
+	} else if b.Hovered() || b.Focused() {
+		b.Background(t.Surface)
+	}
+	foreground := t.TextMuted
+	if active || b.Hovered() || b.Focused() {
+		foreground = t.Text
+	}
+	b.Children(func() {
+		ui.Box(c).Size(24, 24).Shrink(0).Center().Children(func() {
+			ui.Icon(c, iconSliders).Size(21, 21).TextColor(foreground)
+		})
+		ui.Text(c, label).FontSize(12).Grow(1).MinWidth(0).SingleLine().Clip().TextColor(foreground)
 	})
 }
 
@@ -668,9 +705,9 @@ func (a *app) switchEngine(engine string) {
 		} else {
 			a.page = next.LandingPage()
 		}
-	case a.page == pageSettings || a.page == pageEngineSettings:
-		// System and engine settings belong to the launcher context and stay
-		// open while the active engine changes.
+	case a.page == pageSettings || a.page == pageEngineSettings || a.page == pageGlobalSettings:
+		// System, engine and global settings belong to the launcher context and
+		// stay open while the active engine changes.
 	default:
 		if _, ok := next.PageForRoute(a.page); !ok {
 			a.page = next.LandingPage()

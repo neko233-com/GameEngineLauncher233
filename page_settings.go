@@ -12,7 +12,9 @@ import (
 )
 
 func (a *app) settingsPage(c *ui.Context) {
-	a.header(c, locales.SettingsTitle(), locales.SettingsHint(), nil)
+	a.header(c, locales.SettingsTitle(), locales.SettingsHint(), func() {
+		ui.Button(c, locales.SidebarGlobalSettings()).OnClick(func() { a.page = pageGlobalSettings })
+	})
 	ui.Row(c).Padding(0, 24).Gap(8).Children(func() {
 		for _, tab := range []struct{ id, label string }{
 			{"", locales.SettingsGeneral()}, {"projects", locales.SettingsProjectsTab()},
@@ -191,8 +193,12 @@ func (a *app) rootsSection(c *ui.Context, title, hint string, roots []string, se
 
 // chooseInstallRoot changes the active engine's editor install folder.
 func (a *app) chooseInstallRoot() {
+	a.chooseInstallRootFor(a.activeEngine)
+}
+
+func (a *app) chooseInstallRootFor(kind string) {
 	a.pickFolder(locales.DialogChooseFolder(), func(dir string) {
-		a.setInstallRoot(dir)
+		a.setInstallRootFor(kind, dir)
 		a.save()
 		a.refresh()
 	})

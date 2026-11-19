@@ -46,4 +46,7 @@ var (
 	// iconGear is the per-card management cog, matching the Tuanjie Hub
 	// install card's single gear affordance.
 	iconGear = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19.4 13a7.7 7.7 0 0 0 0-2l2.1-1.6-2-3.4-2.5 1a7.5 7.5 0 0 0-1.7-1L14.9 3H9.1l-.4 2.7a7.5 7.5 0 0 0-1.7 1l-2.5-1-2 3.4L4.6 11a7.7 7.7 0 0 0 0 2l-2.1 1.6 2 3.4 2.5-1a7.5 7.5 0 0 0 1.7 1l.4 2.7h5.8l.4-2.7a7.5 7.5 0 0 0 1.7-1l2.5 1 2-3.4L19.4 13zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>`))
+	// iconSliders marks launcher-wide global settings, separate from the
+	// active engine's gear.
+	iconSliders = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 7h8v2H4V7zm11 0h5v2h-5V7zM9 4h4v8H9V4zM4 15h5v2H4v-2zm9 0h7v2h-7v-2zM11 12h4v8h-4v-8z"/></svg>`))
 )
