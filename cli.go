@@ -25,7 +25,15 @@ type scanResult struct {
 }
 
 func scanAll(p prefs) scanResult {
+	if errs := reloadEngineAdapters(adaptersDir()); len(errs) > 0 {
+		for _, err := range errs {
+			logger.Printf("adapter: %v", err)
+		}
+	}
 	editors, projects, hubs := scan(p)
+	externalEditors, externalProjects := scanExternalEngineAdapters(context.Background(), engineAdapters())
+	editors = append(editors, externalEditors...)
+	projects = append(projects, externalProjects...)
 	return scanResult{editors: editors, projects: projects, hubs: hubs}
 }
 
@@ -243,6 +251,25 @@ func cliOpen(args []string, scanFn func(prefs) scanResult, out io.Writer) int {
 			break
 		}
 	}
+	if isExternalEngine(p.Kind) {
+		adapter := engineAdapterByID(p.Kind)
+		if adapter == nil || adapter.Process == nil {
+			fmt.Fprintln(out, locales.EnginesNoLaunch())
+			return 1
+		}
+		if !matchedFound || matched.Kind != p.Kind {
+			fmt.Fprintln(out, locales.ProjectEditorChanged())
+			return 1
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		if err := launchViaEngineAdapter(ctx, adapter, p.Editor, p.Path, nil); err != nil {
+			fmt.Fprintln(out, err)
+			return 1
+		}
+		fmt.Fprintln(out, locales.CliOpened(p.Path))
+		return 0
+	}
 	var launchArgs []string
 	switch p.Kind {
 	case kindUnreal:
@@ -449,25 +476,32 @@ func findProject(projects []projectEntry, target string) (projectEntry, string, 
 // pickEditor is the editor a new project is made with: the version asked
 // for, else the newest Unity editor, else the first.
 func pickEditor(editors []editorInstall, version string) (editorInstall, bool) {
-	if version != "" {
-		for _, e := range editors {
-			if e.Version == version && !e.Simulated {
-				return e, true
-			}
+	for _, e := range editors {
+		if e.Version == version && canCreateProjectWith(e) {
+			return e, true
 		}
+	}
+	if version != "" {
 		return editorInstall{}, false
 	}
 	for _, e := range editors {
-		if e.Kind == kindUnity && !e.Simulated {
+		if e.Kind == kindUnity && canCreateProjectWith(e) {
 			return e, true
 		}
 	}
 	for _, e := range editors {
-		if !e.Simulated {
+		if canCreateProjectWith(e) {
 			return e, true
 		}
 	}
 	return editorInstall{}, false
+}
+
+// canCreateProjectWith limits CLI project creation to the built-in Unity and
+// Tuanjie creators; detected Godot, Unreal and process-adapter editors are
+// launch targets, not new-project creators.
+func canCreateProjectWith(e editorInstall) bool {
+	return !e.Simulated && (e.Kind == kindUnity || e.Kind == kindTuanjie)
 }
 
 func table(out io.Writer) *tabwriter.Writer {

@@ -60,7 +60,7 @@ func (a *app) globalEngineRow(c *ui.Context, adapter *engineAdapter) {
 			engineMark(c, adapter.ID, 34, 22)
 			ui.Column(c).Grow(1).MinWidth(0).Gap(2).Children(func() {
 				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-					ui.Text(c, adapter.DisplayName()).FontSize(14).Bold()
+					ui.Text(c, adapter.DisplayName()).FontSize(14).Bold().SingleLine().Clip().Tooltip(adapter.DisplayName())
 					if adapter.BuiltIn {
 						ui.Badge(c, locales.EnginesBuiltin())
 					} else {

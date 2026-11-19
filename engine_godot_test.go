@@ -116,7 +116,7 @@ func TestGodotEditorAndProjectScan(t *testing.T) {
 	if len(editors) != 1 || editors[0].Kind != kindGodot || editors[0].Version != "4.3" {
 		t.Fatalf("Godot editors: %+v", editors)
 	}
-	projects := scanGodotProjects(prefs{ProjectRoots: []string{root}}, editors)
+	projects := scanGodotProjects(prefs{ProjectRoots: []string{root}}, editors, false)
 	if len(projects) != 1 || projects[0].Kind != kindGodot || projects[0].Version != "4.3" || projects[0].Editor == "" {
 		t.Fatalf("Godot projects: %+v", projects)
 	}

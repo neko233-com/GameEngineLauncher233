@@ -179,7 +179,7 @@ func scanWithVCS(p prefs, withVCS bool) ([]editorInstall, []projectEntry, []hub)
 	editors = append(editors, scanGodotEditors(roots)...)
 	editors = append(editors, scanUnrealEditors(roots)...)
 	projects := scanProjectsMode(p, editors, hubs, withVCS)
-	projects = append(projects, scanGodotProjects(p, editors)...)
+	projects = append(projects, scanGodotProjects(p, editors, withVCS)...)
 	projects = append(projects, scanUnrealProjects(p, editors, withVCS)...)
 	sort.SliceStable(projects, func(i, j int) bool {
 		if !projects[i].Modified.Equal(projects[j].Modified) {

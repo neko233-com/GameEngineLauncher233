@@ -110,6 +110,23 @@ func TestCLIOpenRejectsReplacedOrMissingEditor(t *testing.T) {
 	}
 }
 
+func TestCLINewOnlyPicksUnityOrTuanjieEditors(t *testing.T) {
+	editors := []editorInstall{
+		{Kind: kindUnreal, Version: "5.4.4", Exe: "unreal"},
+		{Kind: kindGodot, Version: "4.3", Exe: "godot"},
+		{Kind: kindTuanjie, Version: "2022.3.62t17", Exe: "tuanjie"},
+	}
+	if got, ok := pickEditor(editors, ""); !ok || got.Kind != kindTuanjie {
+		t.Fatalf("new project picked %+v", got)
+	}
+	if _, ok := pickEditor(editors, "5.4.4"); ok {
+		t.Fatal("new project accepted an Unreal editor")
+	}
+	if got, ok := pickEditor(editors, "2022.3.62t17"); !ok || got.Kind != kindTuanjie {
+		t.Fatalf("requested Tuanjie version picked %+v", got)
+	}
+}
+
 func TestCLINeverLaunchesSimulatedEditors(t *testing.T) {
 	simulated := editorInstall{Version: "6000.0.2f1", Kind: kindUnity, Exe: "simulated", Simulated: true}
 	real := editorInstall{Version: simulated.Version, Kind: kindUnity, Exe: "real"}

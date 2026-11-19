@@ -281,7 +281,7 @@ func TestPinnedUnrealAndGodotProjectsAreFound(t *testing.T) {
 	if len(unreal) != 1 || !strings.EqualFold(unreal[0].Path, unrealDir) {
 		t.Fatalf("pinned Unreal project: %+v", unreal)
 	}
-	godot := scanGodotProjects(prefs{PinnedProjects: []string{godotDir}}, nil)
+	godot := scanGodotProjects(prefs{PinnedProjects: []string{godotDir}}, nil, false)
 	if len(godot) != 1 || !strings.EqualFold(godot[0].Path, godotDir) {
 		t.Fatalf("pinned Godot project: %+v", godot)
 	}

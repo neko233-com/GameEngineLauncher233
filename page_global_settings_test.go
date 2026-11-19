@@ -27,6 +27,22 @@ func TestGlobalSettingsEntryIsPinnedAtRailBottom(t *testing.T) {
 	}
 }
 
+func TestGlobalSettingsTileStaysPinnedWithManyEngines(t *testing.T) {
+	addRailTestEngines(t)
+	a := fixture()
+	tt := ui.NewTester(a.view, 900, 560)
+	before, ok := tt.Find(locales.SidebarGlobalSettings())
+	if !ok || before.Y < 500 || before.Y+before.H > 560 {
+		t.Fatalf("global settings tile is not pinned: %+v found=%v", before, ok)
+	}
+	tt.Scroll(engineRailWidth/2, 200, 0, 2000)
+	tt.Frame()
+	after, ok := tt.Find(locales.SidebarGlobalSettings())
+	if !ok || after.X != before.X || after.Y != before.Y || after.W != before.W || after.H != before.H {
+		t.Fatalf("scrolling engines moved global settings: before=%+v after=%+v", before, after)
+	}
+}
+
 func TestGlobalSettingsListsEveryEngine(t *testing.T) {
 	a := fixture()
 	a.page = pageGlobalSettings

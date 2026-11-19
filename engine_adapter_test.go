@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -216,6 +217,43 @@ func TestExternalAdapterProcessDetectAndLaunch(t *testing.T) {
 	data, err = os.ReadFile(marker)
 	if err != nil || string(data) != `C:\Fake\Project` {
 		t.Fatalf("project launch marker=%q err=%v", string(data), err)
+	}
+}
+
+func TestExternalAdapterCLIOpen(t *testing.T) {
+	withCleanAdapterRegistry(t)
+	marker := filepath.Join(t.TempDir(), "cli-launched.txt")
+	t.Setenv("GO_WANT_ENGINE_ADAPTER_HELPER", "1")
+	t.Setenv("ENGINE_ADAPTER_HELPER_MARKER", marker)
+	adapter := &engineAdapter{
+		ID: "helper", Version: "0.1.0", BuiltIn: false,
+		name: func() string { return "Helper Engine" },
+		Pages: []enginePage{{
+			Key: "hub", Route: externalPageRoute("helper", "hub"), Kind: "projects", Icon: iconProjects,
+			title: func() string { return "Helper" },
+		}},
+		Process: &engineAdapterProcess{
+			Command: os.Args[0],
+			Args:    []string{"-test.run=TestEngineAdapterHelperProcess", "--"},
+		},
+	}
+	engineRegistryMu.Lock()
+	addEngineAdapterLocked(adapter)
+	engineRegistryMu.Unlock()
+	res := scanResult{
+		editors: []editorInstall{{Kind: "helper", Exe: `C:\Fake\engine.exe`, Version: "1.2.3"}},
+		projects: []projectEntry{{
+			Kind: "helper", Path: `C:\Fake\Project`, Name: "Fake", Version: "1.2.3", Editor: `C:\Fake\engine.exe`,
+		}},
+	}
+	var out bytes.Buffer
+	code := runCLI([]string{"open", "Fake"}, &out, func(prefs) scanResult { return res })
+	if code != 0 {
+		t.Fatalf("CLI open exit %d: %s", code, out.String())
+	}
+	data, err := os.ReadFile(marker)
+	if err != nil || string(data) != `C:\Fake\Project` {
+		t.Fatalf("CLI launch marker=%q err=%v output=%q", string(data), err, out.String())
 	}
 }
 

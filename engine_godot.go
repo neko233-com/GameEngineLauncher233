@@ -101,7 +101,7 @@ func godotEditorVersion(exe, filename string) string {
 // scanGodotProjects finds project.godot directories under the configured
 // project roots. Godot project versions are the engine feature version, not
 // a Unity ProjectVersion.txt.
-func scanGodotProjects(p prefs, editors []editorInstall) []projectEntry {
+func scanGodotProjects(p prefs, editors []editorInstall, withVCS bool) []projectEntry {
 	roots := dedupe(append(defaultProjectRoots(), p.ProjectRoots...))
 	if home, err := os.UserHomeDir(); err == nil {
 		if info, err := os.Stat(filepath.Join(home, "Godot")); err == nil && info.IsDir() {
@@ -162,6 +162,9 @@ func scanGodotProjects(p prefs, editors []editorInstall) []projectEntry {
 					entry.Editor = e.Exe
 					break
 				}
+			}
+			if withVCS {
+				entry.VCS = detectVSCCached(path)
 			}
 			out = append(out, entry)
 			return filepath.SkipDir
