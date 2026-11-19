@@ -123,6 +123,8 @@ func TestGodotEditorAndProjectScan(t *testing.T) {
 }
 
 func TestEngineSpecificInstallRootsAndWorkers(t *testing.T) {
+	t.Setenv("APPDATA", t.TempDir())
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	a := newApp()
 	unityRoot := filepath.Join(t.TempDir(), "unity")
 	tuanjieRoot := filepath.Join(t.TempDir(), "tuanjie")

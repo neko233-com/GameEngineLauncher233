@@ -11,6 +11,18 @@ import (
 	"unitystarter/locales"
 )
 
+func TestRealEditorsSortBeforeSimulated(t *testing.T) {
+	a := fixture()
+	a.editors = []editorInstall{
+		{Kind: kindUnity, Version: "7000.0.0a16", Simulated: true},
+		{Kind: kindUnity, Version: "2022.3.51f1"},
+	}
+	editors := a.editorsForEngine(kindUnity)
+	if len(editors) != 2 || editors[0].Simulated || editors[1].Version != "7000.0.0a16" {
+		t.Fatalf("editor priority: %+v", editors)
+	}
+}
+
 func installedCardFixture() *app {
 	a := fixture()
 	a.activeEngine, a.page, a.jobs = kindTuanjie, pageTuanjieInstalls, nil

@@ -30,7 +30,7 @@ func fixture() *app {
 			Hub:      kindUnity,
 			Favorite: true,
 			Pipeline: "urp",
-			VCS:      vcsInfo{Kind: "git", Branch: "main", Remote: "https://github.com/neko233-com/UnityStarter"},
+			VCS:      vcsInfo{Kind: "git", Branch: "main", Remote: "https://github.com/neko233-com/GameEngineLauncher233"},
 		},
 		{
 			Path:     `D:\Code\Games\cozy`,
@@ -616,6 +616,19 @@ func TestNativeAlertAndUpdateDialogs(t *testing.T) {
 	}
 }
 
+func TestFavoritesNavigationIsFirst(t *testing.T) {
+	a := fixture()
+	tt := ui.NewTester(a.view, 1180, 760)
+	favorites, ok := tt.Find(locales.SidebarFavorites())
+	if !ok {
+		t.Fatalf("favorites entry is missing: %q", tt.Texts())
+	}
+	projects, ok := tt.Find(locales.SidebarProjects())
+	if !ok || favorites.Y >= projects.Y {
+		t.Fatalf("favorites is not above projects: favorites=%+v projects=%+v", favorites, projects)
+	}
+}
+
 func TestFavoritesAndLearningPages(t *testing.T) {
 	a := fixture()
 	tt := ui.NewTester(a.view, 1180, 760)
@@ -882,8 +895,21 @@ func TestProjectOpenRejectsChangedOrMissingProject(t *testing.T) {
 	}
 }
 
+func TestFavoriteProjectsSortFirst(t *testing.T) {
+	a := fixture()
+	a.projects = append(a.projects, projectEntry{
+		Name: "newer", Path: "newer", Version: "6000.0.2f1", Kind: kindUnity,
+		Modified: time.Now().Add(time.Hour),
+	})
+	got := a.filteredProjects()
+	if len(got) < 2 || !got[0].Favorite {
+		t.Fatalf("favorite project is not first: %+v", got)
+	}
+}
+
 func TestProjectSortAndMissingVersionChoice(t *testing.T) {
 	a := fixture()
+	a.projects[0].Favorite = false
 	a.projects = append(a.projects, projectEntry{Name: "alpha", Path: "alpha", Version: "6000.0.2f1", Kind: kindUnity})
 	a.sortProjects("name")
 	got := a.filteredProjects()

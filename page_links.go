@@ -32,8 +32,8 @@ const (
 	urlDocsTuanjie       = "https://docs.unity.cn/cn/tuanjiemanual/Manual/index.html"
 	urlDocsUnity         = "https://docs.unity3d.com/Manual/index.html"
 	urlScriptingAPI      = "https://docs.unity3d.com/ScriptReference/"
-	urlRepo              = "https://github.com/neko233-com/UnityStarter"
-	urlIssues            = "https://github.com/neko233-com/UnityStarter/issues/new"
+	urlRepo              = "https://github.com/neko233-com/GameEngineLauncher233"
+	urlIssues            = "https://github.com/neko233-com/GameEngineLauncher233/issues/new"
 )
 
 // link is an entry of a page of links.

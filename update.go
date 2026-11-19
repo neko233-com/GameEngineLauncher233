@@ -15,7 +15,7 @@ import (
 )
 
 // latestReleaseURL asks GitHub for the newest release of this app.
-var latestReleaseURL = "https://api.github.com/repos/neko233-com/UnityStarter/releases/latest"
+var latestReleaseURL = "https://api.github.com/repos/neko233-com/GameEngineLauncher233/releases/latest"
 
 type latestRelease struct {
 	Tag    string

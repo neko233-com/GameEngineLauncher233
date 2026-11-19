@@ -352,7 +352,12 @@ func (a *app) editorsForEngine(engine string) []editorInstall {
 			result = append(result, e)
 		}
 	}
-	sort.SliceStable(result, func(i, j int) bool { return compareVersions(result[i].Version, result[j].Version) > 0 })
+	sort.SliceStable(result, func(i, j int) bool {
+		if result[i].Simulated != result[j].Simulated {
+			return !result[i].Simulated
+		}
+		return compareVersions(result[i].Version, result[j].Version) > 0
+	})
 	return result
 }
 

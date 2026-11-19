@@ -106,6 +106,7 @@ func TestCatalogFiltersAreIndependentAndKeepJobsVisible(t *testing.T) {
 func TestProjectDefaultSortTogglesOnFirstClick(t *testing.T) {
 	a := fixture()
 	a.jobs = nil
+	a.projects[0].Favorite = false
 	a.projects = append(a.projects, projectEntry{Kind: kindUnity, Name: "Older project", Path: "older", Modified: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)})
 	tt := ui.NewTester(a.view, 900, 560)
 	if a.filteredProjects()[0].Name != "demo" {

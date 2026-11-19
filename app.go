@@ -409,7 +409,7 @@ func (a *app) view(c *ui.Context) {
 						// Each adapter owns its navigation. Unity has no game
 						// publishing; Tuanjie does. An imported adapter can add
 						// links pages without the view learning about them.
-						for _, item := range s.Nav {
+						for _, item := range navPagesFavoritesFirst(s.Nav) {
 							item := item
 							var trailing func()
 							switch item.Kind {
@@ -723,6 +723,26 @@ func (a *app) switchEngine(engine string) {
 // engineForPage names the engine whose page is shown. Routes unique to one
 // adapter identify it even when tests set the page alone; shared service pages
 // follow the active engine.
+// navPagesFavoritesFirst puts the Favorites page at the top of every engine's
+// navigation list, then keeps the adapter's declared order for everything else.
+func navPagesFavoritesFirst(pages []enginePage) []enginePage {
+	if len(pages) < 2 {
+		return pages
+	}
+	out := make([]enginePage, 0, len(pages))
+	for _, p := range pages {
+		if p.Kind == "favorites" {
+			out = append(out, p)
+		}
+	}
+	for _, p := range pages {
+		if p.Kind != "favorites" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
 func (a *app) engineForPage(page string) string {
 	var owner *engineAdapter
 	for _, adapter := range engineAdapters() {

@@ -58,7 +58,7 @@ func updateAssets(release latestRelease) (releaseAsset, releaseAsset, error) {
 	}
 	for _, asset := range []releaseAsset{msi, exe} {
 		u, err := url.Parse(asset.URL)
-		want := "/neko233-com/UnityStarter/releases/download/" + release.Tag + "/" + asset.Name
+		want := "/neko233-com/GameEngineLauncher233/releases/download/" + release.Tag + "/" + asset.Name
 		if err != nil || u.Scheme != "https" || u.Host != "github.com" || u.Path != want || u.RawQuery != "" || u.Fragment != "" || asset.Size <= 0 || asset.Size > 100<<20 || !strings.HasPrefix(asset.Digest, "sha256:") || !validSHA256(strings.TrimPrefix(asset.Digest, "sha256:")) {
 			return releaseAsset{}, releaseAsset{}, fmt.Errorf("release asset missing or invalid: %s", asset.Name)
 		}

@@ -118,6 +118,9 @@ func (a *app) filteredProjects() []projectEntry {
 		}
 	}
 	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Favorite != out[j].Favorite {
+			return out[i].Favorite
+		}
 		var cmp int
 		switch a.projectSort {
 		case "name":

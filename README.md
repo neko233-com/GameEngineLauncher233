@@ -18,7 +18,7 @@ Windows 10/11 x64，单文件约 10 MB。
   - 写入保留 Hub 原有字段，临时文件 + rename 原子替换；Hub 运行时可能用内存状态覆盖，下一次 Hub 写文件时本程序会重新导入。
 - **服务页**：资源商店、游戏发行、付费与许可、技术文档、问题反馈，链接取自当前引擎的适配器与 `cloudConfig.json`；团结引擎才有“游戏发行”，Unity 商店/文档/许可只显示 Unity 入口，团结则显示团结入口。许可页提供官方 CLI 状态检查和 Personal 登录激活流程，并列出本机许可文件，不展示账号或许可详情。Unity CLI 本身可能发送匿名使用数据，GameEngineLauncher233 不会在启动时自动调用它。反馈页一键生成带诊断信息的 GitHub Issue。
 - **多语言**：默认跟随系统语言，内置 English 与简体中文，窗口与 CLI 共用文案。
-- **工作台**：原生深色界面包含一体化标题栏和系统窗口控制；左侧 148px 垂直引擎栏同时显示品牌图标与引擎名（Unity／Tuanjie／Godot／Unreal），社区适配器使用自身名称，长名称截断并保留提示，适配器数量超过窗口高度时独立滚动；每个引擎有独立的项目、安装、收藏与安装目录；Unity 与团结引擎另有独立的下载并发设置；左侧引擎栏最下方提供 **全局设置**，可一页管理所有引擎的安装目录与下载并发；编辑器和下载版本按版本从新到旧排列。团结版本映射可用时同时显示产品版本和底层版本。
+- **工作台**：原生深色界面包含一体化标题栏和系统窗口控制；左侧 148px 垂直引擎栏同时显示品牌图标与引擎名（Unity／Tuanjie／Godot／Unreal），社区适配器使用自身名称，长名称截断并保留提示，适配器数量超过窗口高度时独立滚动；每个引擎有独立的项目、安装、收藏与安装目录；Unity 与团结引擎另有独立的下载并发设置；左侧引擎栏最下方提供 **全局设置**，可一页管理所有引擎的安装目录与下载并发；导航列把 **收藏** 放在最上方，项目列表也优先显示收藏项目；编辑器和下载版本按版本从新到旧排列。团结版本映射可用时同时显示产品版本和底层版本。
 - **引擎适配器**：Unity、团结引擎、Godot 和 Unreal Engine 只是注册表里的前四个适配器。每个适配器拥有自己的左侧图标、导航页面、链接和可选功能（例如只有团结引擎有“游戏发行”）。Unity 与团结引擎提供“获取”页，集中放置 Unity Hub 国际版／Tuanjie Hub 下载、编辑器历史版本和官方文档入口；Unreal 适配器检测 Epic Games Launcher 清单、常见安装目录和 `.uproject` 项目，按 EngineAssociation 匹配已安装编辑器，并提供 Get Unreal、文档与社区链接，不提供安装器、模块或许可证流程。引擎设置（导航列顶部齿轮）分别保存安装目录；Unity 与团结引擎另保存并行下载连接数；系统设置（左下角）管理语言、Hub 接管与官方下载入口、适配器导入与更新。设置 → 引擎适配可从 GitHub 仓库、`owner/repo` 或 `adapter.json` 地址导入社区适配器；适配器可用声明式链接页，也可带一个 LSP 风格的 stdio JSON-RPC 进程来检测编辑器/项目并按自己的命令行约定启动。规范见 [ENGINE_ADAPTERS.md](ENGINE_ADAPTERS.md)，示例见 [examples/engine-adapter](examples/engine-adapter)。
 - **编辑器管理**：安装页提供搜索、正式版／预览版筛选、定位、安装入口、已安装模块和卸载入口，并可直接选择新安装目录；切换目录后仍会扫描此前的安装目录。Unity 官方模块清单按编辑器版本缓存，离线时显示保存的清单与经文件核对的本地安装状态，并可手动刷新。可直接安装官方清单中受支持的独立平台模块、OpenJDK、Unity 和团结语言包及离线文档，以及部分 Android SDK／NDK 依赖；其他模块需使用官方 Hub。已安装的 Unity 和团结离线文档可从文档页打开手册和脚本 API。
 - 添加模块时可多选受支持的模块并批量安装：按依赖顺序逐项执行，Android SDK／NDK 会暂停等待许可确认；失败或取消后保留尚未完成的选择。选择按编辑器路径、版本和引擎保存在本机；重启后重新核对模块状态，由用户检查后手动继续，不会自动开始安装或接受许可。
@@ -35,7 +35,7 @@ Windows 10/11 x64，单文件约 10 MB。
 
 ## 安装
 
-从 [Releases](https://github.com/neko233-com/UnityStarter/releases) 下载：
+从 [Releases](https://github.com/neko233-com/GameEngineLauncher233/releases) 下载：
 
 - `gameenginelauncher233-<version>-amd64.msi`：推荐的当前用户安装包，安装到 `%LOCALAPPDATA%\Programs\GameEngineLauncher233`，注册开始菜单、App Paths 和用户 PATH。后台检查正式版更新，校验 MSI 的大小和 SHA-256 后下载；可以点击「更新并重启」，也可以下次启动时自动安装。安装失败会保留原程序并显示错误，可手动重试。
 - `gameenginelauncher233-setup-<version>-amd64.exe`：原 NSIS 安装包，安装到 `%LOCALAPPDATA%\Programs\GameEngineLauncher233`，带开始菜单与桌面快捷方式；更新时请手动下载新版 MSI 或安装包。
